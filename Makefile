@@ -3,7 +3,8 @@ CC=gcc
 CFLAGS=-Wall -Wextra -Werror
 RM=rm -f
 
-FILES=main.c
+FUNCTIONS=args.c cd_cmd.c
+FILES=main.c $(addprefix functions/, $(FUNCTIONS))
 FILES_OBJ=$(FILES:%.c=%.o)
 
 all: $(NAME)
