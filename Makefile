@@ -2,8 +2,9 @@ NAME=minishell
 CC=gcc
 CFLAGS=-Wall -Wextra -Werror
 RM=rm -f
+SRC_DIR=functions
 
-FILES=main.c
+FILES=$(wildcard $(SRC_DIR)/*.c)
 FILES_OBJ=$(FILES:%.c=%.o)
 
 all: $(NAME)

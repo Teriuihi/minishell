@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   args.c                                             :+:    :+:            */
+/*   get_path.c                                             :+:    :+:        */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
@@ -13,16 +13,25 @@
 #include "../libft/libft.h"
 
 /**
- * Converts a user input string to arguments
+ * searches the PATH variable in extern char **environ; 
  *
  * @param	input	User input
  *
- * @return	Malloced string array
+ * @return	the PATH variable as string 
  */
 
-char	**get_args(char *input)
+extern char **environ;
+
+char	*get_path()
 {
-	if (input == NULL)
-		return (NULL);
-	return (ft_split(input, ' '));
+	int i;
+
+	i = 0;
+	while (environ[i] != NULL)
+	{
+		if (ft_strncmp(environ[i], "PATH", 4) == 0)
+			return(environ[i]);
+		i++;
+	}
+	return (NULL);
 }
