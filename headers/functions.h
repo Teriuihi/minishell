@@ -13,5 +13,8 @@
 #ifndef FUNCTIONS_H
 # define FUNCTIONS_H
 
+char	*get_pwd(char *path);
+int		pwd(char *path);
+int		cd(char *dir);
 char	**get_args(char *input);
 #endif
