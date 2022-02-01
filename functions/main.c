@@ -59,7 +59,7 @@ void	free_input_args(char *input, char **args)
 		free(*args);
 		args++;
 	}
-	free(tmp);
+	free(tmp);	
 }
 
 void	print_splitted(char **args)
@@ -108,9 +108,10 @@ int	main(void)
 	char	**args;
 	int		i;
 
+	signal(SIGQUIT, sigquit_handler);
 	i = 0;
 	input = readline("some shell>");
-	while (input)
+	while (input) //shoud have a status to check if it still has to run?
 	{
 		args = get_args(input);
 		if (args == NULL)

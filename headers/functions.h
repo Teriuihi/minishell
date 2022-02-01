@@ -23,5 +23,9 @@ size_t	ft_strlcat(char *dst, const char *src, size_t dstsize);
 void	ft_echo(char **args);
 t_bool	is_builtin(char **args);
 void	execute_builtin(char **args);
+void	crtld_handler(int signum);
+void	sigquit_handler(int signum);
+void	sigint_handler(int signum);
+char    *get_working_directory(char *path);
 
 #endif

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   search_in_path.c                                   :+:    :+:            */
+/*   signals.c                                                :+:    :+:      */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
@@ -12,39 +12,32 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
-
-extern char **environ;
+#include "../headers/structs.h"
 
 /**
- * Searches for excecutables in the path environ variable
- * Concatenates the directory path if executable (eg: ls) is found in the PATH variable
- * @param	input	User input args from terminal
+ * Handling different signals based on signum
  *
- * @return void
+ *
+ * @param	args signum
+ *
+ * @return	void
  */
 
-void	search_in_path(char **args)
-{
-	int			i;
-	int			len;
-	char 		*path;
-	char 		**split_path;
-	struct		stat sb;
-	char		*cwd;
 
-	cwd = getcwd(NULL, 0);
-	path = get_path();
-	split_path = ft_split(path, ':');
-	i = 0;
-	while (split_path[i])
-	{
-		chdir(split_path[i]);
-		if (stat(args[0], &sb) == 0)
-		{
-			len = ft_strlen(split_path[i]) + ft_strlen(args[0]) + 1;
-			ft_strlcat(split_path[i], args[0], len);
-			return ;
-		}
-		i++;
-	}
+
+void	crtld_handler(int signum) //https://stackoverflow.com/questions/1516122/how-to-capture-controld-signal
+{
+	(void)signum;
 }
+
+void	sigquit_handler(int signum) /* crtl + \ , do nothing */
+{
+	(void)signum;
+    write(1, "entered to crtl + backslash signal\n", 36);
+}
+
+void	sigint_handler(int signum) /* crtl + C , repeat prompt */
+{
+	(void)signum;
+}
+
