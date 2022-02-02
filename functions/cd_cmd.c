@@ -29,8 +29,6 @@ int	cd(char *dir)
 
 	if (dir == NULL)
 		return (-2);
-	if (*dir == '~')
-		dir = ft_strjoin("/Users/sappunn", dir + 1); //TODO use env variable
 	else if (*dir == '/')
 		dir = ft_strdup(dir);
 	else
