@@ -16,6 +16,10 @@
 # include <sys/stat.h>
 # include "structs.h"
 
+char    *get_pwd(char *path);
+int        pwd(char *path);
+int        cd(char *dir);
+
 char		*get_path(void);
 char		**get_args(char *input);
 void		search_in_path(char **args);
