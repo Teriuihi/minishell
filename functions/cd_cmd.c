@@ -1,4 +1,16 @@
-#include <unistd.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        ::::::::            */
+/*   cd_cmd.c                                           :+:    :+:            */
+/*                                                     +:+                    */
+/*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
+/*                                                   +#+                      */
+/*   Created: 2022/02/02 15:51:25 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/02/02 15:51:25 by sappunn       ########   odam.nl         */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include <dirent.h>
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 
@@ -12,13 +24,28 @@
  */
 int	cd(char *dir)
 {
-	errno = 0;
-	int	success;
-	if (dir == null)
-		success = -2;
+	void	*tmp;
+	char	*tmp_dir;
+
+	if (dir == NULL)
+		return (-2);
+	if (*dir == '~')
+		dir = ft_strjoin("/Users/sappunn", dir + 1); //TODO use env variable
+	else if (*dir == '/')
+		dir = ft_strdup(dir);
 	else
-		success = chdir(dir);
-	if (!success)
-		pwd(dir);
-	return (success);
+	{
+		tmp_dir = ft_strjoin("/", dir); //TODO null check
+		dir = ft_strjoin(get_pwd(NULL), tmp_dir); //TODO use env variable
+		free(tmp_dir);
+	}
+	if (dir == NULL)
+		return (-3);
+	//TODO path should be in env variable
+	tmp = opendir(dir);
+	if (!tmp)
+		return (-1);
+	pwd(dir);
+	free(tmp);
+	return (0);
 }

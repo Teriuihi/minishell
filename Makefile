@@ -3,7 +3,7 @@ CC=gcc
 CFLAGS=-Wall -Wextra -Werror
 RM=rm -f
 
-FUNCTIONS=args.c cd_cmd.c
+FUNCTIONS=args.c cd_cmd.c pwd.c
 FILES=main.c $(addprefix functions/, $(FUNCTIONS))
 FILES_OBJ=$(FILES:%.c=%.o)
 
@@ -14,6 +14,7 @@ $(NAME): $(FILES_OBJ)
 	$(CC) $(CFLAGS) -o $(NAME) $(FILES_OBJ) libft/libft.a -lreadline
 
 clean:
+	$(RM) $(FILES_OBJ)
 	$(MAKE) -C libft/ clean
 
 fclean: clean
