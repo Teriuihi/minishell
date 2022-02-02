@@ -28,7 +28,7 @@ void	execute_builtin(char **args)
 	{
 		return ;
 	}
-	else if (!ft_strncmp(args[0], "exit", 4)) //exitp? ->error
+	else if (!ft_strncmp(args[0], "exit", 4))
 		exit (0);
 	else if (!ft_strncmp(args[0], "echo", 4))
 		ft_echo(&args[1]);

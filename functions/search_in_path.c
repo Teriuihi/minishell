@@ -13,26 +13,24 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 
-extern char **environ; //environ is also keeping environmental variables
-
-/**
- * Searches for excecutables in the path environ variable
- * Concatenates the directory path if executable (eg: ls) is found in the PATH variable
- * @param	input	User input args from terminal
- *
- * @return void
- */
+extern char		**environ;
+/*
+* Searches for excecutables in the path environ variable
+* Concatenates the directory path if executable (eg: ls) 
+				is found in the PATH variable
+* @param	input	User input args from terminal
+*
+* @return void
+*/
 
 void	search_in_path(char **args)
 {
 	int			i;
 	int			len;
-	char 		*path;
-	char 		**split_path;
-	struct		stat sb;
-	char		*cwd;
+	char		*path;
+	char		**split_path;
+	struct stat	sb;
 
-	cwd = getcwd(NULL, 0);
 	path = get_path();
 	split_path = ft_split(path, ':');
 	i = 0;

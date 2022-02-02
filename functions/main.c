@@ -17,7 +17,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-extern char **environ;
+extern char	**environ;
 
 size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 {
@@ -59,49 +59,45 @@ void	free_input_args(char *input, char **args)
 		free(*args);
 		args++;
 	}
-	free(tmp);	
+	free(tmp);
 }
-
 
 void	eval(char **args)
 {
-		pid_t cpid;
+	pid_t	cpid;
 
-		if (is_builtin(args) == true)
+	if (is_builtin(args) == true)
+	{
+		execute_builtin(args);
+		return ;
+	}
+	cpid = fork();
+	if (cpid == 0)
+	{
+		if (execve(args[0], args, NULL) < 0)
 		{
-			execute_builtin(args);
-			return ;
+			ft_printf("Command not found\n");
+			exit(0);
 		}
-		cpid = fork();
-		if (cpid == 0)
-		{
-			//check if we had environment variables
-			//char **extern2 = 
-			if (execve(args[0], args, NULL) < 0)
-			{
-				ft_printf("Command not found\n");
-				exit(0);
-			}
-		}
-		else
-		{
-			wait(NULL); //its not guaranteed that the child process will execute first.
-		}
+	}
+	else
+	{
+		wait(NULL); //its not guaranteed that the child process will execute first.
+	}
 }
 
 int	main(void)
 {
-	t_signal *signal_struct;
-	char	*input;
-	char	**args;
-	int		i;
+	t_signal	*signal_struct;
+	char		*input;
+	char		**args;
+	int			i;
 
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
 	i = 0;
-	//print_splitted(environ); //env
 	input = readline("some shell>");
-	while (input) //shoud have a status to check if it still has to run?
+	while (input)
 	{
 		add_history(input);
 		args = get_args(input);
@@ -110,7 +106,6 @@ int	main(void)
 			ft_printf("Error\n");
 			return (0);
 		}
-		//parse 
 		search_in_path(args);
 		eval(args);
 		free_input_args(input, args);

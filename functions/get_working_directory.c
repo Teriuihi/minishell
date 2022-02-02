@@ -1,4 +1,3 @@
-
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
@@ -17,7 +16,8 @@
 
 /*
  * Takes an char ptr path
- * If path == NULL we get the current working directory and return it as a string.
+ * If path == NULL we get the current working directory 
+ * 					and return it as a string.
  * Else we return path, esentially functioning as a setter
  *
  * @param	args	path string
@@ -25,9 +25,9 @@
  * @return	a path, either current working dir or what we set it to be
 */
 
-char *get_working_directory(char *path)
+char	*get_working_directory(char *path)
 {
-	char *current_working_dir;
+	char	*current_working_dir;
 
 	current_working_dir = getcwd(NULL, 0);
 	if (path == NULL)

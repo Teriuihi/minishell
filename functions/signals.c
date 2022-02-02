@@ -23,9 +23,8 @@
  * @return	void
  */
 
-
-
-void	crtld_handler(int signum) //https://stackoverflow.com/questions/1516122/how-to-capture-controld-signal
+//https://stackoverflow.com/questions/1516122/how-to-capture-controld-signal
+void	crtld_handler(int signum)
 {
 	(void)signum;
 }
@@ -33,7 +32,7 @@ void	crtld_handler(int signum) //https://stackoverflow.com/questions/1516122/how
 void	sigquit_handler(int signum) /* crtl + \ , do nothing */
 {
 	(void)signum;
-    write(1, "entered to crtl + backslash signal\n", 36);
+	write(1, "entered to crtl + backslash signal\n", 36);
 }
 
 void	sigint_handler(int signum) /* crtl + C , repeat prompt */
@@ -42,9 +41,9 @@ void	sigint_handler(int signum) /* crtl + C , repeat prompt */
 	//have to get somehow the exit status, 127 or 0 and assign it into a struct?
 }
 
-t_signal *init_signal() //should this be global?
+t_signal	*init_signal(void) //should this be global?
 {
-	t_signal *signal;
+	t_signal	*signal;
 
 	signal = (t_signal *)malloc(sizeof(signal));
 	if (!signal)
