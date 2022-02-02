@@ -1,29 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   functions.h                                        :+:    :+:            */
+/*   ft_strdup.c                                        :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/01/26 14:40:25 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/01/26 14:40:25 by sappunn       ########   odam.nl         */
+/*   Created: 2021/12/10 18:11:00 by sappunn       #+#    #+#                 */
+/*   Updated: 2021/12/10 18:11:00 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FUNCTIONS_H
-# define FUNCTIONS_H
-#include <unistd.h>
-#include <sys/stat.h>
-#include "structs.h"
+#include "libft.h"
 
-char	*get_pwd(char *path);
-int		pwd(char *path);
-int		cd(char *dir);
-char	**get_args(char *input);
-void	search_in_path(char **args);
-size_t	ft_strlcat(char *dst, const char *src, size_t dstsize);
-void	ft_echo(char **args);
-t_bool	is_builtin(char **args);
-void	execute_builtin(char **args);
+/**
+ * Duplicates a string
+ *
+ * @param	s1	String to duplicate
+ *
+ * @return	A pointer to the copy of s1 or NULL on failure
+ */
+char	*ft_strdup(const char *s1)
+{
+	char	*res;
+	size_t	strlen;
 
-#endif
+	strlen = ft_strlen(s1);
+	res = ft_calloc(strlen + 1, sizeof(char));
+	if (res == 0)
+		return (res);
+	ft_memcpy(res, (void *)s1, strlen);
+	return (res);
+}
