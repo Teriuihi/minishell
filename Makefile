@@ -2,9 +2,10 @@ NAME=minishell
 CC=gcc
 CFLAGS=-Wall -Wextra -Werror
 RM=rm -f
+SRC_DIR=functions
 
-FUNCTIONS=args.c cd_cmd.c pwd.c
-FILES=main.c $(addprefix functions/, $(FUNCTIONS))
+FUNCTIONS=args.c exetuce_builtin.c get_path.c main.c search_in_path.c cd_cmd.c ft_echo.c is_builtint.c pwd.c
+FILES=$(wildcard $(SRC_DIR)/*.c)
 FILES_OBJ=$(FILES:%.c=%.o)
 
 all: $(NAME)

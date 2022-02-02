@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   args.c                                             :+:    :+:            */
+/*   ft_echo.c                                             :+:    :+:         */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
@@ -11,18 +11,44 @@
 /* ************************************************************************** */
 
 #include "../libft/libft.h"
+#include "../headers/functions.h"
 
 /**
- * Converts a user input string to arguments
+ * Takes an array of arrays (user input), checks if the first argument is the -n flag. 
+ * Prints the arguments with a single whitespace char between. Prints newline char if -n was not specified
  *
- * @param	input	User input
+ * @param	args	the input given by the user, excluding "echo" -> input: echo batman -> args = batman
  *
- * @return	Malloced string array
+ * @return	void
  */
 
-char	**get_args(char *input)
+void	ft_echo(char **args)
 {
-	if (input == NULL)
-		return (NULL);
-	return (ft_split(input, ' '));
+	int i;
+	char c;
+
+	i = 0;
+	c = '\0';
+	if (!args || args[0] == NULL)
+	{
+		return ;
+	}
+	if (ft_strncmp(args[0], "-n", 3) == 0) //probably we should parse/tokenize it before and check if it has a flag
+	{
+		args++;
+	}
+	else
+	{
+		c = '\n';
+	}
+	while (args[i])
+	{
+		if (i != 0)
+		{
+			write(1, " ", 1);
+		}
+		write(1, args[i], ft_strlen(args[i]));
+		i++;
+	}
+	write(1, &c, 1);
 }

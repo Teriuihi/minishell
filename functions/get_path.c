@@ -1,29 +1,37 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   functions.h                                        :+:    :+:            */
+/*   get_path.c                                             :+:    :+:        */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/01/26 14:40:25 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/01/26 14:40:25 by sappunn       ########   odam.nl         */
+/*   Created: 2022/01/26 14:36:43 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/01/26 14:36:43 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FUNCTIONS_H
-# define FUNCTIONS_H
-#include <unistd.h>
-#include <sys/stat.h>
-#include "structs.h"
+#include "../libft/libft.h"
 
-char	*get_pwd(char *path);
-int		pwd(char *path);
-int		cd(char *dir);
-char	**get_args(char *input);
-void	search_in_path(char **args);
-size_t	ft_strlcat(char *dst, const char *src, size_t dstsize);
-void	ft_echo(char **args);
-t_bool	is_builtin(char **args);
-void	execute_builtin(char **args);
+/**
+ * searches the PATH variable in extern char **environ; 
+ *
+ * @param	input	User input
+ *
+ * @return	the PATH variable as string 
+ */
 
-#endif
+extern char **environ;
+
+char	*get_path()
+{
+	int i;
+
+	i = 0;
+	while (environ[i] != NULL)
+	{
+		if (ft_strncmp(environ[i], "PATH", 4) == 0)
+			return(environ[i]);
+		i++;
+	}
+	return (NULL);
+}

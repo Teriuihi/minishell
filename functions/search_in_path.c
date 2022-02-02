@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   args.c                                             :+:    :+:            */
+/*   search_in_path.c                                   :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
@@ -11,18 +11,38 @@
 /* ************************************************************************** */
 
 #include "../libft/libft.h"
+#include "../headers/functions.h"
+
+extern char **environ;
 
 /**
- * Converts a user input string to arguments
+ * Searches for excecutables in the path environ variable
+ * Concatenates the directory path if executable (eg: ls) is found in the PATH variable
+ * @param	input	User input args from terminal
  *
- * @param	input	User input
- *
- * @return	Malloced string array
+ * @return void
  */
 
-char	**get_args(char *input)
+void	search_in_path(char **args)
 {
-	if (input == NULL)
-		return (NULL);
-	return (ft_split(input, ' '));
+	int			i;
+	int			len;
+	char 		*path;
+	char 		**split_path;
+	struct		stat sb;
+
+	path = get_path();
+	split_path = ft_split(path, ':');
+	i = 0;
+	while (split_path[i])
+	{
+		chdir(split_path[i]);
+		if (stat(args[0], &sb) == 0)
+		{
+			len = ft_strlen(split_path[i]) + ft_strlen(args[0]) + 1;
+			ft_strlcat(split_path[i], args[0], len);
+			return ;
+		}
+		i++;
+	}
 }
