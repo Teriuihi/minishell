@@ -62,23 +62,42 @@ void	free_input_args(char *input, char **args)
 	free(tmp);
 }
 
-void	eval(char **args)
+void	eval(t_command *command_old, t_command *command)
 {
 	pid_t	cpid;
+	int		pid[2];
 
-	if (is_builtin(args) == true)
+	if (is_builtin(command->command) == true)
 	{
-		execute_builtin(args);
+		if (command->type == INVALID)
+			execute_builtin(command, -1);
+		else if (command->type == OUTPUT_TO_COMMAND)
+		{
+			pipe(pid);
+			dup2(pid[1], 1);
+			execute_builtin(command, pid[0]);
+		}
+		close(1);
 		return ;
 	}
+	if (command->type == OUTPUT_TO_COMMAND)
+	{
+		pipe(pid);
+		dup2(pid[1], 1);
+		command->pid = pid[0];
+	}
+	if (command_old != NULL && command_old->pid > 2)
+		dup2(0, command_old->pid);
 	cpid = fork();
 	if (cpid == 0)
 	{
-		if (execve(args[0], args, NULL) < 0)
+		if (execve(command->command, command->args, NULL) < 0)
 		{
 			ft_printf("Command not found\n");
 			exit(0);
 		}
+		if (command->type == OUTPUT_TO_COMMAND)
+			close(pid[1]);
 	}
 	else
 	{
@@ -92,9 +111,14 @@ int	main(void)
 	char		*input;
 	char		**args;
 	int			i;
+	t_list		**commands;
+	t_list		*entry;
+	t_command	*command;
+	t_command	*command_old;
 
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
+	get_pwd(getcwd(NULL, 0)); //TODO check for null
 	i = 0;
 	input = readline("some shell>");
 	while (input)
@@ -106,8 +130,16 @@ int	main(void)
 			ft_printf("Error\n");
 			return (0);
 		}
-		search_in_path(args);
-		eval(args);
+		commands = find_commands(args);
+		entry = *commands;
+		while (entry)
+		{
+			command = entry->content;
+			search_in_path(command->command); //What does this do?
+			eval(command_old, command);
+			entry = entry->next;
+			command_old = command;
+		}
 		free_input_args(input, args);
 		input = readline("some shell>");
 	}

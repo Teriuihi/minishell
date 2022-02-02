@@ -23,7 +23,7 @@ extern char		**environ;
 * @return void
 */
 
-void	search_in_path(char **args)
+void	search_in_path(char *command)
 {
 	int			i;
 	int			len;
@@ -37,10 +37,10 @@ void	search_in_path(char **args)
 	while (split_path[i])
 	{
 		chdir(split_path[i]);
-		if (stat(args[0], &sb) == 0)
+		if (stat(command, &sb) == 0)
 		{
-			len = ft_strlen(split_path[i]) + ft_strlen(args[0]) + 1;
-			ft_strlcat(split_path[i], args[0], len);
+			len = ft_strlen(split_path[i]) + ft_strlen(command) + 1;
+			ft_strlcat(split_path[i], command, len);
 			return ;
 		}
 		i++;

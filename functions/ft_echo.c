@@ -25,31 +25,27 @@
 * @return	void
 */
 
-void	ft_echo(char **args)
+void	ft_echo(t_command *command, int fd)
 {
 	int		i;
 	char	c;
+	char	**args;
 
+	args = command->args;
 	i = 0;
 	c = '\0';
 	if (!args || args[0] == NULL)
 		return ;
 	if (ft_strncmp(args[0], "-n", 3) == 0)
-	{
 		args++;
-	}
 	else
-	{
 		c = '\n';
-	}
-	while (args[i])
+	while (i != command->args_len)
 	{
 		if (i != 0)
-		{
 			write(1, " ", 1);
-		}
-		write(1, args[i], ft_strlen(args[i]));
+		write(fd, args[i], ft_strlen(args[i]));
 		i++;
 	}
-	write(1, &c, 1);
+	write(fd, &c, 1);
 }

@@ -24,10 +24,9 @@
  * @return	true if the input is a builtin command, false if not
 */
 
-t_bool	is_builtin(char **args)
+t_bool	is_builtin(char *command)
 {
 	int			i;
-	int			j;
 	const char	*builtins[7] = {"echo",
 		"cd",
 		"pwd",
@@ -36,18 +35,14 @@ t_bool	is_builtin(char **args)
 		"env",
 		"exit"};
 
-	if (!args || args[0] == NULL)
+	if (command == NULL)
 		return (false);
 	i = 0;
-	while (args[i])
+	while (i < 7)
 	{
-		j = 0;
-		while (j < 7)
-		{
-			if (ft_strncmp(args[i], builtins[i], ft_strlen(builtins[i])) == 0)
-				return (true);
-			j++;
-		}
+		if (ft_strlen(command) == ft_strlen(builtins[i])
+			&& ft_strncmp(command, builtins[i], ft_strlen(builtins[i])) == 0)
+			return (true);
 		i++;
 	}
 	return (false);

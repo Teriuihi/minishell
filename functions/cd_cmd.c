@@ -43,7 +43,8 @@ int	cd(char *dir)
 	tmp = opendir(dir);
 	if (!tmp)
 		return (-1);
-	pwd(dir);
+	chdir(dir);
+	pwd(getcwd(NULL, 0));
 	free(tmp);
 	return (0);
 }
