@@ -27,5 +27,7 @@ void	crtld_handler(int signum);
 void	sigquit_handler(int signum);
 void	sigint_handler(int signum);
 char    *get_working_directory(char *path);
+t_signal *init_signal();
+void	print_splitted(char **args);
 
 #endif

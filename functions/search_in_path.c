@@ -13,7 +13,7 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 
-extern char **environ;
+extern char **environ; //environ is also keeping environmental variables
 
 /**
  * Searches for excecutables in the path environ variable

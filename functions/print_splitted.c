@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   signals.c                                                :+:    :+:      */
+/*   get_working_directory.c                                  :+:    :+:      */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
@@ -14,44 +14,31 @@
 #include "../headers/functions.h"
 #include "../headers/structs.h"
 
-/**
- * Handling different signals based on signum
+/*
+ * Takes an char ptr path
+ * If path == NULL we get the current working directory and return it as a string.
+ * Else we return path, esentially functioning as a setter
  *
+ * @param	args	path string
  *
- * @param	args signum
- *
- * @return	void
- */
+ * @return	a path, either current working dir or what we set it to be
+*/
 
 
 
-void	crtld_handler(int signum) //https://stackoverflow.com/questions/1516122/how-to-capture-controld-signal
+
+void	print_splitted(char **args)
 {
-	(void)signum;
-}
+	int i;
 
-void	sigquit_handler(int signum) /* crtl + \ , do nothing */
-{
-	(void)signum;
-    write(1, "entered to crtl + backslash signal\n", 36);
-}
-
-void	sigint_handler(int signum) /* crtl + C , repeat prompt */
-{
-	(void)signum;
-	//have to get somehow the exit status, 127 or 0 and assign it into a struct?
-}
-
-t_signal *init_signal() //should this be global?
-{
-	t_signal *signal;
-
-	signal = (t_signal *)malloc(sizeof(signal));
-	if (!signal)
+	i = 0;
+	if (!args)
 	{
-		return (NULL);
+		return ;
 	}
-	signal->exit_status = 0;
-	signal->pid = 0;
-	return (signal);
+	while (args[i])
+	{
+		ft_printf("%s\n", args[i]);
+		i++;
+	}
 }

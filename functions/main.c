@@ -17,7 +17,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-
+extern char **environ;
 
 size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 {
@@ -62,21 +62,6 @@ void	free_input_args(char *input, char **args)
 	free(tmp);	
 }
 
-void	print_splitted(char **args)
-{
-	int i;
-
-	i = 0;
-	if (!args)
-	{
-		return ;
-	}
-	while (args[i])
-	{
-		printf("%s\n", args[i]);
-		i++;
-	}
-}
 
 void	eval(char **args)
 {
@@ -90,6 +75,8 @@ void	eval(char **args)
 		cpid = fork();
 		if (cpid == 0)
 		{
+			//check if we had environment variables
+			//char **extern2 = 
 			if (execve(args[0], args, NULL) < 0)
 			{
 				ft_printf("Command not found\n");
@@ -104,21 +91,26 @@ void	eval(char **args)
 
 int	main(void)
 {
+	t_signal *signal_struct;
 	char	*input;
 	char	**args;
 	int		i;
 
+	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
 	i = 0;
+	//print_splitted(environ); //env
 	input = readline("some shell>");
 	while (input) //shoud have a status to check if it still has to run?
 	{
+		add_history(input);
 		args = get_args(input);
 		if (args == NULL)
 		{
 			ft_printf("Error\n");
 			return (0);
 		}
+		//parse 
 		search_in_path(args);
 		eval(args);
 		free_input_args(input, args);
