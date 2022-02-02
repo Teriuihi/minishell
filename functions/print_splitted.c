@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   search_in_path.c                                   :+:    :+:            */
+/*   get_working_directory.c                                  :+:    :+:      */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
@@ -12,37 +12,30 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
+#include "../headers/structs.h"
 
-extern char		**environ;
 /*
-* Searches for excecutables in the path environ variable
-* Concatenates the directory path if executable (eg: ls) 
-				is found in the PATH variable
-* @param	input	User input args from terminal
+* Takes an char ptr path
+* If path == NULL we get the current working directory and return it as a string.
+* Else we return path, esentially functioning as a setter
 *
-* @return void
+* @param	args	path string
+*
+* @return	a path, either current working dir or what we set it to be
 */
 
-void	search_in_path(char **args)
+void	print_splitted(char **args)
 {
-	int			i;
-	int			len;
-	char		*path;
-	char		**split_path;
-	struct stat	sb;
+	int	i;
 
-	path = get_path();
-	split_path = ft_split(path, ':');
 	i = 0;
-	while (split_path[i])
+	if (!args)
 	{
-		chdir(split_path[i]);
-		if (stat(args[0], &sb) == 0)
-		{
-			len = ft_strlen(split_path[i]) + ft_strlen(args[0]) + 1;
-			ft_strlcat(split_path[i], args[0], len);
-			return ;
-		}
+		return ;
+	}
+	while (args[i])
+	{
+		ft_printf("%s\n", args[i]);
 		i++;
 	}
 }

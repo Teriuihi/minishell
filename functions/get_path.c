@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   get_path.c                                             :+:    :+:        */
+/*   get_path.c                                               :+:    :+:      */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
@@ -10,27 +10,26 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
-
+#include	"../libft/libft.h"
 /**
- * searches the PATH variable in extern char **environ; 
- *
- * @param	input	User input
- *
- * @return	the PATH variable as string 
- */
+* searches the PATH variable in extern char **environ; 
+*
+* @param	input	User input
+*
+* @return	the PATH variable as string 
+*/
 
-extern char **environ;
+extern char	**environ;
 
-char	*get_path()
+char	*get_path(void)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (environ[i] != NULL)
 	{
 		if (ft_strncmp(environ[i], "PATH", 4) == 0)
-			return(environ[i]);
+			return (environ[i]);
 		i++;
 	}
 	return (NULL);

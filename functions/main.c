@@ -17,7 +17,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-
+extern char	**environ;
 
 size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 {
@@ -62,56 +62,44 @@ void	free_input_args(char *input, char **args)
 	free(tmp);
 }
 
-void	print_splitted(char **args)
-{
-	int i;
-
-	i = 0;
-	if (!args)
-	{
-		return ;
-	}
-	while (args[i])
-	{
-		printf("%s\n", args[i]);
-		i++;
-	}
-}
-
 void	eval(char **args)
 {
-		pid_t cpid;
+	pid_t	cpid;
 
-		if (is_builtin(args) == true)
+	if (is_builtin(args) == true)
+	{
+		execute_builtin(args);
+		return ;
+	}
+	cpid = fork();
+	if (cpid == 0)
+	{
+		if (execve(args[0], args, NULL) < 0)
 		{
-			execute_builtin(args);
-			return ;
+			ft_printf("Command not found\n");
+			exit(0);
 		}
-		cpid = fork();
-		if (cpid == 0)
-		{
-			if (execve(args[0], args, NULL) < 0)
-			{
-				ft_printf("Command not found\n");
-				exit(0);
-			}
-		}
-		else
-		{
-			wait(NULL); //its not guaranteed that the child process will execute first.
-		}
+	}
+	else
+	{
+		wait(NULL); //its not guaranteed that the child process will execute first.
+	}
 }
 
 int	main(void)
 {
-	char	*input;
-	char	**args;
-	int		i;
+	t_signal	*signal_struct;
+	char		*input;
+	char		**args;
+	int			i;
 
+	signal_struct = init_signal();
+	signal(SIGQUIT, sigquit_handler);
 	i = 0;
 	input = readline("some shell>");
 	while (input)
 	{
+		add_history(input);
 		args = get_args(input);
 		if (args == NULL)
 		{

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   search_in_path.c                                   :+:    :+:            */
+/*   signals.c                                                :+:    :+:      */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
@@ -12,37 +12,45 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
+#include "../headers/structs.h"
 
-extern char		**environ;
-/*
-* Searches for excecutables in the path environ variable
-* Concatenates the directory path if executable (eg: ls) 
-				is found in the PATH variable
-* @param	input	User input args from terminal
-*
-* @return void
-*/
+/**
+ * Handling different signals based on signum
+ *
+ *
+ * @param	args signum
+ *
+ * @return	void
+ */
 
-void	search_in_path(char **args)
+//https://stackoverflow.com/questions/1516122/how-to-capture-controld-signal
+void	crtld_handler(int signum)
 {
-	int			i;
-	int			len;
-	char		*path;
-	char		**split_path;
-	struct stat	sb;
+	(void)signum;
+}
 
-	path = get_path();
-	split_path = ft_split(path, ':');
-	i = 0;
-	while (split_path[i])
+void	sigquit_handler(int signum) /* crtl + \ , do nothing */
+{
+	(void)signum;
+	write(1, "entered to crtl + backslash signal\n", 36);
+}
+
+void	sigint_handler(int signum) /* crtl + C , repeat prompt */
+{
+	(void)signum;
+	//have to get somehow the exit status, 127 or 0 and assign it into a struct?
+}
+
+t_signal	*init_signal(void) //should this be global?
+{
+	t_signal	*signal;
+
+	signal = (t_signal *)malloc(sizeof(signal));
+	if (!signal)
 	{
-		chdir(split_path[i]);
-		if (stat(args[0], &sb) == 0)
-		{
-			len = ft_strlen(split_path[i]) + ft_strlen(args[0]) + 1;
-			ft_strlcat(split_path[i], args[0], len);
-			return ;
-		}
-		i++;
+		return (NULL);
 	}
+	signal->exit_status = 0;
+	signal->pid = 0;
+	return (signal);
 }
