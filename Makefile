@@ -4,7 +4,9 @@ CFLAGS=-Wall -Wextra -Werror
 RM=rm -f
 SRC_DIR=functions
 
-FUNCTIONS=args.c exetuce_builtin.c get_path.c main.c search_in_path.c cd_cmd.c ft_echo.c is_builtint.c pwd.c
+FUNCTIONS=args.c cd_cmd.c destroy.c exetuce_builtin.c ft_echo.c get_commands.c \
+get_path.c get_working_directory.c hash_code.c hash_table.c is_builtint.c main.c \
+manipulate_env.c print_splitted.c pwd.c search_in_path.c signals.c util.c
 FILES=$(wildcard $(SRC_DIR)/*.c)
 FILES_OBJ=$(FILES:%.c=%.o)
 

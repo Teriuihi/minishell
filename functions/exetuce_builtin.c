@@ -24,6 +24,9 @@
 
 int	execute_builtin(t_command *command, int fd_read)
 {
+	char	*cur_dir;
+
+	cur_dir = get_pwd();
 	if (!command->command)
 		return (-1);
 	else if (!ft_strncmp(command->command, "exit", 4))
@@ -34,9 +37,10 @@ int	execute_builtin(t_command *command, int fd_read)
 		cd(*command->args);
 	else if (!ft_strncmp(command->command, "pwd", 3))
 	{
-		ft_putstr_fd(get_pwd(NULL), 1);
+		ft_putstr_fd(cur_dir, 1);
 		ft_putstr_fd("\n", 1);
 	}
+	free(cur_dir);
 	fd_read = 0; //TODO ignored for now
 	return (0);
 }

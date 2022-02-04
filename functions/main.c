@@ -64,11 +64,14 @@ int	*eval(int *read_pid, t_command *command)
 {
 	pid_t	cpid;
 	int		*pid;
+	char	*cur_dir;
 
 	pid = ft_calloc(2, sizeof(int));
 	if (!pid)
 		return (NULL);
-	chdir(get_pwd(NULL));
+	cur_dir = get_pwd(); //TODO don't repeat in build in
+	chdir(cur_dir);
+	free(cur_dir);
 //	if (is_builtin(command->command) == true)
 //	{
 //		if (command->type == NONE)
@@ -114,34 +117,51 @@ int	*eval(int *read_pid, t_command *command)
 	return (NULL);
 }
 
+t_hash_table	*get_hash_table(void)
+{
+	static t_hash_table	*table;
+
+	if (!table)
+	{
+		table = duplicates_are_found_in_argv();
+		if (table == NULL)
+		{
+			ft_printf("Error\n");
+			exit (0);
+		}
+	}
+	return (table);
+}
+
 int	main(void)
 {
-	t_signal	*signal_struct;
-	char		*input;
-	char		**args;
-	t_list		**commands;
-	t_list		*entry;
-	t_command	*command;
-	int			*pid;
+	t_signal		*signal_struct;
+	char			*input;
+	char			**args;
+	t_list			**commands;
+	t_list			*entry;
+	t_command		*command;
+	int				*pid;
 
 	pid = NULL;
 
 	
 	//print_splitted(environ);
-	/*
-	h_table = duplicates_are_found_in_argv();
-	ft_printf("%s\n", ft_get_env_val("PWD", h_table));
-	ft_set_env("TURO", "NEW VAR TURO", h_table);
-	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
-	//ft_remove_env("TURO", h_table);
-	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
-	ft_set_env("TERI", "NEW VAR TERI", h_table);
-	ft_printf("%s\n", ft_get_env_val("TERI", h_table));
-	ft_printf("%s\n", ft_get_env_val("TURO", h_table));
-	 */
+
+//	h_table = get_hash_table();
+//	ft_printf("%s\n", ft_get_env_val("PWD", h_table));
+//	ft_set_env("TURO", "NEW VAR TURO", h_table);
+//	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
+//	//ft_remove_env("TURO", h_table);
+//	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
+//	ft_set_env("TERI", "NEW VAR TERI", h_table);
+//	ft_printf("%s\n", ft_get_env_val("TERI", h_table));
+//	ft_printf("%s\n", ft_get_env_val("TURO", h_table));
+
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
-	get_pwd(getcwd(NULL, 0)); //TODO check for null
+	//FIXME this segfaults???
+//	set_pwd(getcwd(NULL, 0)); //TODO check for null check if needed
 	input = readline("some shell>");
 	while (input)
 	{

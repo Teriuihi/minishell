@@ -19,8 +19,8 @@
 # include "../libft/libft.h"
 
 t_list			**find_commands(char **args);
-char			*get_pwd(char *path);
-int				pwd(char *path);
+char			*get_pwd(void);
+int				set_pwd(char *path);
 int				cd(char *dir);
 char			*get_path(void);
 char			**get_args(char *input);
@@ -36,18 +36,13 @@ char			*get_working_directory(char *path);
 t_signal		*init_signal(void);
 void			print_splitted(char **args);
 t_pipe_type		command_separator_type(char *str);
-char			*get_pwd(char *path);
-int				pwd(char *path);
-int				cd(char *dir);
-char			*get_path(void);
-char			**get_args(char *input);
-size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 void			crtld_handler(int signum);
 void			sigquit_handler(int signum);
 void			sigint_handler(int signum);
 char			*get_working_directory(char *path);
 t_signal		*init_signal(void);
 void			print_splitted(char **args);
+t_hash_table	*get_hash_table(void);
 
 /* hashtable */
 t_hash_table	*init_hash_table(int size);
