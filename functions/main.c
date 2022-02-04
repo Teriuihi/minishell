@@ -91,22 +91,11 @@ int	*eval(int *read_pid, t_command *command)
 	cpid = fork();
 	if (cpid == 0)
 	{
-		if (read_pid)
-		{
-			ft_putnbr_fd(read_pid[0], 1);
-			write(1, "-a\n", 3);
-			ft_putnbr_fd(read_pid[1], 1);
-			write(1, "-b\n", 3);
-		}
 		if (read_pid != NULL)
 			close(read_pid[1]);
 		if (command->type == OUTPUT_TO_COMMAND)
 		{
 			pipe(pid);
-			ft_putnbr_fd(pid[0], 1);
-			write(1, "-c\n", 3);
-			ft_putnbr_fd(pid[1], 1);
-			write(1, "-d\n", 3);
 			dup2(pid[1], 1); //write
 			dup2(pid[0], 0); //read
 		}
@@ -181,10 +170,6 @@ int	main(void)
 				return (0);
 			}
 			pid = eval(pid, command);
-			ft_putnbr_fd(pid[0], 1);
-			write(1, "-y\n", 3);
-			ft_putnbr_fd(pid[1], 1);
-			write(1, "-z\n", 3);
 			entry = entry->next;
 			free(command->args);
 			free(command);
