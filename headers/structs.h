@@ -28,7 +28,7 @@ typedef struct signal
 
 typedef enum e_pipe_type
 {
-	INVALID,
+	NONE,
 	OUTPUT_TO_COMMAND,
 	REDIRECT_INPUT,
 	REDIRECT_OUTPUT,
@@ -42,7 +42,6 @@ typedef struct s_command
 	char		**args;
 	int			args_len;
 	t_pipe_type	type;
-	int			pid;
 }	t_command;
 
 #endif

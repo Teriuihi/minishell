@@ -15,6 +15,7 @@
 # include <unistd.h>
 # include <sys/stat.h>
 # include "structs.h"
+# include "../libft/libft.h"
 
 t_list		**find_commands(char **args);
 char		*get_pwd(char *path);
@@ -33,5 +34,6 @@ void		sigint_handler(int signum);
 char		*get_working_directory(char *path);
 t_signal	*init_signal(void);
 void		print_splitted(char **args);
+t_pipe_type	command_separator_type(char *str);
 
 #endif
