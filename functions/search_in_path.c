@@ -23,10 +23,10 @@ extern char		**environ;
 * @return void
 */
 
-void	search_in_path(char **args)
+char	*search_in_path(char *command)
 {
 	int			i;
-	int			len;
+	char		*tmp;
 	char		*path;
 	char		**split_path;
 	struct stat	sb;
@@ -37,12 +37,12 @@ void	search_in_path(char **args)
 	while (split_path[i])
 	{
 		chdir(split_path[i]);
-		if (stat(args[0], &sb) == 0)
+		if (stat(command, &sb) == 0)
 		{
-			len = ft_strlen(split_path[i]) + ft_strlen(args[0]) + 1;
-			ft_strlcat(split_path[i], args[0], len);
-			return ;
+			tmp = ft_strjoin(split_path[i], "/");
+			return (ft_strjoin(tmp, command));
 		}
 		i++;
 	}
+	return (NULL);
 }

@@ -39,4 +39,22 @@ typedef struct signal
 	int		exit_status;
 }				t_signal;
 
+typedef enum e_pipe_type
+{
+	NONE,
+	OUTPUT_TO_COMMAND,
+	REDIRECT_INPUT,
+	REDIRECT_OUTPUT,
+	DELIMITER_INPUT,
+	APPEND_OUTPUT
+}	t_pipe_type;
+
+typedef struct s_command
+{
+	char		*command;
+	char		**args;
+	int			args_len;
+	t_pipe_type	type;
+}	t_command;
+
 #endif

@@ -22,15 +22,21 @@
  * @return	void
  */
 
-void	execute_builtin(char **args)
+int	execute_builtin(t_command *command, int fd_read)
 {
-	if (!args || args[0] == NULL)
-	{
-		return ;
-	}
-	else if (!ft_strncmp(args[0], "exit", 4))
+	if (!command->command)
+		return (-1);
+	else if (!ft_strncmp(command->command, "exit", 4))
 		exit (0);
-	else if (!ft_strncmp(args[0], "echo", 4))
-		ft_echo(&args[1]);
-	return ;
+	else if (!ft_strncmp(command->command, "echo", 4))
+		ft_echo(command, 1);
+	else if (!ft_strncmp(command->command, "cd", 2))
+		cd(*command->args);
+	else if (!ft_strncmp(command->command, "pwd", 3))
+	{
+		ft_putstr_fd(get_pwd(NULL), 1);
+		ft_putstr_fd("\n", 1);
+	}
+	fd_read = 0; //TODO ignored for now
+	return (0);
 }

@@ -60,37 +60,71 @@ void	free_input_args(char *input, char **args)
 	free(tmp);
 }
 
-void	eval(char **args)
+int	*eval(int *read_pid, t_command *command)
 {
 	pid_t	cpid;
+	int		*pid;
 
-	if (is_builtin(args) == true)
-	{
-		execute_builtin(args);
-		return ;
-	}
+	pid = ft_calloc(2, sizeof(int));
+	if (!pid)
+		return (NULL);
+	chdir(get_pwd(NULL));
+//	if (is_builtin(command->command) == true)
+//	{
+//		if (command->type == NONE)
+//			execute_builtin(command, -1);
+//		else if (command->type == OUTPUT_TO_COMMAND)
+//		{
+//			pipe(pid);
+//			dup2(pid[1], 1);
+//			//TODO start listening on another thread
+//			execute_builtin(command, pid[0]);
+//			if (read_pid != -1)
+//				close(read_pid);
+//			close(pid[1]);
+//		}
+//		if (command->type == OUTPUT_TO_COMMAND)
+//			return (pid[0]);
+//		else
+//			return (-1);
+//	}
 	cpid = fork();
 	if (cpid == 0)
 	{
-		if (execve(args[0], args, NULL) < 0)
+		if (read_pid != NULL)
+			close(read_pid[1]);
+		if (command->type == OUTPUT_TO_COMMAND)
+		{
+			pipe(pid);
+			dup2(pid[1], 1); //write
+			dup2(pid[0], 0); //read
+		}
+		if (execve(command->command, command->args, NULL) < 0)
 		{
 			ft_printf("Command not found\n");
 			exit(0);
 		}
+		if (read_pid != NULL)
+			close(read_pid[0]);
 	}
 	else
-	{
-		wait(NULL); 
-	}
+		wait(NULL); //its not guaranteed that the child process will execute first
+	if (command->type == OUTPUT_TO_COMMAND)
+		return (pid);
+	return (NULL);
 }
 
 int	main(void)
 {
-	t_signal		*signal_struct;
-	//t_hash_table	*h_table;
-	char			*input;
-	char			**args;
-	int				i;
+	t_signal	*signal_struct;
+	char		*input;
+	char		**args;
+	t_list		**commands;
+	t_list		*entry;
+	t_command	*command;
+	int			*pid;
+
+	pid = NULL;
 
 	
 	//print_splitted(environ);
@@ -107,7 +141,7 @@ int	main(void)
 	 */
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
-	i = 0;
+	get_pwd(getcwd(NULL, 0)); //TODO check for null
 	input = readline("some shell>");
 	while (input)
 	{
@@ -118,8 +152,28 @@ int	main(void)
 			ft_printf("Error\n");
 			return (0);
 		}
-		search_in_path(args);
-		eval(args);
+		commands = find_commands(args);
+		if (commands == NULL)
+		{
+			ft_printf("Error\n");
+			return (0);
+		}
+		entry = *commands;
+		while (entry)
+		{
+			command = entry->content;
+			command->command = search_in_path(command->command);
+			*command->args = command->command;
+			if (command == NULL)
+			{
+				ft_printf("Error\n");
+				return (0);
+			}
+			pid = eval(pid, command);
+			entry = entry->next;
+			free(command->args);
+			free(command);
+		}
 		free_input_args(input, args);
 		input = readline("some shell>");
 	}

@@ -35,6 +35,7 @@ int		ft_ends_with(char *str, char *suffix);
 char	**ft_split(char const *s, char c);
 char	*ft_strdup(const char *s1);
 char	*ft_strjoin(char const *s1, char const *s2);
+void	ft_bzero(void *s, size_t n);
 
 typedef struct s_list
 {
