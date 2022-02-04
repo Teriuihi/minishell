@@ -1,42 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   structs.h                                          :+:    :+:            */
+/*   ft_digit_count.c                                   :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/01/26 14:40:25 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/01/26 14:40:25 by sappunn       ########   odam.nl         */
+/*   Created: 2021/12/10 17:59:28 by sappunn       #+#    #+#                 */
+/*   Updated: 2021/12/10 17:59:28 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef STRUCTS_H
-# define STRUCTS_H
-# include <signal.h>
+#include "libft.h"
+/**
+ * Checks if a string ends with a specific suffix
+ *
+ * @param	n		number
+ * @param	base	base
+ *
+ * @return	the amount of digits to be found in n, in base (n = 123, base = 10 -> 3)
+ */
 
-typedef enum s_bool
+int	ft_digit_count(long int n, int base)
 {
-	true,
-	false
-}				t_bool;
+	int	len;
 
-typedef struct entry
-{
-	char			*val;
-	char			*key;
-	struct entry	*next;
-}				t_entry;
-
-typedef struct entry_table
-{
-	t_entry		**entries;
-	int			size;
-}				t_hash_table;
-
-typedef struct signal
-{
-	pid_t	pid;
-	int		exit_status;
-}				t_signal;
-
-#endif
+	len = 0;
+	if (n == 0 || n < 0)
+		len++;
+	if (n < 0)
+		n = -n;
+	while (n)
+	{
+		len++;
+		n = n / base;
+	}
+	return (len);
+}
