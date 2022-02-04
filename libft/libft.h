@@ -28,6 +28,7 @@ char	*ft_itoa(long n);
 int		ft_printf(const char *str, ...);
 char	*ft_strtrim(char const *s1, char const *set);
 char	*ft_strrchr(const char *s, int c);
+char	*ft_strncpy(char *dest, char *src, int n);
 size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize);
 int		ft_strncmp(const char *s1, const char *s2, size_t n);
 int		ft_ends_with(char *str, char *suffix);

@@ -17,8 +17,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-extern char	**environ;
-
 size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 {
 	size_t	dst_len;
@@ -138,6 +136,20 @@ int	main(void)
 	int			*pid;
 
 	pid = NULL;
+
+	
+	//print_splitted(environ);
+	/*
+	h_table = duplicates_are_found_in_argv();
+	ft_printf("%s\n", ft_get_env_val("PWD", h_table));
+	ft_set_env("TURO", "NEW VAR TURO", h_table);
+	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
+	//ft_remove_env("TURO", h_table);
+	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
+	ft_set_env("TERI", "NEW VAR TERI", h_table);
+	ft_printf("%s\n", ft_get_env_val("TERI", h_table));
+	ft_printf("%s\n", ft_get_env_val("TURO", h_table));
+	 */
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
 	get_pwd(getcwd(NULL, 0)); //TODO check for null

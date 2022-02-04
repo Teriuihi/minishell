@@ -20,6 +20,19 @@ typedef enum s_bool
 	false
 }				t_bool;
 
+typedef struct entry
+{
+	char			*val;
+	char			*key;
+	struct entry	*next;
+}				t_entry;
+
+typedef struct entry_table
+{
+	t_entry		**entries;
+	int			size;
+}				t_hash_table;
+
 typedef struct signal
 {
 	pid_t	pid;
