@@ -61,11 +61,13 @@ int	find(t_command **cmd, char **args, t_list **top, int *len)
 	else if (command->type != NONE)
 	{
 		command->args_len = *len;
-		new_args = ft_calloc((*len) + 1, sizeof(char *));
+		new_args = ft_calloc((*len) + 2, sizeof(char *));
 		if (!new_args)
 			return (-1);
-		ft_memcpy(new_args, args - *len, (*len) * sizeof(char *));
+		*new_args = command->command;
+		ft_memcpy(new_args + 1, args - *len, (*len) * sizeof(char *));
 		command->args = new_args;
+		*(command->args + (*len)) = 0;
 		if (next_command(top, cmd, len))
 			return (-1);
 	}
@@ -93,11 +95,13 @@ int	run_find_loop(char **args, t_list **top)
 		args++;
 	}
 	command->args_len = len;
-	new_args = ft_calloc(len + 1, sizeof(char *));
+	new_args = ft_calloc(len + 2, sizeof(char *));
 	if (!new_args)
 		return (-1);
-	ft_memcpy(new_args, args - len, len * sizeof(char *));
+	*new_args = command->command;
+	ft_memcpy(new_args + 1, args - len, len * sizeof(char *));
 	command->args = new_args;
+	*(command->args + len + 1) = 0;
 	return (0);
 }
 

@@ -23,7 +23,7 @@ int			pwd(char *path);
 int			cd(char *dir);
 char		*get_path(void);
 char		**get_args(char *input);
-void		search_in_path(char *command);
+char		*search_in_path(char *command);
 size_t		ft_strlcat(char *dst, const char *src, size_t dstsize);
 int			execute_builtin(t_command *command, int fd_read);
 void		ft_echo(t_command *command, int fd);
