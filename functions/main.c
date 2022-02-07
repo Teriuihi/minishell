@@ -69,28 +69,27 @@ int	*eval(int *read_pid, t_command *command)
 	pid = ft_calloc(2, sizeof(int));
 	if (!pid)
 		return (NULL);
-	cur_dir = get_pwd(); //TODO don't repeat in build in
-	chdir(cur_dir);
-	free(cur_dir);
-//	if (is_builtin(command->command) == true)
-//	{
-//		if (command->type == NONE)
-//			execute_builtin(command, -1);
-//		else if (command->type == OUTPUT_TO_COMMAND)
-//		{
-//			pipe(pid);
-//			dup2(pid[1], 1);
-//			//TODO start listening on another thread
-//			execute_builtin(command, pid[0]);
-//			if (read_pid != -1)
-//				close(read_pid);
-//			close(pid[1]);
-//		}
-//		if (command->type == OUTPUT_TO_COMMAND)
-//			return (pid[0]);
-//		else
-//			return (-1);
-//	}
+	if (is_builtin(command->command) == true)
+	{
+		cur_dir = get_pwd(); //TODO don't repeat in build in
+		chdir(cur_dir);
+		free(cur_dir);
+		if (command->type == NONE)
+			execute_builtin(command, -1);
+		else if (command->type == OUTPUT_TO_COMMAND)
+		{
+			//TODO start listening on another thread
+			execute_builtin(command, 0);
+		}
+		return (0);
+	}
+	command->command = search_in_path(command->command);
+	if (command == NULL)
+	{
+		ft_printf("Command not found\n");
+		return (0);
+	}
+	*command->args = command->command;
 	cpid = fork();
 	if (cpid == 0)
 	{
@@ -102,6 +101,9 @@ int	*eval(int *read_pid, t_command *command)
 			dup2(pid[1], 1); //write
 			dup2(pid[0], 0); //read
 		}
+		cur_dir = get_pwd(); //TODO don't repeat in build in
+		chdir(cur_dir);
+		free(cur_dir);
 		if (execve(command->command, command->args, NULL) < 0)
 		{
 			ft_printf("Command not found\n");
@@ -142,8 +144,16 @@ int	main(void)
 	t_list			*entry;
 	t_command		*command;
 	int				*pid;
+	char			*cur_dir;
 
 	pid = NULL;
+	cur_dir = getcwd(NULL, 0);
+	if (cur_dir == NULL)
+	{
+		ft_printf("Error\n");
+		return (0);
+	}
+	set_pwd(cur_dir); //doens't need free
 
 	
 	//print_splitted(environ);
@@ -182,8 +192,6 @@ int	main(void)
 		while (entry)
 		{
 			command = entry->content;
-			command->command = search_in_path(command->command);
-			*command->args = command->command;
 			if (command == NULL)
 			{
 				ft_printf("Error\n");

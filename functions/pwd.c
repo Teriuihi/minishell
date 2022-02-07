@@ -22,7 +22,7 @@
  */
 char	*get_pwd(void)
 {
-	return (ft_get_env_val("PWD", get_hash_table()));
+	return (ft_get_env_val("OUR_PWD", get_hash_table()));
 }
 
 int	set_pwd(char *path)
@@ -36,7 +36,7 @@ int	set_pwd(char *path)
 	if (pwd_path == NULL || *path == '/' || *path == '~')
 	{
 		free(pwd_path);
-		ft_set_env("PWD", path, get_hash_table());
+		ft_set_env("OUR_PWD", path, get_hash_table());
 		free(path);
 		return (0);
 	}
@@ -47,7 +47,7 @@ int	set_pwd(char *path)
 	ft_strlcpy(tmp + ft_strlen(path), pwd_path, ft_strlen(pwd_path));
 	free(pwd_path);
 	free(path);
-	ft_set_env("PWD", tmp, get_hash_table());
+	ft_set_env("OUR_PWD", tmp, get_hash_table());
 	free(tmp);
 	return (0);
 }
