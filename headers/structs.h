@@ -13,6 +13,7 @@
 #ifndef STRUCTS_H
 # define STRUCTS_H
 # include <signal.h>
+# include "../libft/libft.h"
 
 typedef enum s_bool
 {
@@ -56,5 +57,11 @@ typedef struct s_command
 	int			args_len;
 	t_pipe_type	type;
 }	t_command;
+
+typedef struct s_command_data
+{
+	t_list		**commands;
+	int			pipes;
+}	t_command_data;
 
 #endif

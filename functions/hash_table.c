@@ -124,6 +124,8 @@ t_hash_table	*duplicates_are_found_in_argv(void)
 	while (environ[i])
 	{
 		environs = ft_split(environ[i], '=');
+		if (!environs[0] || !environs[1])
+			return (h_table); //TODO might need to be NULL instead?
 		if (succesful_insert(h_table, environs[0], environs[1]) == false)
 		{
 			return (NULL);

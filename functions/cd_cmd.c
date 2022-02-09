@@ -26,6 +26,7 @@ int	cd(char *dir)
 {
 	void	*tmp;
 	char	*tmp_dir;
+	char	*cur_dir;
 
 	if (dir == NULL)
 		return (-2);
@@ -34,17 +35,18 @@ int	cd(char *dir)
 	else
 	{
 		tmp_dir = ft_strjoin("/", dir); //TODO null check
-		dir = ft_strjoin(get_pwd(NULL), tmp_dir); //TODO use env variable
+		cur_dir = get_pwd();
+		dir = ft_strjoin(cur_dir, tmp_dir); //TODO use env variable
+		free(cur_dir);
 		free(tmp_dir);
 	}
 	if (dir == NULL)
 		return (-3);
-	//TODO path should be in env variable
 	tmp = opendir(dir);
 	if (!tmp)
 		return (-1);
 	chdir(dir);
-	pwd(getcwd(NULL, 0));
+	set_pwd(getcwd(NULL, 0));
 	free(tmp);
 	return (0);
 }

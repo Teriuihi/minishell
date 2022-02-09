@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
+#include "../headers/functions.h"
 #include <stdlib.h>
 
 /**
@@ -20,27 +20,24 @@
  *
  * @return	the pwd (if it's been updated it will be equal to path)
  */
-char	*get_pwd(char *path)
+char	*get_pwd(void)
 {
-	static char	*pwd;
-
-	if (path != NULL)
-		pwd = path;
-	return (pwd);
+	return (ft_get_env_val("OUR_PWD", get_hash_table()));
 }
 
-int	pwd(char *path)
+int	set_pwd(char *path)
 {
 	char	*pwd_path;
 	char	*tmp;
 
-	pwd_path = get_pwd(NULL);
+	pwd_path = get_pwd();
 	if (!path || !*path)
 		return (-1);
 	if (pwd_path == NULL || *path == '/' || *path == '~')
 	{
 		free(pwd_path);
-		get_pwd(path);
+		ft_set_env("OUR_PWD", path, get_hash_table());
+		free(path);
 		return (0);
 	}
 	tmp = ft_calloc(ft_strlen(path) + ft_strlen(pwd_path) + 1, sizeof(char));
@@ -50,6 +47,7 @@ int	pwd(char *path)
 	ft_strlcpy(tmp + ft_strlen(path), pwd_path, ft_strlen(pwd_path));
 	free(pwd_path);
 	free(path);
-	get_pwd(tmp);
+	ft_set_env("OUR_PWD", tmp, get_hash_table());
+	free(tmp);
 	return (0);
 }

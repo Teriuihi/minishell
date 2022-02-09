@@ -60,88 +60,148 @@ void	free_input_args(char *input, char **args)
 	free(tmp);
 }
 
-int	*eval(int *read_pid, t_command *command)
+void	child(t_command *command, const int *old_pid, const int *new_pid)
 {
-	pid_t	cpid;
-	int		*pid;
+	char	*cur_dir;
 
-	pid = ft_calloc(2, sizeof(int));
-	if (!pid)
-		return (NULL);
-	chdir(get_pwd(NULL));
-//	if (is_builtin(command->command) == true)
-//	{
-//		if (command->type == NONE)
-//			execute_builtin(command, -1);
-//		else if (command->type == OUTPUT_TO_COMMAND)
-//		{
-//			pipe(pid);
-//			dup2(pid[1], 1);
-//			//TODO start listening on another thread
-//			execute_builtin(command, pid[0]);
-//			if (read_pid != -1)
-//				close(read_pid);
-//			close(pid[1]);
-//		}
-//		if (command->type == OUTPUT_TO_COMMAND)
-//			return (pid[0]);
-//		else
-//			return (-1);
-//	}
-	cpid = fork();
-	if (cpid == 0)
+	if (old_pid)
 	{
-		if (read_pid != NULL)
-			close(read_pid[1]);
-		if (command->type == OUTPUT_TO_COMMAND)
-		{
-			pipe(pid);
-			dup2(pid[1], 1); //write
-			dup2(pid[0], 0); //read
-		}
-		if (execve(command->command, command->args, NULL) < 0)
-		{
-			ft_printf("Command not found\n");
-			exit(0);
-		}
-		if (read_pid != NULL)
-			close(read_pid[0]);
+		dup2(old_pid[0], STDIN_FILENO);
+		close(old_pid[0]);
+		close(old_pid[1]);
 	}
-	else
-		wait(NULL); //its not guaranteed that the child process will execute first
-	if (command->type == OUTPUT_TO_COMMAND)
-		return (pid);
-	return (NULL);
+	if (new_pid)
+	{
+		dup2(new_pid[1], STDOUT_FILENO);
+		close(new_pid[1]);
+		close(new_pid[0]);
+	}
+	cur_dir = get_pwd();
+	chdir(cur_dir);
+	free(cur_dir);
+	if (execve(command->command, command->args, NULL) < 0)
+	{
+		ft_printf("Command not found: %s\n", command->command);
+		exit(0);
+	}
+}
+
+void	parent(pid_t c_pid, const int *old_pid)
+{
+	int	status;
+
+	if (old_pid)
+	{
+		close(old_pid[1]);
+		close(old_pid[0]);
+	}
+	waitpid(c_pid, &status, 0);
+}
+
+void	eval(t_command_data *command_data)
+{
+	pid_t		c_pid;
+	int			*cur_pid;
+	int			*old_pid;
+	t_command	*command;
+	t_list		*entry;
+
+	entry = *command_data->commands;
+	old_pid = NULL;
+	cur_pid = NULL;
+	while (entry)
+	{
+		command = entry->content;
+		if (cur_pid)
+			old_pid = cur_pid;
+		if (command->type)
+		{
+			cur_pid = ft_calloc(2, sizeof(int));
+			if (!cur_pid)
+				return ;
+			pipe(cur_pid);
+			command->command = search_in_path(command->command);
+			if (command == NULL)
+			{
+				ft_printf("Command not found\n");
+				return ;
+			}
+			*command->args = command->command;
+			c_pid = fork();
+			if (c_pid == 0)
+				child(command, old_pid, cur_pid);
+			else
+				parent(c_pid, old_pid);
+		}
+		else
+		{
+			cur_pid = NULL;
+			command->command = search_in_path(command->command);
+			if (command == NULL)
+			{
+				ft_printf("Command not found\n");
+				return ;
+			}
+			*command->args = command->command;
+			c_pid = fork();
+			if (c_pid == 0)
+				child(command, old_pid, cur_pid);
+			else
+				parent(c_pid, old_pid);
+		}
+		entry = entry->next;
+	}
+}
+
+t_hash_table	*get_hash_table(void)
+{
+	static t_hash_table	*table;
+
+	if (!table)
+	{
+		table = duplicates_are_found_in_argv();
+		if (table == NULL)
+		{
+			ft_printf("Error\n");
+			exit (0);
+		}
+	}
+	return (table);
 }
 
 int	main(void)
 {
-	t_signal	*signal_struct;
-	char		*input;
-	char		**args;
-	t_list		**commands;
-	t_list		*entry;
-	t_command	*command;
-	int			*pid;
+	t_signal		*signal_struct;
+	char			*input;
+	char			**args;
+	t_command_data	*command_data;
+	char			*cur_dir;
 
-	pid = NULL;
+	cur_dir = getcwd(NULL, 0);
+	if (cur_dir == NULL)
+	{
+		ft_printf("Error\n");
+		return (0);
+	}
+	set_pwd(cur_dir); //doens't need free
 
 	
 	//print_splitted(environ);
-	/*
-	h_table = duplicates_are_found_in_argv();
-	ft_printf("%s\n", ft_get_env_val("PWD", h_table));
-	ft_set_env("TURO", "NEW VAR TURO", h_table);
-	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
-	//ft_remove_env("TURO", h_table);
-	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
-	ft_set_env("TERI", "NEW VAR TERI", h_table);
-	ft_printf("%s\n", ft_get_env_val("TERI", h_table));
-	ft_printf("%s\n", ft_get_env_val("TURO", h_table));
-	 */
+
+//	h_table = get_hash_table();
+//	ft_printf("%s\n", ft_get_env_val("PWD", h_table));
+//	ft_set_env("TURO", "NEW VAR TURO", h_table);
+//	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
+//	//ft_remove_env("TURO", h_table);
+//	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
+//	ft_set_env("TERI", "NEW VAR TERI", h_table);
+//	ft_printf("%s\n", ft_get_env_val("TERI", h_table));
+//	ft_printf("%s\n", ft_get_env_val("TURO", h_table));
+
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
-	get_pwd(getcwd(NULL, 0)); //TODO check for null
+	//FIXME this segfaults???
+//	set_pwd(getcwd(NULL, 0)); //TODO check for null check if needed
 	input = readline("some shell>");
 	while (input)
 	{
@@ -152,28 +212,13 @@ int	main(void)
 			ft_printf("Error\n");
 			return (0);
 		}
-		commands = find_commands(args);
-		if (commands == NULL)
+		command_data = find_commands(args);
+		if (command_data == NULL)
 		{
 			ft_printf("Error\n");
 			return (0);
 		}
-		entry = *commands;
-		while (entry)
-		{
-			command = entry->content;
-			command->command = search_in_path(command->command);
-			*command->args = command->command;
-			if (command == NULL)
-			{
-				ft_printf("Error\n");
-				return (0);
-			}
-			pid = eval(pid, command);
-			entry = entry->next;
-			free(command->args);
-			free(command);
-		}
+		eval(command_data);
 		free_input_args(input, args);
 		input = readline("some shell>");
 	}

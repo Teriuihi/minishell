@@ -33,7 +33,7 @@ char	*search_in_path(char *command)
 
 	path = get_path();
 	split_path = ft_split(path, ':');
-	i = 0;
+	i = 1;
 	while (split_path[i])
 	{
 		chdir(split_path[i]);
