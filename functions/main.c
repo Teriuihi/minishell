@@ -60,63 +60,97 @@ void	free_input_args(char *input, char **args)
 	free(tmp);
 }
 
-int	*eval(int *read_pid, t_command *command)
+void	child(t_command *command, const int *old_pid, const int *new_pid)
 {
-	pid_t	cpid;
-	int		*pid;
 	char	*cur_dir;
 
-	pid = ft_calloc(2, sizeof(int));
-	if (!pid)
-		return (NULL);
-	if (is_builtin(command->command) == true)
+	if (old_pid)
 	{
-		cur_dir = get_pwd(); //TODO don't repeat in build in
-		chdir(cur_dir);
-		free(cur_dir);
-		if (command->type == NONE)
-			execute_builtin(command, -1);
-		else if (command->type == OUTPUT_TO_COMMAND)
-		{
-			//TODO start listening on another thread
-			execute_builtin(command, 0);
-		}
-		return (0);
+		dup2(old_pid[0], STDIN_FILENO);
+		close(old_pid[0]);
+		close(old_pid[1]);
 	}
-	command->command = search_in_path(command->command);
-	if (command == NULL)
+	if (new_pid)
 	{
-		ft_printf("Command not found\n");
-		return (0);
+		dup2(new_pid[1], STDOUT_FILENO);
+		close(new_pid[1]);
+		close(new_pid[0]);
 	}
-	*command->args = command->command;
-	cpid = fork();
-	if (cpid == 0)
+	cur_dir = get_pwd();
+	chdir(cur_dir);
+	free(cur_dir);
+	if (execve(command->command, command->args, NULL) < 0)
 	{
-		if (read_pid != NULL)
-			close(read_pid[1]);
-		if (command->type == OUTPUT_TO_COMMAND)
-		{
-			pipe(pid);
-			dup2(pid[1], 1); //write
-			dup2(pid[0], 0); //read
-		}
-		cur_dir = get_pwd(); //TODO don't repeat in build in
-		chdir(cur_dir);
-		free(cur_dir);
-		if (execve(command->command, command->args, NULL) < 0)
-		{
-			ft_printf("Command not found\n");
-			exit(0);
-		}
-		if (read_pid != NULL)
-			close(read_pid[0]);
+		ft_printf("Command not found: %s\n", command->command);
+		exit(0);
 	}
-	else
-		wait(NULL); //its not guaranteed that the child process will execute first
-	if (command->type == OUTPUT_TO_COMMAND)
-		return (pid);
-	return (NULL);
+}
+
+void	parent(pid_t c_pid, const int *old_pid)
+{
+	int	status;
+
+	if (old_pid)
+	{
+		close(old_pid[1]);
+		close(old_pid[0]);
+	}
+	waitpid(c_pid, &status, 0);
+}
+
+void	eval(t_command_data *command_data)
+{
+	pid_t		c_pid;
+	int			*cur_pid;
+	int			*old_pid;
+	t_command	*command;
+	t_list		*entry;
+
+	entry = *command_data->commands;
+	old_pid = NULL;
+	cur_pid = NULL;
+	while (entry)
+	{
+		command = entry->content;
+		if (cur_pid)
+			old_pid = cur_pid;
+		if (command->type)
+		{
+			cur_pid = ft_calloc(2, sizeof(int));
+			if (!cur_pid)
+				return ;
+			pipe(cur_pid);
+			command->command = search_in_path(command->command);
+			if (command == NULL)
+			{
+				ft_printf("Command not found\n");
+				return ;
+			}
+			*command->args = command->command;
+			c_pid = fork();
+			if (c_pid == 0)
+				child(command, old_pid, cur_pid);
+			else
+				parent(c_pid, old_pid);
+		}
+		else
+		{
+			cur_pid = NULL;
+			command->command = search_in_path(command->command);
+			if (command == NULL)
+			{
+				ft_printf("Command not found\n");
+				return ;
+			}
+			*command->args = command->command;
+			c_pid = fork();
+			if (c_pid == 0)
+				child(command, old_pid, cur_pid);
+			else
+				parent(c_pid, old_pid);
+		}
+		entry = entry->next;
+	}
 }
 
 t_hash_table	*get_hash_table(void)
@@ -141,12 +175,8 @@ int	main(void)
 	char			*input;
 	char			**args;
 	t_command_data	*command_data;
-	t_list			*entry;
-	t_command		*command;
-	int				*pid;
 	char			*cur_dir;
 
-	pid = NULL;
 	cur_dir = getcwd(NULL, 0);
 	if (cur_dir == NULL)
 	{
@@ -188,20 +218,7 @@ int	main(void)
 			ft_printf("Error\n");
 			return (0);
 		}
-		entry = *(command_data->commands);
-		while (entry)
-		{
-			command = entry->content;
-			if (command == NULL)
-			{
-				ft_printf("Error\n");
-				return (0);
-			}
-			pid = eval(pid, command);
-			entry = entry->next;
-			free(command->args);
-			free(command);
-		}
+		eval(command_data);
 		free_input_args(input, args);
 		input = readline("some shell>");
 	}
