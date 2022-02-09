@@ -140,7 +140,7 @@ int	main(void)
 	t_signal		*signal_struct;
 	char			*input;
 	char			**args;
-	t_list			**commands;
+	t_command_data	*command_data;
 	t_list			*entry;
 	t_command		*command;
 	int				*pid;
@@ -182,13 +182,13 @@ int	main(void)
 			ft_printf("Error\n");
 			return (0);
 		}
-		commands = find_commands(args);
-		if (commands == NULL)
+		command_data = find_commands(args);
+		if (command_data == NULL)
 		{
 			ft_printf("Error\n");
 			return (0);
 		}
-		entry = *commands;
+		entry = *(command_data->commands);
 		while (entry)
 		{
 			command = entry->content;

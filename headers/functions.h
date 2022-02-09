@@ -18,7 +18,7 @@
 # include "structs.h"
 # include "../libft/libft.h"
 
-t_list			**find_commands(char **args);
+t_command_data	*find_commands(char **args);
 char			*get_pwd(void);
 int				set_pwd(char *path);
 int				cd(char *dir);
