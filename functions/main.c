@@ -81,10 +81,10 @@ void	eval(t_command_data *command_data)
 			if (!pid)
 				return ;
 			pipe(pid);
-			exec_command(command, old_pid, pid, is_builtin(command->command));
+			exec_command(command, old_pid, pid, is_builtin(command));
 		}
 		else
-			exec_command(command, old_pid, pid, is_builtin(command->command));
+			exec_command(command, old_pid, pid, is_builtin(command));
 		entry = entry->next;
 	}
 }

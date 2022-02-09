@@ -41,6 +41,16 @@ void	child_built_in(t_command *command, const int *old_pid,
 		const int *cur_pid)
 {
 	start_child(old_pid, cur_pid);
+	if (command->type == REDIRECT_INPUT)
+	{
+		//TODO read from file into stdout
+		exit(0);
+	}
+	if (command->type == DELIMITER_INPUT)
+	{
+		//TODO read from stdin to stdout until command->args[1] is found
+		exit(0);
+	}
 	if (execute_builtin(command))
 		ft_printf("Unable to execute command: %s\n", command->command);
 	exit(0);

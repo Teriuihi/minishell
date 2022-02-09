@@ -1,24 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   get_commands.c                                     :+:    :+:            */
+/*   new_get_commands.c                                 :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/02/02 20:02:53 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/02/02 20:02:53 by sappunn       ########   odam.nl         */
-/*                                                                            */
-/* ************************************************************************** */
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        ::::::::            */
-/*   pipe.c                                             :+:    :+:            */
-/*                                                     +:+                    */
-/*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
-/*                                                   +#+                      */
-/*   Created: 2022/02/02 18:29:13 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/02/02 18:29:13 by sappunn       ########   odam.nl         */
+/*   Created: 2022/02/09 19:14:49 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/02/09 19:14:49 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,50 +14,67 @@
 #include "../headers/functions.h"
 #include "../headers/structs.h"
 
-int	next_command(t_list **top, t_command **pipe_args_p, int *len)
+void	swap_last(t_list **top)
+{
+	t_list	*last;
+	t_list	*prev;
+	t_list	*prev_prev;
+
+	last = ft_lstlast(*top);
+	prev = *top;
+	if (prev == NULL || prev->next == NULL)
+		return ;
+	if (prev->next->next == NULL)
+	{
+		last->next = prev->next;
+		prev->next = NULL;
+		return ;
+	}
+	while (prev->next->next != NULL)
+	{
+		prev_prev = prev;
+		prev = prev->next;
+	}
+	prev_prev->next = last;
+	last->next = prev;
+	prev->next = NULL;
+}
+
+t_list	*new_command_entry(t_command **pipe_args_p, int *len)
 {
 	t_list	*new;
 
 	*pipe_args_p = ft_calloc(1, sizeof(t_command));
 	if (*pipe_args_p == NULL)
-		return (-1);
+		err_exit("Not enough memory.", 0);
 	new = ft_lstnew(*pipe_args_p);
 	if (new == NULL)
-	{
-		free(pipe_args_p);
-		return (-1);
-	}
-	ft_lstadd_back(top, new);
+		err_exit("Not enough memory.", 0);
 	*len = 0;
-	return (0);
+	return (new);
 }
 
-int	find(t_command **cmd, char **args, t_command_data *command_data, int *len)
+void	find(t_command *cmd, char **args, t_command_data *cmd_data, int *len)
 {
 	char		**new_args;
-	t_command	*command;
 
-	command = *cmd;
-	command->type = command_separator_type(*args);
-	if (!command->command)
-		command->command = *args;
-	else if (command->type != NONE)
+	cmd->type = command_separator_type(*args);
+	if (!cmd->command)
+		cmd->command = *args;
+	else if (cmd->type != NONE)
 	{
-		command_data->pipes += 1;
-		command->args_len = *len;
+		cmd_data->pipes += 1;
+		cmd->args_len = *len;
 		new_args = ft_calloc((*len) + 2, sizeof(char *));
 		if (!new_args)
-			return (-1);
-		*new_args = command->command;
+			err_exit("Not enough memory.", 0);
+		*new_args = cmd->command;
 		ft_memcpy(new_args + 1, args - *len, (*len) * sizeof(char *));
-		command->args = new_args;
-		*(command->args + (*len)) = 0;
-		if (next_command(command_data->commands, cmd, len))
-			return (-1);
+		cmd->args = new_args;
+		*(cmd->args + (*len)) = 0;
 	}
 	else
 		(*len)++;
-	return (0);
 }
 
 int	run_find_loop(char **args, t_command_data *command_data)
@@ -77,15 +82,36 @@ int	run_find_loop(char **args, t_command_data *command_data)
 	t_command	*command;
 	char		**new_args;
 	int			len;
+	t_list		*new;
 
-	if (next_command(command_data->commands, &command, &len))
-		return (-1);
+	new = new_command_entry(&command, &len);
+	command = new->content;
 	while (*args)
 	{
-		if (find(&command, args, command_data, &len))
-			return (-1);
+		find(command, args, command_data, &len);
+		if (command->type != NONE)
+		{
+			if (command->type == REDIRECT_INPUT)
+			{
+				ft_lstadd_front(command_data->commands, new);
+				len = 1;
+				new_args = ft_calloc(len + 2, sizeof(char *));
+				if (!new_args)
+					return (-1);
+				*new_args = command->command;
+				ft_memcpy(new_args + 1, args - len, len * sizeof(char *));
+				command->args = new_args;
+				*(command->args + len + 1) = 0;
+				args++;
+			}
+			else
+				ft_lstadd_back(command_data->commands, new);
+			new = new_command_entry(&command, &len);
+			command = new->content;
+		}
 		args++;
 	}
+	ft_lstadd_back(command_data->commands, new);
 	command->args_len = len;
 	new_args = ft_calloc(len + 2, sizeof(char *));
 	if (!new_args)

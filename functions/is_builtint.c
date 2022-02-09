@@ -24,7 +24,7 @@
  * @return	true if the input is a builtin command, false if not
 */
 
-int	is_builtin(char *command)
+int	is_builtin(t_command *command)
 {
 	int			i;
 	const char	*builtins[7] = {"echo",
@@ -35,14 +35,16 @@ int	is_builtin(char *command)
 		"env",
 		"exit"};
 
-	if (command == NULL)
+	if (command == NULL || command->command == NULL)
 		return (0);
 	i = 0;
 	while (i < 7)
 	{
-		if (ft_streq(command, builtins[i]))
+		if (ft_streq(command->command, builtins[i]))
 			return (1);
 		i++;
 	}
+	if (command->type == REDIRECT_INPUT || command->type == DELIMITER_INPUT)
+		return (1);
 	return (0);
 }

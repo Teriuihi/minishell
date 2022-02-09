@@ -24,21 +24,21 @@
 
 t_pipe_type	command_separator_type(char *str)
 {
-	if (ft_strlen(str) == 1)
-	{
-		if (*str == '|')
-			return (OUTPUT_TO_COMMAND);
-		if (*str == '>')
-			return (REDIRECT_OUTPUT);
-		if (*str == '<')
-			return (REDIRECT_INPUT);
-	}
-	else if (ft_strlen(str) == 2)
-	{
-		if (!ft_strncmp(str, "<<", 2))
-			return (DELIMITER_INPUT);
-		if (!ft_strncmp(str, ">>", 2))
-			return (APPEND_OUTPUT);
-	}
+	if (ft_streq(str, "|"))
+		return (OUTPUT_TO_COMMAND);
+	if (ft_streq(str, ">"))
+		return (REDIRECT_OUTPUT);
+	if (ft_streq(str, "<"))
+		return (REDIRECT_INPUT);
+	if (ft_streq(str, "<<"))
+		return (DELIMITER_INPUT);
+	if (ft_streq(str, ">>"))
+		return (APPEND_OUTPUT);
 	return (NONE);
+}
+
+void	err_exit(char *err, int status)
+{
+	ft_printf("%s\n", err);
+	exit(status);
 }
