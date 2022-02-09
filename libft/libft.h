@@ -36,6 +36,7 @@ char	**ft_split(char const *s, char c);
 char	*ft_strdup(const char *s1);
 char	*ft_strjoin(char const *s1, char const *s2);
 void	ft_bzero(void *s, size_t n);
+int		ft_streq(const char *s1, const char *s2);
 
 typedef struct s_list
 {

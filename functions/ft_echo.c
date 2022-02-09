@@ -32,17 +32,17 @@ void	ft_echo(t_command *command, int fd)
 	char	**args;
 
 	args = command->args;
-	i = 0;
+	i = 1;
 	c = '\0';
-	if (!args || args[0] == NULL)
+	if (!args || args[0] == NULL || args[1] == NULL)
 		return ;
-	if (ft_strncmp(args[0], "-n", 3) == 0)
-		args++;
+	if (ft_strncmp(args[1], "-n", 3) == 0)
+		i++;
 	else
 		c = '\n';
-	while (i != command->args_len)
+	while (i != command->args_len + 1)
 	{
-		if (i != 0)
+		if (i != 1)
 			write(1, " ", 1);
 		write(fd, args[i], ft_strlen(args[i]));
 		i++;

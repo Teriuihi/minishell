@@ -6,7 +6,8 @@ FILES=ft_bzero.c ft_calloc.c ft_contains.c ft_digit_count.c ft_ends_with.c \
 ft_iswhite_space.c ft_itoa.c ft_lstadd_back.c ft_lstclear.c ft_lstdelentry.c \
 ft_lstdelone.c ft_lstlast.c ft_lstnew.c ft_lstsize.c ft_memcpy.c ft_memset.c \
 ft_putchar_fd.c ft_putnbr_fd.c ft_putstr_fd.c ft_split.c ft_strdup.c ft_strjoin.c \
-ft_strlcpy.c ft_strlen.c ft_strncmp.c ft_strncpy.c ft_strrchr.c ft_strtrim.c
+ft_strlcpy.c ft_strlen.c ft_strncmp.c ft_strncpy.c ft_strrchr.c ft_strtrim.c \
+ft_streq.c
 GET_NEXT_LINE=get_next_line.c get_next_line_utils.c
 PRINTF=ft_printf.c hex.c hex_util.c printing.c
 FILES_OBJ=$(FILES:%.c=%.o) $(GET_NEXT_LINE:%.c=get_next_line/%.o) $(PRINTF:%.c=ft_printf/%.o)

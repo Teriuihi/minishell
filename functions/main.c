@@ -60,95 +60,31 @@ void	free_input_args(char *input, char **args)
 	free(tmp);
 }
 
-void	child(t_command *command, const int *old_pid, const int *new_pid)
-{
-	char	*cur_dir;
-
-	if (old_pid)
-	{
-		dup2(old_pid[0], STDIN_FILENO);
-		close(old_pid[0]);
-		close(old_pid[1]);
-	}
-	if (new_pid)
-	{
-		dup2(new_pid[1], STDOUT_FILENO);
-		close(new_pid[1]);
-		close(new_pid[0]);
-	}
-	cur_dir = get_pwd();
-	chdir(cur_dir);
-	free(cur_dir);
-	if (execve(command->command, command->args, NULL) < 0)
-	{
-		ft_printf("Command not found: %s\n", command->command);
-		exit(0);
-	}
-}
-
-void	parent(pid_t c_pid, const int *old_pid)
-{
-	int	status;
-
-	if (old_pid)
-	{
-		close(old_pid[1]);
-		close(old_pid[0]);
-	}
-	waitpid(c_pid, &status, 0);
-}
-
 void	eval(t_command_data *command_data)
 {
-	pid_t		c_pid;
-	int			*cur_pid;
+	int			*pid;
 	int			*old_pid;
 	t_command	*command;
 	t_list		*entry;
 
 	entry = *command_data->commands;
 	old_pid = NULL;
-	cur_pid = NULL;
+	pid = NULL;
 	while (entry)
 	{
 		command = entry->content;
-		if (cur_pid)
-			old_pid = cur_pid;
+		if (pid)
+			old_pid = pid;
 		if (command->type)
 		{
-			cur_pid = ft_calloc(2, sizeof(int));
-			if (!cur_pid)
+			pid = ft_calloc(2, sizeof(int));
+			if (!pid)
 				return ;
-			pipe(cur_pid);
-			command->command = search_in_path(command->command);
-			if (command == NULL)
-			{
-				ft_printf("Command not found\n");
-				return ;
-			}
-			*command->args = command->command;
-			c_pid = fork();
-			if (c_pid == 0)
-				child(command, old_pid, cur_pid);
-			else
-				parent(c_pid, old_pid);
+			pipe(pid);
+			exec_command(command, old_pid, pid, is_builtin(command->command));
 		}
 		else
-		{
-			cur_pid = NULL;
-			command->command = search_in_path(command->command);
-			if (command == NULL)
-			{
-				ft_printf("Command not found\n");
-				return ;
-			}
-			*command->args = command->command;
-			c_pid = fork();
-			if (c_pid == 0)
-				child(command, old_pid, cur_pid);
-			else
-				parent(c_pid, old_pid);
-		}
+			exec_command(command, old_pid, pid, is_builtin(command->command));
 		entry = entry->next;
 	}
 }

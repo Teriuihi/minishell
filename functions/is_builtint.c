@@ -24,7 +24,7 @@
  * @return	true if the input is a builtin command, false if not
 */
 
-t_bool	is_builtin(char *command)
+int	is_builtin(char *command)
 {
 	int			i;
 	const char	*builtins[7] = {"echo",
@@ -36,14 +36,13 @@ t_bool	is_builtin(char *command)
 		"exit"};
 
 	if (command == NULL)
-		return (false);
+		return (0);
 	i = 0;
 	while (i < 7)
 	{
-		if (ft_strlen(command) == ft_strlen(builtins[i])
-			&& ft_strncmp(command, builtins[i], ft_strlen(builtins[i])) == 0)
-			return (true);
+		if (ft_streq(command, builtins[i]))
+			return (1);
 		i++;
 	}
-	return (false);
+	return (0);
 }
