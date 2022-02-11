@@ -12,11 +12,11 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
-#include "../headers/structs.h"
-#include <sys/stat.h>
+#include <readline/history.h>
 #include <unistd.h>
+#include <fcntl.h>
 
-void	start_child(const int *old_pid, const int *cur_pid)
+void	start_child(const int *old_pid, const int *cur_pid, t_pipe_type type)
 {
 	char	*cur_dir;
 
@@ -28,7 +28,8 @@ void	start_child(const int *old_pid, const int *cur_pid)
 	}
 	if (cur_pid)
 	{
-		dup2(cur_pid[1], STDOUT_FILENO);
+		if (type != DELIMITER_INPUT)
+			dup2(cur_pid[1], STDOUT_FILENO);
 		close(cur_pid[1]);
 		close(cur_pid[0]);
 	}
@@ -37,18 +38,62 @@ void	start_child(const int *old_pid, const int *cur_pid)
 	free(cur_dir);
 }
 
+void	read_input_write(t_command *command, int write_pid)
+{
+	char	*input;
+
+	if (command->args_len != 2 || command->args[1] == NULL)
+		err_exit("parse error", 0);
+	input = readline("heredoc> ");
+	while (input && !ft_streq(input, command->args[1]))
+	{
+		ft_putstr_fd(input, write_pid);
+		input = readline("heredoc> ");
+	}
+	close(write_pid);
+}
+
+void	redirect_file(t_command *command)
+{
+	char	buffer[1000];
+	char	*path;
+	int		fd;
+	int		len;
+
+	path = get_pwd();
+	if (path == NULL)
+		err_exit("out of memory", 0);
+	chdir(path);
+	if (command->args_len != 2 || command->args[1] == NULL)
+		err_exit("parse error", 0);
+	fd = open(command->args[1], O_RDONLY);
+	if (fd <= 2)
+		err_exit("no such file or directory", 0);
+	len = 1000;
+	while (len == 1000)
+	{
+		ft_bzero(buffer, sizeof(char) * 1000);
+		len = read(fd, buffer, 1000);
+		write(1, buffer, len);
+	}
+}
+
 void	child_built_in(t_command *command, const int *old_pid,
 		const int *cur_pid)
 {
-	start_child(old_pid, cur_pid);
+	int	pid;
+
+	if (command->type == DELIMITER_INPUT)
+		pid = dup(cur_pid[1]);
+	start_child(old_pid, cur_pid, command->type);
 	if (command->type == REDIRECT_INPUT)
 	{
-		//TODO read from file into stdout
+		redirect_file(command);
 		exit(0);
 	}
 	if (command->type == DELIMITER_INPUT)
 	{
-		//TODO read from stdin to stdout until command->args[1] is found
+		read_input_write(command, pid);
 		exit(0);
 	}
 	if (execute_builtin(command))
@@ -59,7 +104,7 @@ void	child_built_in(t_command *command, const int *old_pid,
 void	child_external(t_command *command, const int *old_pid,
 		const int *cur_pid)
 {
-	start_child(old_pid, cur_pid);
+	start_child(old_pid, cur_pid, command->type);
 	if (execve(command->command, command->args, NULL) < 0)
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);

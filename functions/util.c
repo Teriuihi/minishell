@@ -20,10 +20,12 @@
  */
 
 #include "../headers/structs.h"
-#include "../libft/libft.h"
+#include <unistd.h>
 
 t_pipe_type	command_separator_type(char *str)
 {
+	if (str == NULL)
+		return (NONE);
 	if (ft_streq(str, "|"))
 		return (OUTPUT_TO_COMMAND);
 	if (ft_streq(str, ">"))
@@ -39,6 +41,21 @@ t_pipe_type	command_separator_type(char *str)
 
 void	err_exit(char *err, int status)
 {
-	ft_printf("%s\n", err);
+	ft_putstr_fd(err, STDERR_FILENO);
+	ft_putstr_fd("\n", STDERR_FILENO);
 	exit(status);
+}
+
+int	err_int_return(char *err, int status)
+{
+	ft_putstr_fd(err, STDERR_FILENO);
+	ft_putstr_fd("\n", STDERR_FILENO);
+	return (status);
+}
+
+void	*err_ptr_return(char *err, void *ptr)
+{
+	ft_putstr_fd(err, STDERR_FILENO);
+	ft_putstr_fd("\n", STDERR_FILENO);
+	return (ptr);
 }

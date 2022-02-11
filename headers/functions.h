@@ -46,6 +46,8 @@ t_hash_table	*get_hash_table(void);
 void			exec_command(t_command *command, int *old_pid, int *cur_pid,
 					int built_in);
 void			err_exit(char *err, int status);
+int				err_int_return(char *err, int status);
+void			*err_ptr_return(char *err, void *ptr);
 
 /* hashtable */
 t_hash_table	*init_hash_table(int size);

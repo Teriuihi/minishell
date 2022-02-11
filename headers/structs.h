@@ -47,7 +47,8 @@ typedef enum e_pipe_type
 	REDIRECT_INPUT,
 	REDIRECT_OUTPUT,
 	DELIMITER_INPUT,
-	APPEND_OUTPUT
+	APPEND_OUTPUT,
+	TEMP
 }	t_pipe_type;
 
 typedef struct s_command
