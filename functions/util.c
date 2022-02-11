@@ -53,9 +53,54 @@ int	err_int_return(char *err, int status)
 	return (status);
 }
 
-void	*err_ptr_return(char *err, void *ptr)
-{
+void	*err_ptr_return(char *err, void *ptr) {
 	ft_putstr_fd(err, STDERR_FILENO);
 	ft_putstr_fd("\n", STDERR_FILENO);
 	return (ptr);
+}
+
+size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
+{
+	size_t	dst_len;
+	size_t	i;
+
+	dst_len = ft_strlen(dst) >= dstsize ? dstsize : ft_strlen(dst);
+	i = 0;
+	if (dstsize == dst_len || dstsize == 0)
+		return (dstsize + ft_strlen(src));
+	if (ft_strlen(src) >= dstsize - dst_len)
+	{
+		while (i < dstsize - dst_len - 1)
+		{
+			dst[dst_len + i] = src[i];
+			i++;
+		}
+	}
+	else
+	{
+		while (src[i] && i < dstsize - dst_len)
+		{
+			dst[dst_len + i] = src[i];
+			i++;
+		}
+	}
+	dst[dst_len + i] = '\0';
+	return (dst_len + ft_strlen(src));
+}
+
+void	free_splitted(char **splitted)
+{
+	int	i;
+
+	i = 0;
+	if (!splitted)
+	{
+		return ;
+	}
+	while (splitted[i])
+	{
+		free(splitted[i]);
+		i++;
+	}
+	free(splitted);
 }

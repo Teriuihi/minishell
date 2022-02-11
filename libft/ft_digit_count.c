@@ -10,14 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
 /**
  * Checks if a string ends with a specific suffix
  *
  * @param	n		number
  * @param	base	base
  *
- * @return	the amount of digits to be found in n, in base (n = 123, base = 10 -> 3)
+ * @return	the amount of digits to be found in n,
+ * 	in base (n = 123, base = 10 -> 3)
  */
 
 int	ft_digit_count(long int n, int base)

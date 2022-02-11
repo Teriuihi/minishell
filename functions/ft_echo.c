@@ -13,18 +13,17 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 
-/*
-* Takes an array of arrays (user input), checks if the first 
-	argument is the -n flag. 
-* Prints the arguments with a single whitespace char between. 
-	Prints newline char if -n was not specified
-*
-* @param	args	the input given by the user, 
-				excluding "echo" -> input: echo batman -> args = batman
-*
-* @return	void
+/**
+ * Takes an array of arrays (user input), checks if the first
+ *	argument is the -n flag.
+ * Prints the arguments with a single whitespace char between.
+ *	Prints newline char if -n was not specified
+ *
+ * @param	args	the input given by the user,
+ *	excluding "echo" -> input: echo batman -> args = batman
+ *
+ * @return	void
 */
-
 void	ft_echo(t_command *command, int fd)
 {
 	int		i;

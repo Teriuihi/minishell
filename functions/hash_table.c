@@ -12,7 +12,6 @@
 
 #include "../headers/structs.h"
 #include "../headers/functions.h"
-#include "../libft/libft.h"
 
 extern char	**environ;
 /**

@@ -17,35 +17,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
-{
-	size_t	dst_len;
-	size_t	i;
-
-	dst_len = ft_strlen(dst) >= dstsize ? dstsize : ft_strlen(dst);
-	i = 0;
-	if (dstsize == dst_len || dstsize == 0)
-		return (dstsize + ft_strlen(src));
-	if (ft_strlen(src) >= dstsize - dst_len)
-	{
-		while (i < dstsize - dst_len - 1)
-		{
-			dst[dst_len + i] = src[i];
-			i++;
-		}
-	}
-	else
-	{
-		while (src[i] && i < dstsize - dst_len)
-		{
-			dst[dst_len + i] = src[i];
-			i++;
-		}
-	}
-	dst[dst_len + i] = '\0';
-	return (dst_len + ft_strlen(src));
-}
-
 void	free_input_args(char *input, char **args)
 {
 	char	**tmp;
@@ -60,7 +31,7 @@ void	free_input_args(char *input, char **args)
 	free(tmp);
 }
 
-void	eval(t_command_data *command_data)
+void	eval(t_command_data *command_data, t_data *data)
 {
 	int			*pid;
 	int			*old_pid;
@@ -81,10 +52,10 @@ void	eval(t_command_data *command_data)
 			if (!pid)
 				return ;
 			pipe(pid);
-			exec_command(command, old_pid, pid, is_builtin(command));
+			exec_command(command, old_pid, pid, is_builtin(command, data), data);
 		}
 		else
-			exec_command(command, old_pid, pid, is_builtin(command));
+			exec_command(command, old_pid, pid, is_builtin(command, data), data);
 		entry = entry->next;
 	}
 }
@@ -105,12 +76,20 @@ t_hash_table	*get_hash_table(void)
 	return (table);
 }
 
+void	set_data(t_data *data)
+{
+	data->export_flag = 0;
+	data->current_env = get_hash_table();
+	data->env = get_hash_table();
+}
+
 int	main(void)
 {
 	t_signal		*signal_struct;
 	char			*input;
 	char			**args;
 	t_command_data	*command_data;
+	t_data			data;
 	char			*cur_dir;
 
 	cur_dir = getcwd(NULL, 0);
@@ -120,29 +99,14 @@ int	main(void)
 		return (0);
 	}
 	set_pwd(cur_dir); //doens't need free
-
-	
-	//print_splitted(environ);
-
-//	h_table = get_hash_table();
-//	ft_printf("%s\n", ft_get_env_val("PWD", h_table));
-//	ft_set_env("TURO", "NEW VAR TURO", h_table);
-//	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
-//	//ft_remove_env("TURO", h_table);
-//	//ft_printf("%s\n", ft_get_env_val("TURO", h_table));
-//	ft_set_env("TERI", "NEW VAR TERI", h_table);
-//	ft_printf("%s\n", ft_get_env_val("TERI", h_table));
-//	ft_printf("%s\n", ft_get_env_val("TURO", h_table));
-
+	set_data(&data); //assigns hashtables
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
-	//FIXME this segfaults???
-//	set_pwd(getcwd(NULL, 0)); //TODO check for null check if needed
 	input = readline("some shell>");
 	while (input)
 	{
 		add_history(input);
-		args = get_args(input);
+		args = get_args(input); //
 		if (args == NULL)
 		{
 			ft_printf("Error\n");
@@ -154,7 +118,7 @@ int	main(void)
 			ft_printf("Error\n");
 			return (0);
 		}
-		eval(command_data);
+		eval(command_data, &data);
 		free_input_args(input, args);
 		input = readline("some shell>");
 	}

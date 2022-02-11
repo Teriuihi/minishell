@@ -19,26 +19,33 @@ typedef enum s_bool
 {
 	true,
 	false
-}				t_bool;
+}	t_bool;
 
 typedef struct entry
 {
 	char			*val;
 	char			*key;
 	struct entry	*next;
-}				t_entry;
+}	t_entry;
 
 typedef struct entry_table
 {
 	t_entry		**entries;
 	int			size;
-}				t_hash_table;
+}	t_hash_table;
+
+typedef struct s_data
+{
+	int				export_flag;
+	t_hash_table	*env;
+	t_hash_table	*current_env;
+}	t_data;
 
 typedef struct signal
 {
 	pid_t	pid;
 	int		exit_status;
-}				t_signal;
+}	t_signal;
 
 typedef enum e_pipe_type
 {
@@ -47,8 +54,7 @@ typedef enum e_pipe_type
 	REDIRECT_INPUT,
 	REDIRECT_OUTPUT,
 	DELIMITER_INPUT,
-	APPEND_OUTPUT,
-	TEMP
+	APPEND_OUTPUT
 }	t_pipe_type;
 
 typedef struct s_command
