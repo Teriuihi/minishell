@@ -34,6 +34,13 @@ typedef struct entry_table
 	int			size;
 }				t_hash_table;
 
+typedef struct s_data
+{
+	int				export_flag;
+	t_hash_table	*env;
+	t_hash_table	*current_env;
+}				t_data;
+
 typedef struct signal
 {
 	pid_t	pid;
@@ -56,7 +63,7 @@ typedef struct s_command
 	char		**args;
 	int			args_len;
 	t_pipe_type	type;
-}	t_command;
+}				t_command;
 
 typedef struct s_command_data
 {

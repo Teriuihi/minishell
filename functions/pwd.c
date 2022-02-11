@@ -36,7 +36,7 @@ int	set_pwd(char *path)
 	if (pwd_path == NULL || *path == '/' || *path == '~')
 	{
 		free(pwd_path);
-		ft_set_env("OUR_PWD", path, get_hash_table());
+		ft_set_env("OUR_PWD", path, get_hash_table()); //what happens if set didnt work?
 		free(path);
 		return (0);
 	}

@@ -18,6 +18,9 @@
  *
  * @return	1 if the strings are the same, 0 if not
  */
+
+#include "libft.h"
+
 int	ft_streq(const char *s1, const char *s2)
 {
 	if (s1 == s2)

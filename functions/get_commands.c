@@ -24,7 +24,6 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
-#include "../headers/structs.h"
 
 int	next_command(t_list **top, t_command **pipe_args_p, int *len)
 {
