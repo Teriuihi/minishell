@@ -23,7 +23,6 @@
  * @return	true if the input is a builtin command, false if not
 */
 
-//export myvar=hello 
 static	t_bool env_variable_found(char *command, t_data *data) //check if its not =hellothere
 {
 	int	i;
@@ -70,7 +69,7 @@ static	t_bool env_variable_found(char *command, t_data *data) //check if its not
 	}
 }
 
-t_bool	is_builtin(char *command, t_data *data)
+t_bool	is_builtin(t_command *command, t_data *data)
 {
 	int			i;
 	const char	*builtins[7] = {"echo",
@@ -81,19 +80,21 @@ t_bool	is_builtin(char *command, t_data *data)
 		"env",
 		"exit"};
 
-	if (command == NULL)
+	if (command == NULL || command->command == NULL)
 		return (0);
 	i = 0;
-	if (env_variable_found(command, data) == true) //what happens if its false but because of incorrect input? hello==myvar
+	if (env_variable_found(command->command, data) == true) //what happens if its false but because of incorrect input? hello==myvar
 	{
 		//if its true, can we not just add immediately to hashtable?
 		return (true);
 	}
 	while (i < 7)
 	{
-		if (ft_streq(command, builtins[i]))
-			return (true);
+		if (ft_streq(command->command, builtins[i]))
+			return (1);
 		i++;
 	}
+	if (command->type == REDIRECT_INPUT || command->type == DELIMITER_INPUT)
+		return (true);
 	return (false);
 }

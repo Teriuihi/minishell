@@ -20,27 +20,43 @@
  */
 
 #include "../headers/structs.h"
-#include "../libft/libft.h"
+#include <unistd.h>
 
 t_pipe_type	command_separator_type(char *str)
 {
-	if (ft_strlen(str) == 1)
-	{
-		if (*str == '|')
-			return (OUTPUT_TO_COMMAND);
-		if (*str == '>')
-			return (REDIRECT_OUTPUT);
-		if (*str == '<')
-			return (REDIRECT_INPUT);
-	}
-	else if (ft_strlen(str) == 2)
-	{
-		if (!ft_strncmp(str, "<<", 2))
-			return (DELIMITER_INPUT);
-		if (!ft_strncmp(str, ">>", 2))
-			return (APPEND_OUTPUT);
-	}
+	if (str == NULL)
+		return (NONE);
+	if (ft_streq(str, "|"))
+		return (OUTPUT_TO_COMMAND);
+	if (ft_streq(str, ">"))
+		return (REDIRECT_OUTPUT);
+	if (ft_streq(str, "<"))
+		return (REDIRECT_INPUT);
+	if (ft_streq(str, "<<"))
+		return (DELIMITER_INPUT);
+	if (ft_streq(str, ">>"))
+		return (APPEND_OUTPUT);
 	return (NONE);
+}
+
+void	err_exit(char *err, int status)
+{
+	ft_putstr_fd(err, STDERR_FILENO);
+	ft_putstr_fd("\n", STDERR_FILENO);
+	exit(status);
+}
+
+int	err_int_return(char *err, int status)
+{
+	ft_putstr_fd(err, STDERR_FILENO);
+	ft_putstr_fd("\n", STDERR_FILENO);
+	return (status);
+}
+
+void	*err_ptr_return(char *err, void *ptr) {
+	ft_putstr_fd(err, STDERR_FILENO);
+	ft_putstr_fd("\n", STDERR_FILENO);
+	return (ptr);
 }
 
 size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)

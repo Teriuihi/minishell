@@ -52,10 +52,10 @@ void	eval(t_command_data *command_data, t_data *data)
 			if (!pid)
 				return ;
 			pipe(pid);
-			exec_command(command, old_pid, pid, is_builtin(command->command, data), data);
+			exec_command(command, old_pid, pid, is_builtin(command, data), data);
 		}
 		else
-			exec_command(command, old_pid, pid, is_builtin(command->command, data), data);
+			exec_command(command, old_pid, pid, is_builtin(command, data), data);
 		entry = entry->next;
 	}
 }
