@@ -55,11 +55,10 @@ unsigned int	hash(const char *key, char *val, unsigned long int table_size)
 	return (value);
 }
 
-
 void	print_h_table(t_hash_table *h_table)
 {
-	t_entry *curr;
-	int 	i;
+	t_entry	*curr;
+	int		i;
 
 	if (!h_table)
 	{
@@ -70,9 +69,9 @@ void	print_h_table(t_hash_table *h_table)
 	{
 		curr = h_table->entries[i];
 		while (curr != NULL)
-		{ 
+		{
 			ft_printf("%s=%s\n", curr->key, curr->val);
-			curr = curr->next;	
+			curr = curr->next;
 		}
 		i++;
 	}

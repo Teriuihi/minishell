@@ -45,7 +45,7 @@ t_signal	*init_signal(void) //should this be global?
 {
 	t_signal	*signal;
 
-	signal = (t_signal *)malloc(sizeof(signal));
+	signal = ft_calloc(1, sizeof(t_signal));
 	if (!signal)
 	{
 		return (NULL);

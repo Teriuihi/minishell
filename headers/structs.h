@@ -34,7 +34,7 @@ typedef struct entry_table
 	int			size;
 }				t_hash_table;
 
-typedef struct	s_data
+typedef struct s_data
 {
 	int				export_flag;
 	t_hash_table	*env;
@@ -57,7 +57,7 @@ typedef enum e_pipe_type
 	APPEND_OUTPUT
 }	t_pipe_type;
 
-typedef struct	s_command
+typedef struct s_command
 {
 	char		*command;
 	char		**args;
@@ -65,8 +65,7 @@ typedef struct	s_command
 	t_pipe_type	type;
 }				t_command;
 
-
-typedef struct	s_command_data
+typedef struct s_command_data
 {
 	t_list		**commands;
 	int			pipes;

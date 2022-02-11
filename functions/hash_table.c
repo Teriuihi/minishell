@@ -12,7 +12,6 @@
 
 #include "../headers/structs.h"
 #include "../headers/functions.h"
-#include "../libft/libft.h"
 
 extern char	**environ;
 /**
@@ -47,7 +46,6 @@ t_hash_table	*init_hash_table(int size)
 t_entry	*create_hash_table_pair(char *key, char *val)
 {
 	t_entry	*entry;
-
 
 	entry = (t_entry *)malloc(sizeof(t_entry));
 	if (!entry)

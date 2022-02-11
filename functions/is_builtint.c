@@ -12,9 +12,8 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
-#include "../headers/structs.h"
 
-/*
+/**
  * Takes an array of arrays (user input)
  * Prints the arguments with a single whitespace char between.
  * Prints newline char if -n was not specified
@@ -24,14 +23,13 @@
  * @return	true if the input is a builtin command, false if not
 */
 
-
 //export myvar=hello 
-static	t_bool env_variable_found(char *command, t_data *data) //check if its not =hellothere 
+static	t_bool env_variable_found(char *command, t_data *data) //check if its not =hellothere
 {
-	int i;
-	int count;
+	int	i;
+	int	count;
 	int	equal_found;
-	
+
 	i = 0;
 	count = 0;
 	equal_found = 0;
@@ -82,6 +80,7 @@ t_bool	is_builtin(char *command, t_data *data)
 		"unset",
 		"env",
 		"exit"};
+
 	if (command == NULL)
 		return (0);
 	i = 0;

@@ -26,7 +26,7 @@ char			*get_path(void);
 char			**get_args(char *input);
 char			*search_in_path(char *command);
 size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
-int	execute_builtin(t_command *command, t_data *data);
+int				execute_builtin(t_command *command, t_data *data);
 void			ft_echo(t_command *command, int fd);
 t_bool			is_builtin(char *command, t_data *data);
 void			crtld_handler(int signum);
@@ -43,8 +43,8 @@ char			*get_working_directory(char *path);
 t_signal		*init_signal(void);
 void			print_splitted(char **args);
 t_hash_table	*get_hash_table(void);
-void	exec_command(t_command *command, int *old_pid, int *cur_pid,
-			t_bool is_built_in, t_data *data);
+void			exec_command(t_command *command, int *old_pid, int *cur_pid,
+					t_bool is_built_in, t_data *data);
 
 /* hashtable */
 t_hash_table	*init_hash_table(int size);

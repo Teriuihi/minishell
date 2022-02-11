@@ -43,7 +43,7 @@ void	eval(t_command_data *command_data, t_data *data)
 	pid = NULL;
 	while (entry)
 	{
-		command = entry->content; 
+		command = entry->content;
 		if (pid)
 			old_pid = pid;
 		if (command->type)

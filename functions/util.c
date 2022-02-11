@@ -43,7 +43,6 @@ t_pipe_type	command_separator_type(char *str)
 	return (NONE);
 }
 
-
 size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 {
 	size_t	dst_len;
@@ -75,7 +74,7 @@ size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 
 void	free_splitted(char **splitted)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	if (!splitted)

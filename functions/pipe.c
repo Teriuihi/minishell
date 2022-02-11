@@ -12,7 +12,6 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
-#include "../headers/structs.h"
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -41,7 +40,7 @@ void	child_built_in(t_command *command, const int *old_pid,
 		const int *cur_pid, t_data *data)
 {
 	start_child(old_pid, cur_pid);
-	if (execute_builtin(command, data)) //
+	if (execute_builtin(command, data))
 		ft_printf("Unable to execute command: %s\n", command->command);
 	exit(0);
 }

@@ -79,14 +79,13 @@ char	*ft_get_env_val(char *key, t_hash_table *h_table)
 	return (NULL);
 }
 
-
-char **get_envp(t_hash_table *h_table)
+char	**get_envp(t_hash_table *h_table)
 {
-	t_entry *curr;
+	t_entry	*curr;
 	char	*current_env;
 	char	**envp;
 	int		env_i;
-	int 	i;
+	int		i;
 
 	if (!h_table)
 	{
@@ -115,13 +114,10 @@ char **get_envp(t_hash_table *h_table)
 				current_env = ft_strjoin(current_env, curr->val);
 				envp[env_i] = current_env;
 				env_i++;
-				curr = curr->next;	
+				curr = curr->next;
 			}
 		}
 		i++;
 	}
 	return (envp);
 }
-
-
-

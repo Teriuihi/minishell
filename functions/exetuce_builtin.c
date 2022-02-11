@@ -37,11 +37,10 @@ static int split_len(char **splitted)
 	return (i);
 }
 
-
-static t_bool export_found(t_command *command, t_data *data)
+static t_bool	export_found(t_command *command, t_data *data)
 {
-	char **splitted_export;
-	int	i;
+	char	**splitted_export;
+	int		i;
 
 	i = 0;
 	while (command->args[i])
@@ -68,8 +67,8 @@ static t_bool export_found(t_command *command, t_data *data)
 static t_bool env_var_added(t_command *command, t_data *data) //cant we just assign a flag to the global struct which says, hey we have an equal sign found in is_built_in
 {	
 	//command "export myvar=hello"
-	int i;
-	char **splitted;
+	int		i;
+	char	**splitted;
 
 	if (!command || !data)
 	{
@@ -89,7 +88,6 @@ static t_bool env_var_added(t_command *command, t_data *data) //cant we just ass
 			return (false);
 		}
 		ft_set_env(splitted[0], splitted[1], data->current_env); //check if set fails for some reason?
-		
 		return (true);
 	}
 	return (false);
