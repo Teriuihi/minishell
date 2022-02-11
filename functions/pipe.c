@@ -38,19 +38,19 @@ void	start_child(const int *old_pid, const int *cur_pid)
 }
 
 void	child_built_in(t_command *command, const int *old_pid,
-		const int *cur_pid)
+		const int *cur_pid, t_data *data)
 {
 	start_child(old_pid, cur_pid);
-	if (execute_builtin(command))
+	if (execute_builtin(command, data)) //
 		ft_printf("Unable to execute command: %s\n", command->command);
 	exit(0);
 }
 
 void	child_external(t_command *command, const int *old_pid,
-		const int *cur_pid)
+		const int *cur_pid, t_data *data)
 {
 	start_child(old_pid, cur_pid);
-	if (execve(command->command, command->args, NULL) < 0)
+	if (execve(command->command, command->args, get_envp(data->env)) < 0) //here we should pass instead of NULL an array of strings for env variable
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);
 		exit(0);
@@ -70,15 +70,15 @@ void	parent(pid_t c_pid, const int *old_pid)
 }
 
 void	exec_command(t_command *command, int *old_pid, int *cur_pid,
-			int built_in)
+			t_bool is_built_in, t_data *data)
 {
 	pid_t	c_pid;
 
 	if (ft_streq(command->command, "exit"))
 		exit (0);
-	if (!built_in)
+	if (is_built_in == false)
 	{
-		command->command = search_in_path(command->command);
+		command->command = search_in_path(command->command); //this is where we could just pull from hashtable
 		if (command->command == NULL)
 		{
 			ft_printf("Command not found: %s\n", *command->args);
@@ -87,12 +87,12 @@ void	exec_command(t_command *command, int *old_pid, int *cur_pid,
 		*command->args = command->command;
 	}
 	c_pid = fork();
-	if (c_pid == 0)
+	if (c_pid == 0) //only in this case do we pass the child_htable
 	{
-		if (built_in)
-			child_built_in(command, old_pid, cur_pid);
+		if (is_built_in == true)
+			child_built_in(command, old_pid, cur_pid, data);
 		else
-			child_external(command, old_pid, cur_pid);
+			child_external(command, old_pid, cur_pid, data);
 	}
 	else
 		parent(c_pid, old_pid);

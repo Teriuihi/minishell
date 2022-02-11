@@ -48,6 +48,7 @@ t_entry	*create_hash_table_pair(char *key, char *val)
 {
 	t_entry	*entry;
 
+
 	entry = (t_entry *)malloc(sizeof(t_entry));
 	if (!entry)
 		return (NULL);
