@@ -48,9 +48,9 @@ char	*get_path_from_arg(char	*dir_arg, t_minishell *minishell)
 /**
  * Changes directory and updates pwd on success
  *
- * @param	dir	free-able char pointer
+ * @param	command	Command that was executed to call tjis function
  *
- * @return	false if the command failed, true if it was executed correctly
+ * @return	false if cd failed, true if it was executed correctly
  */
 t_bool	cd(t_command *command, t_minishell *minishell)
 {
