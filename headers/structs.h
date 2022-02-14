@@ -17,8 +17,8 @@
 
 typedef enum s_bool
 {
-	true,
-	false
+	false,
+	true
 }	t_bool;
 
 typedef struct entry
@@ -64,11 +64,4 @@ typedef struct s_command
 	int			args_len;
 	t_pipe_type	type;
 }	t_command;
-
-typedef struct s_command_data
-{
-	t_list		**commands;
-	int			pipes;
-}	t_command_data;
-
 #endif

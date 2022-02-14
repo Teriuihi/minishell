@@ -18,7 +18,7 @@
 # include "structs.h"
 # include "../libft/libft.h"
 
-t_command_data	*find_commands(char **args);
+t_list			**find_commands(char **args);
 char			*get_pwd(void);
 int				set_pwd(char *path);
 int				cd(char *dir);
@@ -26,7 +26,7 @@ char			*get_path(void);
 char			**get_args(char *input);
 char			*search_in_path(char *command);
 size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
-int				execute_builtin(t_command *command, t_data *data);
+t_bool			execute_builtin(t_command *command, t_data *data);
 void			ft_echo(t_command *command, int fd);
 t_bool			is_builtin(t_command *command, t_data *data);
 void			crtld_handler(int signum);
@@ -64,7 +64,7 @@ void			free_key_value(t_entry *entry);
 void			print_h_table(t_hash_table *h_table);
 
 //
-void			eval(t_command_data *command_data, t_data *data);
+void			run_commands(t_list **head, t_data *data);
 size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 char			**get_envp(t_hash_table *h_table);
 void			free_splitted(char **splitted);

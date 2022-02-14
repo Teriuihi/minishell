@@ -12,7 +12,6 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
-#include "../headers/structs.h"
 
 /**
  * Takes an array of arrays (user input)
@@ -21,9 +20,9 @@
  *
  * @return	void
  */
-static int split_len(char **splitted)
+static int	split_len(char **splitted)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	if (!splitted)
@@ -64,17 +63,15 @@ static t_bool	export_found(t_command *command, t_data *data)
 }
 
 //for now we take it for granted that at this point we might have a correct input, but we have to find another way to check it
-static t_bool env_var_added(t_command *command, t_data *data) //cant we just assign a flag to the global struct which says, hey we have an equal sign found in is_built_in
+static t_bool	env_var_added(t_command *command, t_data *data) //cant we just assign a flag to the global struct which says, hey we have an equal sign found in is_built_in
 {	
 	//command "export myvar=hello"
-	int		i;
 	char	**splitted;
 
 	if (!command || !data)
 	{
 		return (false);
 	}
-	i = 0;
 	if (export_found(command, data) == true)
 	{
 		return (true);
@@ -90,22 +87,19 @@ static t_bool env_var_added(t_command *command, t_data *data) //cant we just ass
 		ft_set_env(splitted[0], splitted[1], data->current_env); //check if set fails for some reason?
 		return (true);
 	}
-	return (false);
 }
 
-int	execute_builtin(t_command *command, t_data *data) //command->args + 1 == myvar=stmh
+t_bool	execute_builtin(t_command *command, t_data *data) //command->args + 1 == myvar=stmh
 {
 	char	*cur_dir;
 
 	//check if command is an env var, in that case call a setter etc function
 	//check for env var
 	if (env_var_added(command, data) == true)
-	{
-		return (0);
-	}
+		return (true);
 	cur_dir = get_pwd();
 	if (!command->command)
-		return (-1);
+		return (false);
 	else if (ft_streq(command->command, "echo"))
 		ft_echo(command, 1);
 	else if (ft_streq(command->command, "cd"))
@@ -119,6 +113,8 @@ int	execute_builtin(t_command *command, t_data *data) //command->args + 1 == myv
 	{
 		print_h_table(data->env);
 	}
+	else
+		return (false);
 	free(cur_dir);
-	return (0);
+	return (true);
 }

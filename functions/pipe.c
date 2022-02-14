@@ -13,7 +13,6 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include <readline/history.h>
-#include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -79,8 +78,8 @@ void	redirect_file(t_command *command)
 	}
 }
 
-void	child_built_in(t_command *command, const int *old_pid,
-		const int *cur_pid, t_data *data)
+void	child_execute_built_in(t_command *command, const int *old_pid,
+								const int *cur_pid, t_data *data)
 {
 	int	pid;
 
@@ -97,15 +96,13 @@ void	child_built_in(t_command *command, const int *old_pid,
 		read_input_write(command, pid);
 		exit(0);
 	}
-	if (execute_builtin(command, data))
-	start_child(old_pid, cur_pid, command->type);
-	if (execute_builtin(command, data))
+	if (execute_builtin(command, data) == false)
 		ft_printf("Unable to execute command: %s\n", command->command);
 	exit(0);
 }
 
-void	child_external(t_command *command, const int *old_pid,
-		const int *cur_pid, t_data *data)
+void	child_execute_external(t_command *command, const int *old_pid,
+								const int *cur_pid, t_data *data)
 {
 	start_child(old_pid, cur_pid, command->type);
 	if (execve(command->command, command->args, NULL) < 0)
@@ -150,9 +147,9 @@ void	exec_command(t_command *command, int *old_pid, int *cur_pid,
 	if (c_pid == 0) //only in this case do we pass the child_htable
 	{
 		if (is_built_in == true)
-			child_built_in(command, old_pid, cur_pid, data);
+			child_execute_built_in(command, old_pid, cur_pid, data);
 		else
-			child_external(command, old_pid, cur_pid, data);
+			child_execute_external(command, old_pid, cur_pid, data);
 	}
 	else
 		parent(c_pid, old_pid);

@@ -17,12 +17,12 @@
  * Stores a command in command data, on error command is freed
  * 	all other command data isn't freed
  *
- * @param	command			Command to add
- * @param	command_data	Data to add the command to
+ * @param	command	Command to add
+ * @param	t_list	All data related to commands
  *
  * @return	non zero on error, 0 on success
  */
-int	store_command(t_command *command, t_command_data *command_data)
+int	store_command(t_command *command, t_list **head)
 {
 	t_list	*new;
 
@@ -34,12 +34,13 @@ int	store_command(t_command *command, t_command_data *command_data)
 		free(command);
 		err_int_return("Not enough memory.", -1);
 	}
-	ft_lstadd_back(command_data->commands, new);
+	ft_lstadd_back(head, new);
 	return (0);
 }
 
 /**
- * Creates a new command from the given parameters, frees created data on failure
+ * Creates a new command from the given parameters, by duplicating them
+ * 	frees created data on failure
  *
  * @param	pipe_type	What type of redirect should be
  * 	used when executing this command
@@ -50,8 +51,8 @@ int	store_command(t_command *command, t_command_data *command_data)
  *
  * @return	non zero on error, 0 on success
  */
-t_command	*get_command(t_pipe_type pipe_type, char **args, int start_pos,
-				int len)
+t_command	*create_command(t_pipe_type pipe_type, char **args, int start_pos,
+							int len)
 {
 	t_command	*command;
 
@@ -77,9 +78,9 @@ t_command	*get_command(t_pipe_type pipe_type, char **args, int start_pos,
 }
 
 /**
- * Handles command creation for all pipe_type's not handled by input_type
+ * Handles command creation for all pipe_type's not handled by input_pipe_command
  *
- * @param	data		All data for all commands
+ * @param	t_list		All data related to commands
  * @param	args		All arguments
  * @param	start_pos	Start of arguments for this command in args
  * @param	len			Amount of arguments after start that belong to
@@ -87,16 +88,16 @@ t_command	*get_command(t_pipe_type pipe_type, char **args, int start_pos,
  *
  * @return	non zero on error, 0 on success
  */
-int	other_type(t_command_data *data, char **args, int *start_pos, int *len)
+int	output_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 {
 	t_command	*command;
 	t_pipe_type	pipe_type;
 
 	pipe_type = command_separator_type(args[(*start_pos) + (*len)]);
-	command = get_command(pipe_type, args, *start_pos, *len);
+	command = create_command(pipe_type, args, *start_pos, *len);
 	if (!command)
 		return (-1);
-	store_command(command, data);
+	store_command(command, head);
 	*start_pos += (*len) + 1;
 	*len = 0;
 	return (0);
@@ -106,7 +107,7 @@ int	other_type(t_command_data *data, char **args, int *start_pos, int *len)
  * Handles creating commands for types that need to create input and forward it
  * 	to the next command
  *
- * @param	data		All data for all commands
+ * @param	t_list		All data related to commands
  * @param	args		All arguments
  * @param	start_pos	Start of arguments for this command in args
  * @param	len			Amount of arguments after start that belong to
@@ -114,7 +115,7 @@ int	other_type(t_command_data *data, char **args, int *start_pos, int *len)
  *
  * @return	non zero on error, 0 on success
  */
-int	input_type(t_command_data *data, char **args, int *start_pos, int *len)
+int	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 {
 	t_command	*command;
 	t_pipe_type	pipe_type;
@@ -125,7 +126,7 @@ int	input_type(t_command_data *data, char **args, int *start_pos, int *len)
 		*len += 2;
 		if (args[(*start_pos) + *len] == NULL)
 			return (err_int_return("parse error", -1));
-		command = get_command(pipe_type, args, *start_pos, *len);
+		command = create_command(pipe_type, args, *start_pos, *len);
 		if (!command)
 			return (-1);
 		if (command_separator_type(args[(*start_pos) + (*len)]))
@@ -134,7 +135,7 @@ int	input_type(t_command_data *data, char **args, int *start_pos, int *len)
 			*start_pos += (*len);
 		*len = 0;
 		command->args_len = 2;
-		store_command(command, data);
+		store_command(command, head);
 		return (0);
 	}
 	return (0); //TODO implement being able to find << and < anywhere in the command
@@ -143,12 +144,12 @@ int	input_type(t_command_data *data, char **args, int *start_pos, int *len)
 /**
  * Starts looping through all arguments to find the commands
  *
- * @param	command_data	All data related to commands
- * @param	args			All arguments
+ * @param	t_list	All data related to commands
+ * @param	args	All arguments
  *
  * @return	non zero on error, 0 on success
  */
-int	start_find_loop(t_command_data *command_data, char **args)
+int	find_commands_in_args(t_list **head, char **args)
 {
 	t_pipe_type	pipe_type;
 	int			len;
@@ -163,39 +164,36 @@ int	start_find_loop(t_command_data *command_data, char **args)
 		pipe_type = command_separator_type(args[start_pos + len]);
 		if (pipe_type == DELIMITER_INPUT
 			|| pipe_type == REDIRECT_INPUT)
-			err = input_type(command_data, args, &start_pos, &len);
+			err = input_pipe_command(head, args, &start_pos, &len);
 		else if (pipe_type)
-			err = other_type(command_data, args, &start_pos, &len);
+			err = output_pipe_command(head, args, &start_pos, &len);
 		else
 			len++;
 		if (err)
 			return (err);
 	}
 	if (len != 0)
-		err = other_type(command_data, args, &start_pos, &len);
+		err = output_pipe_command(head, args, &start_pos, &len);
 	return (err);
 }
 
 /**
- * Finds all the commands and stores them in t_command_data
+ * Finds all the commands and stores them in t_list
  *
  * @param	args	Arguments to create the commands from
  *
  * @return	NULL on error, command data success
  */
-t_command_data	*find_commands(char **args)
+t_list	**find_commands(char **args)
 {
-	t_command_data	*command_data;
-	t_list			**top;
+	t_list	**head;
 
 	if (args == NULL)
 		return (NULL);
-	command_data = ft_calloc(1, sizeof(t_command_data));
-	top = ft_calloc(1, sizeof(t_list *));
-	if (!command_data || !top)
+	head = ft_calloc(1, sizeof(t_list *));
+	if (!head)
 		return (NULL);
-	command_data->commands = top;
-	if (start_find_loop(command_data, args))
+	if (find_commands_in_args(head, args))
 		return (NULL);
-	return (command_data);
+	return (head);
 }

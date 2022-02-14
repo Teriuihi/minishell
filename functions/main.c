@@ -12,7 +12,6 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
-#include "../headers/structs.h"
 #include <readline/history.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -31,31 +30,30 @@ void	free_input_args(char *input, char **args)
 	free(tmp);
 }
 
-void	eval(t_command_data *command_data, t_data *data)
+void	copy_pid(const int *cur_pid, int *old_pid)
 {
-	int			*pid;
-	int			*old_pid;
+	old_pid[0] = cur_pid[0];
+	old_pid[1] = cur_pid[1];
+}
+
+void	run_commands(t_list **head, t_data *data)
+{
+	int			cur_pid[2];
+	int			old_pid[2];
 	t_command	*command;
 	t_list		*entry;
 
-	entry = *command_data->commands;
-	old_pid = NULL;
-	pid = NULL;
+	entry = *head;
+	cur_pid[0] = 0;
 	while (entry)
 	{
 		command = entry->content;
-		if (pid)
-			old_pid = pid;
+		if (cur_pid[0])
+			copy_pid(cur_pid, old_pid);
 		if (command->type)
-		{
-			pid = ft_calloc(2, sizeof(int));
-			if (!pid)
-				return ;
-			pipe(pid);
-			exec_command(command, old_pid, pid, is_builtin(command, data), data);
-		}
-		else
-			exec_command(command, old_pid, pid, is_builtin(command, data), data);
+			pipe(cur_pid);
+		exec_command(command, old_pid, cur_pid,
+			is_builtin(command, data), data);
 		entry = entry->next;
 	}
 }
@@ -85,12 +83,12 @@ void	set_data(t_data *data)
 
 int	main(void)
 {
-	t_signal		*signal_struct;
-	char			*input;
-	char			**args;
-	t_command_data	*command_data;
-	t_data			data;
-	char			*cur_dir;
+	t_signal	*signal_struct;
+	char		*input;
+	char		**args;
+	t_list		**head;
+	t_data		data;
+	char		*cur_dir;
 
 	cur_dir = getcwd(NULL, 0);
 	if (cur_dir == NULL)
@@ -112,13 +110,13 @@ int	main(void)
 			ft_printf("Error\n");
 			return (0);
 		}
-		command_data = find_commands(args);
-		if (command_data == NULL)
+		head = find_commands(args);
+		if (head == NULL)
 		{
 			ft_printf("Error\n");
 			return (0);
 		}
-		eval(command_data, &data);
+		run_commands(head, &data);
 		free_input_args(input, args);
 		input = readline("some shell>");
 	}
