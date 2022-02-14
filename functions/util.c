@@ -104,3 +104,36 @@ void	free_splitted(char **splitted)
 	}
 	free(splitted);
 }
+
+void	free_command(void *content)
+{
+	t_command	*command;
+	char		*entry;
+
+	command = content;
+	entry = *command->args;
+	while (*entry)
+	{
+		free(entry);
+		entry++;
+	}
+	free(command);
+}
+
+void	free_commands(t_list **head)
+{
+	ft_lstclear(head, free_command);
+}
+
+void	free_char_arr(char **args)
+{
+	char	**tmp;
+
+	tmp = args;
+	while (args && *args)
+	{
+		free(*args);
+		args++;
+	}
+	free(tmp);
+}

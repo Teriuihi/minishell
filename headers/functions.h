@@ -50,6 +50,9 @@ int				err_int_return(char *err, int status);
 void			*err_ptr_return(char *err, void *ptr);
 t_bool			env_variable_found(char *command); //check if its not =hellothere
 t_bool			child_execute_built_in_not_child(t_command *command, t_minishell *minishell);
+void			free_commands(t_list **head);
+void			free_char_arr(char **args);
+void			start_program_loop(t_minishell *minishell);
 
 /* hashtable */
 t_hash_table	*init_hash_table(int size);
