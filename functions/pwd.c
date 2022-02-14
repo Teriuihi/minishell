@@ -23,6 +23,14 @@ char	*get_pwd(t_minishell *minishell)
 	return (minishell->cur_wd);
 }
 
+/**
+ * Update current working directory in minishell data
+ *
+ * @param	path		New path to set wd to
+ * @param	minishell	Data for minishell
+ *
+ * @return	True on success, false on failure
+ */
 t_bool	update_pwd(char *path, t_minishell *minishell)
 {
 	ft_set_env("PWD", path, get_hash_table());//what happens if set didnt work?
@@ -33,6 +41,14 @@ t_bool	update_pwd(char *path, t_minishell *minishell)
 	return (true);
 }
 
+/**
+ * Set working directory to new path
+ *
+ * @param	path		New path to set wd to
+ * @param	minishell	Data for minishell
+ *
+ * @return	True on success, false on failure
+ */
 t_bool	set_pwd(char *path, t_minishell *minishell)
 {
 	char	*pwd_path;
