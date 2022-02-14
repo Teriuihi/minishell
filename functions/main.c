@@ -37,7 +37,7 @@ void	copy_pid(const int *cur_pid, int *old_pid)
 	old_pid[1] = cur_pid[1];
 }
 
-void	run_commands(t_list **head, t_data *data)
+void	run_commands(t_list **head, t_minishell *minishell)
 {
 	int			cur_pid[2];
 	int			old_pid[2];
@@ -54,7 +54,7 @@ void	run_commands(t_list **head, t_data *data)
 		if (command->type)
 			pipe(cur_pid);
 		exec_command(command, old_pid, cur_pid,
-			is_builtin(command, data), data);
+			is_builtin(command, minishell), minishell);
 		entry = entry->next;
 	}
 }
@@ -100,6 +100,7 @@ int	main(void)
 	}
 	set_pwd(cur_dir); //doens't need free
 	set_data(&data); //assigns hashtables
+	minishell.cur_wd = cur_dir;
 	minishell.data = &data;
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
@@ -119,7 +120,7 @@ int	main(void)
 			ft_printf("Error\n");
 			return (0);
 		}
-		run_commands(head, &data);
+		run_commands(head, &minishell);
 		free_input_args(input, args);
 		input = readline("some shell>");
 	}

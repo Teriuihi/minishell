@@ -79,7 +79,7 @@ void	redirect_file(t_command *command)
 }
 
 void	child_execute_built_in(t_command *command, const int *old_pid,
-								const int *cur_pid, t_data *data)
+								const int *cur_pid, t_minishell *minishell)
 {
 	int	pid;
 
@@ -96,18 +96,18 @@ void	child_execute_built_in(t_command *command, const int *old_pid,
 		read_input_write(command, pid);
 		exit(0);
 	}
-	if (execute_builtin(command, data) == false)
+	if (execute_builtin(command, minishell) == false)
 		ft_printf("Unable to execute command: %s\n", command->command);
 	exit(0);
 }
 
 void	child_execute_external(t_command *command, const int *old_pid,
-								const int *cur_pid, t_data *data)
+								const int *cur_pid, t_minishell *minishell)
 {
 	start_child(old_pid, cur_pid, command->type);
 	if (execve(command->command, command->args, NULL) < 0)
 		start_child(old_pid, cur_pid, command->type);
-	if (execve(command->command, command->args, get_envp(data->env)) < 0) //here we should pass instead of NULL an array of strings for env variable
+	if (execve(command->command, command->args, get_envp(minishell->data->env)) < 0) //here we should pass instead of NULL an array of strings for env variable
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);
 		exit(0);
@@ -127,7 +127,7 @@ void	parent(pid_t c_pid, const int *old_pid)
 }
 
 void	exec_command(t_command *command, int *old_pid, int *cur_pid,
-			t_bool is_built_in, t_data *data)
+			t_bool is_built_in, t_minishell *minishell)
 {
 	pid_t	c_pid;
 
@@ -147,9 +147,9 @@ void	exec_command(t_command *command, int *old_pid, int *cur_pid,
 	if (c_pid == 0) //only in this case do we pass the child_htable
 	{
 		if (is_built_in == true)
-			child_execute_built_in(command, old_pid, cur_pid, data);
+			child_execute_built_in(command, old_pid, cur_pid, minishell);
 		else
-			child_execute_external(command, old_pid, cur_pid, data);
+			child_execute_external(command, old_pid, cur_pid, minishell);
 	}
 	else
 		parent(c_pid, old_pid);

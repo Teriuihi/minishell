@@ -36,7 +36,7 @@ static int	split_len(char **splitted)
 	return (i);
 }
 
-static t_bool	export_found(t_command *command, t_data *data)
+static t_bool	export_found(t_command *command, t_minishell *minishell)
 {
 	char	**splitted_export;
 	int		i;
@@ -53,7 +53,7 @@ static t_bool	export_found(t_command *command, t_data *data)
 				free_splitted(splitted_export); //should free both not just ** itself
 				return (false);
 			}
-			ft_set_env(splitted_export[0], splitted_export[1], data->env); //check if set fails for some reason?
+			ft_set_env(splitted_export[0], splitted_export[1], minishell->data->env); //check if set fails for some reason?
 			free_splitted(splitted_export); //also incorrect, should create a free split functio
 			return (true);
 		}

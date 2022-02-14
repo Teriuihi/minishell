@@ -23,7 +23,7 @@
  * @return	true if the input is a builtin command, false if not
 */
 
-static	t_bool env_variable_found(char *command, t_data *data) //check if its not =hellothere
+static	t_bool env_variable_found(char *command, t_minishell *minishell) //check if its not =hellothere
 {
 	int	i;
 	int	count;
@@ -39,7 +39,7 @@ static	t_bool env_variable_found(char *command, t_data *data) //check if its not
 	//check for export?
 	if (ft_streq(command, "export"))
 	{
-		data->export_flag = 1;
+		minishell->data->export_flag = 1;
 		return (true);
 	}
 	while (command[i])
@@ -69,7 +69,7 @@ static	t_bool env_variable_found(char *command, t_data *data) //check if its not
 	}
 }
 
-t_bool	is_builtin(t_command *command, t_data *data)
+t_bool	is_builtin(t_command *command, t_minishell *minishell)
 {
 	int			i;
 	const char	*builtins[7] = {"echo",
@@ -83,7 +83,7 @@ t_bool	is_builtin(t_command *command, t_data *data)
 	if (command == NULL || command->command == NULL)
 		return (0);
 	i = 0;
-	if (env_variable_found(command->command, data) == true) //what happens if its false but because of incorrect input? hello==myvar
+	if (env_variable_found(command->command, minishell) == true) //what happens if its false but because of incorrect input? hello==myvar
 	{
 		//if its true, can we not just add immediately to hashtable?
 		return (true);
