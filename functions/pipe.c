@@ -126,9 +126,9 @@ void	parent(pid_t c_pid, const int *old_pid)
 	waitpid(c_pid, &status, 0);
 }
 
-t_bool should_be_child(t_command *command, t_minishell *minishell)
+t_bool should_be_child(t_command *command)
 {
-	if (env_variable_found(command->command, minishell) == true) //what happens if its false but because of incorrect input? hello==myvar
+	if (env_variable_found(command->command) == true) //what happens if its false but because of incorrect input? hello==myvar
 		return (false);
 	if (ft_streq(command->command, "cd"))
 		return (false);
@@ -154,8 +154,9 @@ void	exec_command(t_command *command, int *old_pid, int *cur_pid,
 		}
 		*command->args = command->command;
 	}
-	if (is_built_in && should_be_child(command, minishell) == false)
+	if (is_built_in && should_be_child(command) == false)
 	{
+		//only cd, export, unset
 		child_execute_built_in_not_child(command, minishell);
 		return ;
 	}

@@ -29,7 +29,7 @@ char			*search_in_path(char *command);
 size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 t_bool			execute_builtin(t_command *command, t_minishell *minishell);
 void			ft_echo(t_command *command, int fd);
-t_bool			is_builtin(t_command *command, t_minishell *minishell);
+t_bool			is_builtin(t_command *command);
 void			crtld_handler(int signum);
 void			sigquit_handler(int signum);
 void			sigint_handler(int signum);
@@ -48,7 +48,7 @@ void			exec_command(t_command *command, int *old_pid, int *cur_pid,
 void			err_exit(char *err, int status);
 int				err_int_return(char *err, int status);
 void			*err_ptr_return(char *err, void *ptr);
-t_bool			env_variable_found(char *command, t_minishell *minishell);
+t_bool			env_variable_found(char *command); //check if its not =hellothere
 t_bool			child_execute_built_in_not_child(t_command *command, t_minishell *minishell);
 
 /* hashtable */
@@ -61,7 +61,7 @@ t_hash_table	*duplicates_are_found_in_argv(void);
 void			destroy_hash_table(t_hash_table *hash_table, int size);
 char			*ft_get_env_val(char *key, t_hash_table *h_table);
 void			ft_set_env(char *key, char *val, t_hash_table *h_table);
-void			ft_remove_env(char *key, t_hash_table *h_table);
+void			ft_remove_exported_var(char *key, t_hash_table *h_table);
 void			free_key_value(t_entry *entry);
 void			print_h_table(t_hash_table *h_table);
 
