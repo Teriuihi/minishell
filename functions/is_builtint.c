@@ -23,7 +23,7 @@
  * @return	true if the input is a builtin command, false if not
 */
 
-t_bool env_variable_found(char *command) //check if its not =hellothere
+t_bool	env_variable_found(char *command) //check if its not =hellothere
 {
 	int	i;
 	int	count;
