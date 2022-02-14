@@ -12,6 +12,7 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
+#include "../headers/global.h"
 #include <readline/history.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -83,6 +84,7 @@ void	set_data(t_data *data)
 
 int	main(void)
 {
+	t_minishell	minishell;
 	t_signal	*signal_struct;
 	char		*input;
 	char		**args;
@@ -98,6 +100,7 @@ int	main(void)
 	}
 	set_pwd(cur_dir); //doens't need free
 	set_data(&data); //assigns hashtables
+	minishell.data = &data;
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
 	input = readline("some shell>");
