@@ -16,7 +16,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-void	start_child(const int *old_pid, const int *cur_pid, t_pipe_type type)
+void	start_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
+					t_minishell *minishell)
 {
 	char	*cur_dir;
 
@@ -33,9 +34,8 @@ void	start_child(const int *old_pid, const int *cur_pid, t_pipe_type type)
 		close(cur_pid[1]);
 		close(cur_pid[0]);
 	}
-	cur_dir = get_pwd();
+	cur_dir = get_pwd(minishell);
 	chdir(cur_dir);
-	free(cur_dir);
 }
 
 void	read_input_write(t_command *command, int write_pid)
@@ -53,14 +53,14 @@ void	read_input_write(t_command *command, int write_pid)
 	close(write_pid);
 }
 
-void	redirect_file(t_command *command)
+void	redirect_file(t_command *command, t_minishell *minishell)
 {
 	char	buffer[1000];
 	char	*path;
 	int		fd;
 	int		len;
 
-	path = get_pwd();
+	path = get_pwd(minishell);
 	if (path == NULL)
 		err_exit("out of memory", 0);
 	chdir(path);
@@ -85,10 +85,10 @@ void	child_execute_built_in(t_command *command, const int *old_pid,
 
 	if (command->type == DELIMITER_INPUT)
 		pid = dup(cur_pid[1]);
-	start_child(old_pid, cur_pid, command->type);
+	start_child(old_pid, cur_pid, command->type, minishell);
 	if (command->type == REDIRECT_INPUT)
 	{
-		redirect_file(command);
+		redirect_file(command, minishell);
 		exit(0);
 	}
 	if (command->type == DELIMITER_INPUT)
@@ -104,9 +104,9 @@ void	child_execute_built_in(t_command *command, const int *old_pid,
 void	child_execute_external(t_command *command, const int *old_pid,
 								const int *cur_pid, t_minishell *minishell)
 {
-	start_child(old_pid, cur_pid, command->type);
-	if (execve(command->command, command->args, NULL) < 0)
-		start_child(old_pid, cur_pid, command->type);
+	start_child(old_pid, cur_pid, command->type, minishell);
+//	if (execve(command->command, command->args, NULL) < 0)
+//		start_child(old_pid, cur_pid, command->type);
 	if (execve(command->command, command->args, get_envp(minishell->data->env)) < 0) //here we should pass instead of NULL an array of strings for env variable
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);

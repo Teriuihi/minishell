@@ -14,15 +14,13 @@
 #include <stdlib.h>
 
 /**
- * Get the pwd, and sets it if path isn't null
+ * Get the working directory
  *
- * @param	path
- *
- * @return	the pwd (if it's been updated it will be equal to path)
+ * @return	the current working directory
  */
-char	*get_pwd(void)
+char	*get_pwd(t_minishell *minishell)
 {
-	return (ft_get_env_val("PWD", get_hash_table()));
+	return (minishell->cur_wd);
 }
 
 t_bool	update_pwd(char *path, t_minishell *minishell)
@@ -32,7 +30,6 @@ t_bool	update_pwd(char *path, t_minishell *minishell)
 	minishell->cur_wd = ft_strdup(path);
 	if (minishell->cur_wd == NULL)
 		return (false);
-	ft_printf("new wd: %s\n", minishell->cur_wd);
 	return (true);
 }
 
@@ -41,20 +38,16 @@ t_bool	set_pwd(char *path, t_minishell *minishell)
 	char	*pwd_path;
 	char	*tmp;
 
-	pwd_path = get_pwd();
+	pwd_path = get_pwd(minishell);
 	if (!path || !*path)
 		return (false);
 	if (pwd_path == NULL || *path == '/')
-	{
-		free(pwd_path);
 		return (update_pwd(path, minishell));
-	}
 	tmp = ft_calloc(ft_strlen(path) + ft_strlen(pwd_path) + 1, sizeof(char));
 	if (!tmp)
 		return (false);
 	ft_strlcpy(tmp, path, ft_strlen(path));
 	ft_strlcpy(tmp + ft_strlen(path), pwd_path, ft_strlen(pwd_path));
-	free(pwd_path);
 	free(path);
 	return (update_pwd(tmp, minishell));
 }

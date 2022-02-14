@@ -15,48 +15,65 @@
 #include "../headers/functions.h"
 
 /**
+ * Get path to the new directory from the given argument
+ *
+ * @param	dir_arg		Argument
+ * @param	minishell	Data for minishell
+ *
+ * @return	Char pointer to path, or NULL on failure
+ */
+char	*get_path_from_arg(char	*dir_arg, t_minishell *minishell)
+{
+	char	*dir;
+	char	*tmp;
+
+	if (*dir_arg == '/')
+		return (dir_arg);
+	else
+	{
+		tmp = ft_strjoin("/", dir_arg);
+		if (!tmp)
+		{
+			ft_printf("Out of memory\n");
+			return (NULL);
+		}
+		dir = ft_strjoin(minishell->cur_wd, tmp);
+		free(tmp);
+		if (!dir)
+			return (NULL);
+		return (dir);
+	}
+}
+
+/**
  * Changes directory and updates pwd on success
  *
  * @param	dir	free-able char pointer
  *
- * @return	-1 for failure in chdir command
- * 	-2 if dir was null
+ * @return	false if the command failed, true if it was executed correctly
  */
 t_bool	cd(t_command *command, t_minishell *minishell)
 {
 	void	*tmp;
 	char	*dir;
-	char	*tmp_dir;
 	t_bool	result;
 
-	if (command->args_len != 2)
+	if (command->args_len != 2 || command->args[1] == NULL)
 	{
 		ft_printf("Invalid command, not enough args\n");
 		return (false);
 	}
-	dir = command->args[1];
-	if (dir == NULL)
-		return (false);
-	else if (*dir == '/')
-		dir = ft_strdup(dir);
-	else
-	{
-		tmp_dir = ft_strjoin("/", dir);
-		if (!tmp_dir)
-		{
-			ft_printf("Out of memory\n");
-			return (false);
-		}
-		dir = ft_strjoin(minishell->cur_wd, tmp_dir);
-		free(tmp_dir);
-	}
+	dir = get_path_from_arg(command->args[1], minishell);
 	if (dir == NULL)
 		return (false);
 	tmp = opendir(dir);
-	if (!tmp)
+	result = tmp != NULL;
+	free(tmp);
+	if (result == false)
 		return (false);
 	chdir(dir);
+	if (dir != command->args[1])
+		free(dir);
 	result = set_pwd(getcwd(NULL, 0), minishell);
-	free(tmp);
 	return (result);
 }

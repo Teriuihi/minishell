@@ -12,7 +12,6 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
-#include "../headers/global.h"
 #include <readline/history.h>
 #include <sys/stat.h>
 #include <unistd.h>

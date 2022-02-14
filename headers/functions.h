@@ -20,7 +20,7 @@
 # include "global.h"
 
 t_list			**find_commands(char **args);
-char			*get_pwd(void);
+char			*get_pwd(t_minishell *minishell);
 t_bool			set_pwd(char *path, t_minishell *minishell);
 t_bool			cd(t_command *command, t_minishell *minishell);
 char			*get_path(void);

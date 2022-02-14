@@ -97,7 +97,7 @@ t_bool	child_execute_built_in_not_child(t_command *command, t_minishell *minishe
 
 	//check if command is an env var, in that case call a setter etc function
 	//check for env var
-	cur_dir = get_pwd();
+	cur_dir = get_pwd(minishell);
 	if (!command->command)
 		return (false);
 	else if (ft_streq(command->command, "echo"))
@@ -117,7 +117,6 @@ t_bool	child_execute_built_in_not_child(t_command *command, t_minishell *minishe
 		return (true);
 	else
 		return (false);
-	free(cur_dir);
 	return (true);
 }
 
@@ -127,7 +126,7 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->ar
 
 	//check if command is an env var, in that case call a setter etc function
 	//check for env var
-	cur_dir = get_pwd();
+	cur_dir = get_pwd(minishell);
 	if (!command->command)
 		return (false);
 	else if (ft_streq(command->command, "echo"))
@@ -147,6 +146,5 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->ar
 		return (true);
 	else
 		return (false);
-	free(cur_dir);
 	return (true);
 }
