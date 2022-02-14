@@ -78,21 +78,19 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 	{
 		return (true);
 	}
-	else
+	splitted = ft_split(command->command, '='); //what about more = eg: hello=there=johhny?
+	if (split_len(splitted) != 2) //should be only 2
 	{
-		splitted = ft_split(command->command, '='); //what about more = eg: hello=there=johhny?
-		if (split_len(splitted) < 2)
-		{
-			free_splitted(splitted);
-			return (false);
-		}
-		ft_set_env(splitted[0], splitted[1], data->current_env); //check if set fails for some reason?
-		return (true);
+		free_splitted(splitted);
+		return (false);
 	}
+	ft_set_env(splitted[0], splitted[1], data->current_env); //check if set fails for some reason?
+	return (true);
 }
 
+
 t_bool	child_execute_built_in_not_child(t_command *command, t_minishell *minishell)
-{
+{	//cd, export, unset
 	char	*cur_dir;
 
 	//check if command is an env var, in that case call a setter etc function
@@ -100,21 +98,14 @@ t_bool	child_execute_built_in_not_child(t_command *command, t_minishell *minishe
 	cur_dir = get_pwd(minishell);
 	if (!command->command)
 		return (false);
-	else if (ft_streq(command->command, "echo"))
-		ft_echo(command, 1);
+	else if (env_var_added(command, minishell) == true) //export? but also a=b should be here
+		return (true);
 	else if (ft_streq(command->command, "cd"))
 		return (cd(command, minishell));
-	else if (ft_streq(command->command, "pwd"))
-	{
-		ft_putstr_fd(cur_dir, 1);
-		ft_putstr_fd("\n", 1);
-	}
 	else if (ft_streq(command->command, "env")) //next one should be the key
-	{
 		print_h_table(minishell->data->env);
-	}
-	else if (env_var_added(command, minishell) == true)
-		return (true);
+	else if (ft_streq(command->command, "unset")) //next one should be the key
+		ft_remove_exported_var(command->args[1], minishell->data->env);
 	else
 		return (false);
 	return (true);

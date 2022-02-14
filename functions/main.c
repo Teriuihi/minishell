@@ -53,7 +53,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 		if (command->type)
 			pipe(cur_pid);
 		exec_command(command, old_pid, cur_pid,
-			is_builtin(command, minishell), minishell);
+			is_builtin(command), minishell);
 		entry = entry->next;
 	}
 }

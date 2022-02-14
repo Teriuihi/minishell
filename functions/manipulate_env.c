@@ -21,7 +21,7 @@
 
 extern char	**environ;
 
-void	ft_remove_env(char *key, t_hash_table *h_table)
+void	ft_remove_exported_var(char *key, t_hash_table *h_table)
 {
 	unsigned int	hashkey;
 
@@ -40,6 +40,7 @@ void	ft_remove_env(char *key, t_hash_table *h_table)
 		}
 		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
 	}
+	ft_printf("didnt find a var with this name\n");
 }
 
 void	ft_set_env(char *key, char *val, t_hash_table *h_table)
