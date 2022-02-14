@@ -98,10 +98,10 @@ int	main(void)
 		ft_printf("Error\n");
 		return (0);
 	}
-	set_pwd(cur_dir); //doens't need free
-	set_data(&data); //assigns hashtables
 	minishell.cur_wd = cur_dir;
+	set_data(&data); //assigns hashtables
 	minishell.data = &data;
+	set_pwd(cur_dir, &minishell); //doesn't need free
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
 	input = readline("some shell>");

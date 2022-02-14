@@ -22,31 +22,41 @@
  * @return	-1 for failure in chdir command
  * 	-2 if dir was null
  */
-int	cd(char *dir)
+t_bool	cd(t_command *command, t_minishell *minishell)
 {
 	void	*tmp;
+	char	*dir;
 	char	*tmp_dir;
-	char	*cur_dir;
+	t_bool	result;
 
+	if (command->args_len != 2)
+	{
+		ft_printf("Invalid command, not enough args\n");
+		return (false);
+	}
+	dir = command->args[1];
 	if (dir == NULL)
-		return (-2);
+		return (false);
 	else if (*dir == '/')
 		dir = ft_strdup(dir);
 	else
 	{
-		tmp_dir = ft_strjoin("/", dir); //TODO null check
-		cur_dir = get_pwd();
-		dir = ft_strjoin(cur_dir, tmp_dir); //TODO use env variable
-		free(cur_dir);
+		tmp_dir = ft_strjoin("/", dir);
+		if (!tmp_dir)
+		{
+			ft_printf("Out of memory\n");
+			return (false);
+		}
+		dir = ft_strjoin(minishell->cur_wd, tmp_dir);
 		free(tmp_dir);
 	}
 	if (dir == NULL)
-		return (-3);
+		return (false);
 	tmp = opendir(dir);
 	if (!tmp)
-		return (-1);
+		return (false);
 	chdir(dir);
-	set_pwd(getcwd(NULL, 0));
+	result = set_pwd(getcwd(NULL, 0), minishell);
 	free(tmp);
-	return (0);
+	return (result);
 }

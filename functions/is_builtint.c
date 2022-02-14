@@ -23,7 +23,7 @@
  * @return	true if the input is a builtin command, false if not
 */
 
-static	t_bool env_variable_found(char *command, t_minishell *minishell) //check if its not =hellothere
+t_bool env_variable_found(char *command, t_minishell *minishell) //check if its not =hellothere
 {
 	int	i;
 	int	count;

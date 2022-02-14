@@ -21,8 +21,8 @@
 
 t_list			**find_commands(char **args);
 char			*get_pwd(void);
-int				set_pwd(char *path);
-int				cd(char *dir);
+t_bool			set_pwd(char *path, t_minishell *minishell);
+t_bool			cd(t_command *command, t_minishell *minishell);
 char			*get_path(void);
 char			**get_args(char *input);
 char			*search_in_path(char *command);
@@ -40,7 +40,6 @@ t_pipe_type		command_separator_type(char *str);
 void			crtld_handler(int signum);
 void			sigquit_handler(int signum);
 void			sigint_handler(int signum);
-char			*get_working_directory(char *path);
 t_signal		*init_signal(void);
 void			print_splitted(char **args);
 t_hash_table	*get_hash_table(void);
@@ -49,6 +48,8 @@ void			exec_command(t_command *command, int *old_pid, int *cur_pid,
 void			err_exit(char *err, int status);
 int				err_int_return(char *err, int status);
 void			*err_ptr_return(char *err, void *ptr);
+t_bool			env_variable_found(char *command, t_minishell *minishell);
+t_bool			child_execute_built_in_not_child(t_command *command, t_minishell *minishell);
 
 /* hashtable */
 t_hash_table	*init_hash_table(int size);

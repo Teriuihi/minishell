@@ -22,32 +22,39 @@
  */
 char	*get_pwd(void)
 {
-	return (ft_get_env_val("OUR_PWD", get_hash_table()));
+	return (ft_get_env_val("PWD", get_hash_table()));
 }
 
-int	set_pwd(char *path)
+t_bool	update_pwd(char *path, t_minishell *minishell)
+{
+	ft_set_env("PWD", path, get_hash_table());//what happens if set didnt work?
+	free(minishell->cur_wd);
+	minishell->cur_wd = ft_strdup(path);
+	if (minishell->cur_wd == NULL)
+		return (false);
+	ft_printf("new wd: %s\n", minishell->cur_wd);
+	return (true);
+}
+
+t_bool	set_pwd(char *path, t_minishell *minishell)
 {
 	char	*pwd_path;
 	char	*tmp;
 
 	pwd_path = get_pwd();
 	if (!path || !*path)
-		return (-1);
-	if (pwd_path == NULL || *path == '/' || *path == '~')
+		return (false);
+	if (pwd_path == NULL || *path == '/')
 	{
 		free(pwd_path);
-		ft_set_env("OUR_PWD", path, get_hash_table()); //what happens if set didnt work?
-		free(path);
-		return (0);
+		return (update_pwd(path, minishell));
 	}
 	tmp = ft_calloc(ft_strlen(path) + ft_strlen(pwd_path) + 1, sizeof(char));
 	if (!tmp)
-		return (-2);
+		return (false);
 	ft_strlcpy(tmp, path, ft_strlen(path));
 	ft_strlcpy(tmp + ft_strlen(path), pwd_path, ft_strlen(pwd_path));
 	free(pwd_path);
 	free(path);
-	ft_set_env("OUR_PWD", tmp, get_hash_table());
-	free(tmp);
-	return (0);
+	return (update_pwd(tmp, minishell));
 }

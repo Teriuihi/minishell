@@ -91,21 +91,19 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 	}
 }
 
-t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->args + 1 == myvar=stmh
+t_bool	child_execute_built_in_not_child(t_command *command, t_minishell *minishell)
 {
 	char	*cur_dir;
 
 	//check if command is an env var, in that case call a setter etc function
 	//check for env var
-	if (env_var_added(command, minishell) == true)
-		return (true);
 	cur_dir = get_pwd();
 	if (!command->command)
 		return (false);
 	else if (ft_streq(command->command, "echo"))
 		ft_echo(command, 1);
 	else if (ft_streq(command->command, "cd"))
-		cd(*command->args);
+		return (cd(command, minishell));
 	else if (ft_streq(command->command, "pwd"))
 	{
 		ft_putstr_fd(cur_dir, 1);
@@ -115,6 +113,38 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->ar
 	{
 		print_h_table(minishell->data->env);
 	}
+	else if (env_var_added(command, minishell) == true)
+		return (true);
+	else
+		return (false);
+	free(cur_dir);
+	return (true);
+}
+
+t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->args + 1 == myvar=stmh
+{
+	char	*cur_dir;
+
+	//check if command is an env var, in that case call a setter etc function
+	//check for env var
+	cur_dir = get_pwd();
+	if (!command->command)
+		return (false);
+	else if (ft_streq(command->command, "echo"))
+		ft_echo(command, 1);
+	else if (ft_streq(command->command, "cd"))
+		return (cd(command, minishell));
+	else if (ft_streq(command->command, "pwd"))
+	{
+		ft_putstr_fd(cur_dir, 1);
+		ft_putstr_fd("\n", 1);
+	}
+	else if (ft_streq(command->command, "env")) //next one should be the key
+	{
+		print_h_table(minishell->data->env);
+	}
+	else if (env_var_added(command, minishell) == true)
+		return (true);
 	else
 		return (false);
 	free(cur_dir);

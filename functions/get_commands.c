@@ -74,6 +74,7 @@ t_command	*create_command(t_pipe_type pipe_type, char **args, int start_pos,
 	}
 	ft_memcpy(command->args, args + start_pos, len * sizeof(char *));
 	command->type = pipe_type;
+	command->args_len = len;
 	return (command);
 }
 

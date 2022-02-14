@@ -126,6 +126,17 @@ void	parent(pid_t c_pid, const int *old_pid)
 	waitpid(c_pid, &status, 0);
 }
 
+t_bool should_be_child(t_command *command, t_minishell *minishell)
+{
+	if (env_variable_found(command->command, minishell) == true) //what happens if its false but because of incorrect input? hello==myvar
+		return (false);
+	if (ft_streq(command->command, "cd"))
+		return (false);
+	if (ft_streq(command->command, "unset"))
+		return (false);
+	return (true);
+}
+
 void	exec_command(t_command *command, int *old_pid, int *cur_pid,
 			t_bool is_built_in, t_minishell *minishell)
 {
@@ -142,6 +153,11 @@ void	exec_command(t_command *command, int *old_pid, int *cur_pid,
 			return ;
 		}
 		*command->args = command->command;
+	}
+	if (is_built_in && should_be_child(command, minishell) == false)
+	{
+		child_execute_built_in_not_child(command, minishell);
+		return ;
 	}
 	c_pid = fork();
 	if (c_pid == 0) //only in this case do we pass the child_htable
