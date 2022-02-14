@@ -16,7 +16,17 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-void	start_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
+/**
+ * Assign pid's to STDOUT or STDIN as needed
+ * Close unused file descriptors for child
+ * Reset wd to current working directory
+ *
+ * @param	old_pid		PIDs used by the previous process
+ * @param	cur_pid		PIDs used by the current process
+ * @param	type		Type of pipe for this child process
+ * @param	minishell	Data for minishell
+ */
+void	init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
 					t_minishell *minishell)
 {
 	char	*cur_dir;
@@ -38,6 +48,12 @@ void	start_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
 	chdir(cur_dir);
 }
 
+/**
+ * Read input using readline until delimiter is found and write it to pipe
+ *
+ * @param	command		Current command
+ * @param	write_pid	PID to write to
+ */
 void	read_input_write(t_command *command, int write_pid)
 {
 	char	*input;
@@ -53,6 +69,12 @@ void	read_input_write(t_command *command, int write_pid)
 	close(write_pid);
 }
 
+/**
+ * Redirect the contents of a file to a pipe
+ *
+ * @param	command		Current command
+ * @param	minishell	Data for minishell
+ */
 void	redirect_file(t_command *command, t_minishell *minishell)
 {
 	char	buffer[1000];
@@ -78,6 +100,15 @@ void	redirect_file(t_command *command, t_minishell *minishell)
 	}
 }
 
+/**
+ * Execute a build in command
+ * 	should only be called from child process
+ *
+ * @param	command		Current command
+ * @param	old_pid		PIDs used by the previous process
+ * @param	cur_pid		PIDs used by the current process
+ * @param	minishell	Data for minishell
+ */
 void	child_execute_built_in(t_command *command, const int *old_pid,
 								const int *cur_pid, t_minishell *minishell)
 {
@@ -85,7 +116,7 @@ void	child_execute_built_in(t_command *command, const int *old_pid,
 
 	if (command->type == DELIMITER_INPUT)
 		pid = dup(cur_pid[1]);
-	start_child(old_pid, cur_pid, command->type, minishell);
+	init_child(old_pid, cur_pid, command->type, minishell);
 	if (command->type == REDIRECT_INPUT)
 	{
 		redirect_file(command, minishell);
@@ -101,24 +132,40 @@ void	child_execute_built_in(t_command *command, const int *old_pid,
 	exit(0);
 }
 
+/**
+ * Execute an external command
+ * 	should only be called from child process
+ *
+ * @param	command		Current command
+ * @param	old_pid		PIDs used by the previous process
+ * @param	cur_pid		PIDs used by the current process
+ * @param	minishell	Data for minishell
+ */
 void	child_execute_external(t_command *command, const int *old_pid,
 								const int *cur_pid, t_minishell *minishell)
 {
-	start_child(old_pid, cur_pid, command->type, minishell);
-//	if (execve(command->command, command->args, NULL) < 0)
-//		start_child(old_pid, cur_pid, command->type);
-	if (execve(command->command, command->args, get_envp(minishell->data->env)) < 0) //here we should pass instead of NULL an array of strings for env variable
+	init_child(old_pid, cur_pid, command->type, minishell);
+	if (execve(command->command, command->args,
+			get_envp(minishell->data->env)) < 0) //here we should pass instead of NULL an array of strings for env variable
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);
 		exit(0);
 	}
 }
 
+/**
+ * Code to be ran by parent after fork
+ * 	closes unused PIDs
+ * 	waits for child to finish
+ *
+ * @param	c_pid	PID of fork
+ * @param	old_pid	PIDs from previous pipes
+ */
 void	parent(pid_t c_pid, const int *old_pid)
 {
 	int	status;
 
-	if (old_pid)
+	if (old_pid[0])
 	{
 		close(old_pid[1]);
 		close(old_pid[0]);
@@ -126,7 +173,14 @@ void	parent(pid_t c_pid, const int *old_pid)
 	waitpid(c_pid, &status, 0);
 }
 
-t_bool should_be_child(t_command *command)
+/**
+ * Check if a command should be executed in a child process
+ *
+ * @param	command	Command to check
+ *
+ * @return	True if it should be executed in a child process, false if not
+ */
+t_bool	should_be_child(t_command *command)
 {
 	if (env_variable_found(command->command) == true) //what happens if its false but because of incorrect input? hello==myvar
 		return (false);
@@ -137,6 +191,15 @@ t_bool should_be_child(t_command *command)
 	return (true);
 }
 
+/**
+ * Execute a command
+ *
+ * @param	command		Command to execute
+ * @param	old_pid		PIDs used by the previous process
+ * @param	cur_pid		PIDs used by the current process
+ * @param	is_built_in	If a command is a built in command or not
+ * @param	minishell	Data for minishell
+ */
 void	exec_command(t_command *command, int *old_pid, int *cur_pid,
 			t_bool is_built_in, t_minishell *minishell)
 {

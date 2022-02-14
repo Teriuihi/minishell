@@ -45,6 +45,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 
 	entry = *head;
 	cur_pid[0] = 0;
+	old_pid[0] = 0;
 	while (entry)
 	{
 		command = entry->content;
