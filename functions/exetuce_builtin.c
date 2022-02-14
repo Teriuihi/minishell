@@ -63,16 +63,18 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 }
 
 //for now we take it for granted that at this point we might have a correct input, but we have to find another way to check it
-static t_bool	env_var_added(t_command *command, t_data *data) //cant we just assign a flag to the global struct which says, hey we have an equal sign found in is_built_in
+static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant we just assign a flag to the global struct which says, hey we have an equal sign found in is_built_in
 {	
 	//command "export myvar=hello"
 	char	**splitted;
+	t_data	*data;
 
+	data = minishell->data;
 	if (!command || !data)
 	{
 		return (false);
 	}
-	if (export_found(command, data) == true)
+	if (export_found(command, minishell) == true)
 	{
 		return (true);
 	}
@@ -89,13 +91,13 @@ static t_bool	env_var_added(t_command *command, t_data *data) //cant we just ass
 	}
 }
 
-t_bool	execute_builtin(t_command *command, t_data *data) //command->args + 1 == myvar=stmh
+t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->args + 1 == myvar=stmh
 {
 	char	*cur_dir;
 
 	//check if command is an env var, in that case call a setter etc function
 	//check for env var
-	if (env_var_added(command, data) == true)
+	if (env_var_added(command, minishell) == true)
 		return (true);
 	cur_dir = get_pwd();
 	if (!command->command)
@@ -111,7 +113,7 @@ t_bool	execute_builtin(t_command *command, t_data *data) //command->args + 1 == 
 	}
 	else if (ft_streq(command->command, "env")) //next one should be the key
 	{
-		print_h_table(data->env);
+		print_h_table(minishell->data->env);
 	}
 	else
 		return (false);
