@@ -12,52 +12,8 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
-#include <readline/history.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
-void	free_input_args(char *input, char **args)
-{
-	char	**tmp;
-
-	tmp = args;
-	free(input);
-	while (*args)
-	{
-		free(*args);
-		args++;
-	}
-	free(tmp);
-}
-
-void	copy_pid(const int *cur_pid, int *old_pid)
-{
-	old_pid[0] = cur_pid[0];
-	old_pid[1] = cur_pid[1];
-}
-
-void	run_commands(t_list **head, t_minishell *minishell)
-{
-	int			cur_pid[2];
-	int			old_pid[2];
-	t_command	*command;
-	t_list		*entry;
-
-	entry = *head;
-	cur_pid[0] = 0;
-	old_pid[0] = 0;
-	while (entry)
-	{
-		command = entry->content;
-		if (cur_pid[0])
-			copy_pid(cur_pid, old_pid);
-		if (command->type)
-			pipe(cur_pid);
-		exec_command(command, old_pid, cur_pid,
-			is_builtin(command), minishell);
-		entry = entry->next;
-	}
-}
 
 t_hash_table	*get_hash_table(void)
 {
@@ -82,47 +38,31 @@ void	set_data(t_data *data)
 	data->env = get_hash_table();
 }
 
-int	main(void)
+void	init(t_minishell *minishell)
 {
-	t_minishell	minishell;
-	t_signal	*signal_struct;
-	char		*input;
-	char		**args;
-	t_list		**head;
 	t_data		data;
 	char		*cur_dir;
+	t_signal	*signal_struct;
 
 	cur_dir = getcwd(NULL, 0);
 	if (cur_dir == NULL)
 	{
 		ft_printf("Error\n");
-		return (0);
+		exit(0);
 	}
-	minishell.cur_wd = cur_dir;
+	minishell->cur_wd = cur_dir;
 	set_data(&data); //assigns hashtables
-	minishell.data = &data;
-	set_pwd(cur_dir, &minishell); //doesn't need free
+	minishell->data = &data;
+	set_pwd(cur_dir, minishell);
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
-	input = readline("some shell>");
-	while (input)
-	{
-		add_history(input);
-		args = get_args(input); //
-		if (args == NULL)
-		{
-			ft_printf("Error\n");
-			return (0);
-		}
-		head = find_commands(args);
-		if (head == NULL)
-		{
-			ft_printf("Error\n");
-			return (0);
-		}
-		run_commands(head, &minishell);
-		free_input_args(input, args);
-		input = readline("some shell>");
-	}
+}
+
+int	main(void)
+{
+	t_minishell	minishell;
+
+	init(&minishell);
+	start_program_loop(&minishell);
 	return (0);
 }
