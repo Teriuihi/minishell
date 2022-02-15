@@ -96,7 +96,7 @@ void	start_program_loop(t_minishell *minishell)
 				exit(0);
 			}
 			run_commands(head, minishell);
-			free_commands(head);
+			//free_commands(head); causing double free?
 			free_char_arr(args);
 		}
 		free(input);

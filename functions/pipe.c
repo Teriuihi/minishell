@@ -65,7 +65,7 @@ void	read_input_write(t_command *command, int write_pid)
 	{
 		ft_putstr_fd(input, write_pid);
 		input = readline("heredoc> ");
-	}
+	}	
 	close(write_pid);
 }
 

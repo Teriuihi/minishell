@@ -121,7 +121,9 @@ int	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 	t_command	*command;
 	t_pipe_type	pipe_type;
 
-	pipe_type = command_separator_type(args[(*start_pos) + (*len)]);
+	ft_printf("entered right place\n");
+
+	pipe_type = command_separator_type(args[(*start_pos) + (*len)]); //this returns which char are we having
 	if (*len == 0)
 	{
 		*len += 2;
@@ -164,7 +166,7 @@ int	find_commands_in_args(t_list **head, char **args)
 	{
 		pipe_type = command_separator_type(args[start_pos + len]);
 		if (pipe_type == DELIMITER_INPUT
-			|| pipe_type == REDIRECT_INPUT)
+			|| pipe_type == REDIRECT_INPUT || pipe_type == REDIRECT_OUTPUT)
 			err = input_pipe_command(head, args, &start_pos, &len);
 		else if (pipe_type)
 			err = output_pipe_command(head, args, &start_pos, &len);
