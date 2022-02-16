@@ -215,7 +215,8 @@ void	exec_command(t_command *command, int *old_pid, int *cur_pid,
 			ft_printf("Command not found: %s\n", *command->args);
 			return ;
 		}
-		*command->args = command->command;
+		free(*command->args);
+		*command->args = ft_strdup(command->command);
 	}
 	if (is_built_in && should_be_child(command) == false)
 	{

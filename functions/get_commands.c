@@ -25,17 +25,50 @@
 int	store_command(t_command *command, t_list **head)
 {
 	t_list	*new;
+	char	*entry;
 
 	new = ft_lstnew(command);
 	if (new == NULL)
 	{
+		free_commands(head);
 		free(command->command);
-		free(command->args);
+		entry = *command->args;
+		while (*entry)
+		{
+			free(entry);
+			entry++;
+		}
 		free(command);
 		err_int_return("Not enough memory.", -1);
 	}
 	ft_lstadd_back(head, new);
 	return (0);
+}
+
+t_bool	store_args(char **args, int len, int start_pos, t_command *command)
+{
+	int		i;
+	char	*entry;
+
+	i = -1;
+	while (++i < len)
+	{
+		entry = args[start_pos + i];
+		command->args[i] = ft_strdup(entry);
+		if (command->args[i] == NULL)
+		{
+			free(command->command);
+			entry = *command->args;
+			while (*entry)
+			{
+				free(entry);
+				entry++;
+			}
+			free(command);
+			return (err_int_return("Not enough memory.", false));
+		}
+	}
+	return (true);
 }
 
 /**
@@ -72,7 +105,7 @@ t_command	*create_command(t_pipe_type pipe_type, char **args, int start_pos,
 		free(command);
 		return (err_ptr_return("Not enough memory.", NULL));
 	}
-	ft_memcpy(command->args, args + start_pos, len * sizeof(char *));
+	store_args(args, len, start_pos, command);
 	command->type = pipe_type;
 	command->args_len = len;
 	return (command);

@@ -108,15 +108,12 @@ void	free_splitted(char **splitted)
 void	free_command(void *content)
 {
 	t_command	*command;
-	char		*entry;
+	int			i;
 
 	command = content;
-	entry = *command->args;
-	while (*entry)
-	{
-		free(entry);
-		entry++;
-	}
+	i = 0;
+	while (command->args[i])
+		free(command->args[i++]);
 	free(command);
 }
 
