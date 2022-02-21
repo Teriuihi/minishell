@@ -220,10 +220,11 @@ t_bool	output_pipe_command(t_list **head, char **args, int *start_pos, int *len)
  *
  * @return	non zero on error, 0 on success
  */
-int	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
-{
+t_bool	input_pipe_command(t_list **head, char **args, int *start_pos, int *len) {
 	t_command	*command;
 	t_pipe_type	pipe_type;
+	int			args_after;
+	char		**new_args;
 
 	pipe_type = command_separator_type(args[(*start_pos) + (*len)]);
 	if (*len == 0)
@@ -233,7 +234,7 @@ int	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 			return (err_int_return("parse error", -1));
 		command = create_command(pipe_type, args, *len);
 		if (!command)
-			return (-1);
+			return (false);
 		if (command_separator_type(args[(*start_pos) + (*len)]))
 			*start_pos += (*len) + 1;
 		else
@@ -241,9 +242,32 @@ int	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 		*len = 0;
 		command->args_len = 2;
 		store_command(command, head);
-		return (0);
+		return (true);
 	}
-	return (0); //TODO implement being able to find << and < anywhere in the command
+	else
+	{
+		if (create_command_from_args(head, args + *start_pos + *len, 2
+				, pipe_type) == false)
+			return (false);
+		args_after = len_till_seperator(args + (*start_pos) + (*len) + 2);
+		new_args = ft_calloc(args_after + (*len), sizeof(char *));
+		ft_memcpy(new_args, args + (*start_pos), (*len) * sizeof(char *));
+		ft_memcpy(new_args + (*len), args + (*start_pos) + (*len)
+			+ 2, args_after * sizeof(char *));
+		if (!new_args)
+			return (false);
+		pipe_type = command_separator_type(args[*start_pos + *len + 1]);
+		if (create_command_from_args(head, new_args, args_after,
+				pipe_type) == false)
+		{
+			free(new_args);
+			return (false);
+		}
+		free(new_args);
+		*start_pos += (*len) + args_after + 2;
+		*len = 0;
+		return (true);
+	}
 }
 
 /**
