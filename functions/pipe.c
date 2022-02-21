@@ -41,7 +41,8 @@ void	init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
 	{
 		if (type != DELIMITER_INPUT)
 			dup2(cur_pid[1], STDOUT_FILENO);
-		close(cur_pid[1]);
+		if (type != DELIMITER_INPUT)
+			close(cur_pid[1]);
 		close(cur_pid[0]);
 	}
 	cur_dir = get_pwd(minishell);
@@ -112,10 +113,6 @@ void	redirect_file(t_command *command, t_minishell *minishell)
 void	child_execute_built_in(t_command *command, const int *old_pid,
 								const int *cur_pid, t_minishell *minishell)
 {
-	int	pid;
-
-	if (command->type == DELIMITER_INPUT)
-		pid = dup(cur_pid[1]);
 	init_child(old_pid, cur_pid, command->type, minishell);
 	if (command->type == REDIRECT_INPUT)
 	{
@@ -124,7 +121,7 @@ void	child_execute_built_in(t_command *command, const int *old_pid,
 	}
 	if (command->type == DELIMITER_INPUT)
 	{
-		read_input_write(command, pid);
+		read_input_write(command, cur_pid[1]);
 		exit(0);
 	}
 	if (execute_builtin(command, minishell) == false)
@@ -146,7 +143,7 @@ void	child_execute_external(t_command *command, const int *old_pid,
 {
 	init_child(old_pid, cur_pid, command->type, minishell);
 	if (execve(command->command, command->args,
-			get_envp(minishell->data->env)) < 0) //here we should pass instead of NULL an array of strings for env variable
+			NULL) < 0) //here we should pass instead of NULL an array of strings for env variable
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);
 		exit(0);
