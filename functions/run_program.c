@@ -35,7 +35,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 {
 	int			cur_pid[2];
 	int			old_pid[2];
-	t_command	*command;
+	t_cmd_data	*cmd_data;
 	t_list		*entry;
 
 	entry = *head;
@@ -43,13 +43,13 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	old_pid[0] = 0;
 	while (entry)
 	{
-		command = entry->content;
+		cmd_data = entry->content;
 		if (cur_pid[0])
 			copy_pid(cur_pid, old_pid);
-		if (command->type)
+		if (cmd_data->output.type)
 			pipe(cur_pid);
-		exec_command(command, old_pid, cur_pid,
-			is_builtin(command), minishell);
+		exec_command(cmd_data, old_pid, cur_pid,
+			is_builtin(cmd_data), minishell);
 		entry = entry->next;
 	}
 }

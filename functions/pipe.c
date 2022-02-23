@@ -110,16 +110,19 @@ void	redirect_file(t_command *command, t_minishell *minishell)
  * @param	cur_pid		PIDs used by the current process
  * @param	minishell	Data for minishell
  */
-void	child_execute_built_in(t_command *command, const int *old_pid,
+void	child_execute_built_in(t_cmd_data *cmd_data, const int *old_pid,
 								const int *cur_pid, t_minishell *minishell)
 {
-	init_child(old_pid, cur_pid, command->type, minishell);
-	if (command->type == REDIRECT_INPUT)
+	t_command	*command;
+
+	command = &cmd_data->command;
+	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
+	if (cmd_data->output.type == REDIRECT_INPUT)
 	{
 		redirect_file(command, minishell);
 		exit(0);
 	}
-	if (command->type == DELIMITER_INPUT)
+	if (cmd_data->output.type == DELIMITER_INPUT)
 	{
 		read_input_write(command, cur_pid[1]);
 		exit(0);
@@ -138,10 +141,13 @@ void	child_execute_built_in(t_command *command, const int *old_pid,
  * @param	cur_pid		PIDs used by the current process
  * @param	minishell	Data for minishell
  */
-void	child_execute_external(t_command *command, const int *old_pid,
+void	child_execute_external(t_cmd_data *cmd_data, const int *old_pid,
 								const int *cur_pid, t_minishell *minishell)
 {
-	init_child(old_pid, cur_pid, command->type, minishell);
+	t_command	*command;
+
+	command = &cmd_data->command;
+	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
 	if (execve(command->command, command->args,
 			NULL) < 0) //here we should pass instead of NULL an array of strings for env variable
 	{
@@ -197,11 +203,13 @@ t_bool	should_be_child(t_command *command)
  * @param	is_built_in	If a command is a built in command or not
  * @param	minishell	Data for minishell
  */
-void	exec_command(t_command *command, int *old_pid, int *cur_pid,
+void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			t_bool is_built_in, t_minishell *minishell)
 {
-	pid_t	c_pid;
+	pid_t		c_pid;
+	t_command	*command;
 
+	command = &cmd_data->command;
 	if (ft_streq(command->command, "exit"))
 		exit (0);
 	if (is_built_in == false)
@@ -225,9 +233,9 @@ void	exec_command(t_command *command, int *old_pid, int *cur_pid,
 	if (c_pid == 0) //only in this case do we pass the child_htable
 	{
 		if (is_built_in == true)
-			child_execute_built_in(command, old_pid, cur_pid, minishell);
+			child_execute_built_in(cmd_data, old_pid, cur_pid, minishell);
 		else
-			child_execute_external(command, old_pid, cur_pid, minishell);
+			child_execute_external(cmd_data, old_pid, cur_pid, minishell);
 	}
 	else
 		parent(c_pid, old_pid);

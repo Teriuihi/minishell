@@ -22,26 +22,28 @@
  *
  * @return	non zero on error, 0 on success
  */
-t_bool	store_command(t_command *command, t_list **head)
+t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
 {
 	t_list	*new;
 	char	*entry;
 
-	new = ft_lstnew(command);
+	new = ft_lstnew(cmd_data);
 	if (new == NULL)
 	{
-		free(command->command);
-		entry = *command->args;
+		free(cmd_data->command.command);
+		entry = *cmd_data->command.args;
 		while (*entry)
 		{
 			free(entry);
 			entry++;
 		}
-		free(command);
-		return (err_int_return("Not enough memory.", false));
+		free(cmd_data->input.file);
+		free(cmd_data->output.file);
+		free(cmd_data);
+		return (err_ptr_return("Not enough memory.", NULL));
 	}
 	ft_lstadd_back(head, new);
-	return (true);
+	return (cmd_data);
 }
 
 t_bool	store_args(char **args, int len, t_command *command)
@@ -83,14 +85,16 @@ t_bool	store_args(char **args, int len, t_command *command)
  *
  * @return	non zero on error, 0 on success
  */
-t_command	*create_command(t_pipe_type pipe_type, char **args, int len)
+t_cmd_data	*create_command_data(char **args, int len)
 {
+	t_cmd_data	*cmd_data;
 	t_command	*command;
 
-	command = ft_calloc(1, sizeof(t_command));
-	if (!command)
+	cmd_data = ft_calloc(1, sizeof(t_cmd_data));
+	if (!cmd_data)
 		return (err_ptr_return("Not enough memory.", NULL));
-	command->command = ft_strdup(*args);
+	command = &(cmd_data->command);
+	cmd_data->command.command = ft_strdup(*args);
 	if (!command->command)
 	{
 		free(command);
@@ -105,9 +109,8 @@ t_command	*create_command(t_pipe_type pipe_type, char **args, int len)
 	}
 	if (store_args(args, len, command) == false)
 		return (NULL);
-	command->type = pipe_type;
 	command->args_len = len;
-	return (command);
+	return (cmd_data);
 }
 
 /**
@@ -137,15 +140,33 @@ int	len_till_seperator(char **args)
  *
  * @return	True if command was created successfully
  */
-t_bool	create_command_from_args(t_list **head, char **args, int len,
-	t_pipe_type pipe_type)
+t_cmd_data	*create_cmd_from_args(t_list **head, char **args, int len)
 {
-	t_command	*command;
+	t_cmd_data	*cmd_data;
 
-	command = create_command(pipe_type, args, len);
-	if (!command)
-		return (false);
-	return (store_command(command, head));
+	cmd_data = create_command_data(args, len);
+	if (!cmd_data)
+		return (NULL);
+	return (store_command(cmd_data, head));
+}
+
+t_bool	set_input(t_list **head, t_cmd_data *cmd_data)
+{
+	t_list		*prev_list_entry;
+	t_cmd_data	*prev_cmd_data;
+
+	prev_list_entry = ft_lstlast(*head)->prev;
+	if (!prev_list_entry)
+		return (true);
+	prev_cmd_data = prev_list_entry->content;
+	cmd_data->input.type = prev_cmd_data->output.type;
+	if (prev_cmd_data->output.file)
+	{
+		cmd_data->input.file = ft_strdup(prev_cmd_data->output.file);
+		if (cmd_data->input.file == NULL)
+			return (false);
+	}
+	return (true);
 }
 
 /**
@@ -164,43 +185,40 @@ t_bool	output_file_command(t_list **head, char **args, int *start_pos,
 	int *len)
 {
 	t_pipe_type	pipe_type;
-	int			args_after;
 	char		**new_args;
+	t_cmd_data	*cmd_data;
+	int			args_after;
 
 	pipe_type = command_separator_type(args[*start_pos]);
 	if (pipe_type) //command format is [>/>>] file cmd args
 	{
+		*len = len_till_seperator(args + (*start_pos) + 2);
+		cmd_data = create_cmd_from_args(head, args + (*start_pos) + 2, *len);
+		if (!cmd_data)
+			return (false);
+		cmd_data->output.type = pipe_type;
+		cmd_data->output.file = ft_strdup(args[*start_pos + 1]);
+		set_input(head, cmd_data);
+		*start_pos += 2 + *len + 1;
 		*len = 0;
-		args_after = len_till_seperator(args + (*start_pos) + 2);
-		if (create_command_from_args(head, args + (*start_pos) + 2, args_after,
-				pipe_type) == false)
-			return (false);
-		*start_pos += args_after + 1;
-		if (create_command_from_args(head, args + *start_pos, *len,
-				NONE) == false)
-			return (false);
-		*start_pos += 2 + args_after + 1;
 		return (true);
 	}
 	else //command format is cmd args [>/>>] file [args]
 	{
 		args_after = len_till_seperator(args + (*start_pos) + (*len) + 2);
 		new_args = ft_calloc(args_after + (*len), sizeof(char *));
+		if (!new_args)
+			return (false);
 		ft_memcpy(new_args, args + (*start_pos), (*len) * sizeof(char *));
 		ft_memcpy(new_args + (*len), args + (*start_pos) + (*len)
 			+ 2, args_after * sizeof(char *));
-		if (!new_args)
-			return (false);
-		if (create_command_from_args(head, new_args, args_after,
-				command_separator_type(args[*start_pos + *len])) == false)
-		{
-			free(new_args);
-			return (false);
-		}
+		cmd_data = create_cmd_from_args(head, new_args, args_after);
 		free(new_args);
-		if (create_command_from_args(head, args + *start_pos + *len, 2
-				, NONE) == false)
+		if (cmd_data == NULL)
 			return (false);
+		cmd_data->output.type = command_separator_type(args[*start_pos + *len]);
+		cmd_data->output.file = ft_strdup(args[*start_pos + *len + 1]);
+		set_input(head, cmd_data);
 		*start_pos += (*len) + args_after + 2;
 		*len = 0;
 		return (true);
@@ -222,19 +240,67 @@ t_bool	output_pipe_command(t_list **head, char **args, int *start_pos,
 	int *len)
 {
 	t_pipe_type	pipe_type;
+	t_cmd_data	*cmd_data;
 
 	pipe_type = command_separator_type(args[(*start_pos) + (*len)]);
 	if (pipe_type == NONE || pipe_type == OUTPUT_TO_COMMAND)
 	{
-		if (create_command_from_args(head, args + *start_pos, *len, pipe_type)
-			== false)
+		cmd_data = create_cmd_from_args(head, args + *start_pos, *len);
+		if (!cmd_data)
 			return (false);
+		cmd_data->output.type = pipe_type;
+		set_input(head, cmd_data);
 		*start_pos += (*len) + 1;
 		*len = 0;
 		return (true);
 	}
 	else
 		return (output_file_command(head, args, start_pos, len));
+}
+
+/**
+ * Set the output based on args (should start at end of prev command)
+ *
+ * @param	output	output to set
+ * @param	args	arguments starting at end of last command
+ *
+ * @return	Amount of args to skip to get to next command
+ * 			or -1 on error
+ */
+int	set_output(t_redirect *output, char **args)
+{
+	int			i;
+	t_pipe_type	pipe_type;
+
+	i = 0;
+	while (args[i])
+	{
+		pipe_type = command_separator_type(args[i]);
+		if (pipe_type == REDIRECT_OUTPUT || pipe_type == APPEND_OUTPUT)
+		{
+			ft_printf("CREATE FILE %s\n", args[i + 1]);
+			i += 2;
+			if (args[i] && command_separator_type(args[i]))
+				continue ;
+			output->type = pipe_type;
+			output->file = ft_strdup(args[i - 1]);
+			if (!output->file)
+				return (-1);
+			return (i);
+		}
+		else if (pipe_type == REDIRECT_INPUT || pipe_type == DELIMITER_INPUT)
+		{
+			output->type = NONE;
+			return (i);
+		}
+		else
+		{
+			output->type = pipe_type;
+			return (i + 1);
+		}
+	}
+	output->type = pipe_type;
+	return (i);
 }
 
 /**
@@ -252,8 +318,12 @@ t_bool	output_pipe_command(t_list **head, char **args, int *start_pos,
 t_bool	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 {
 	t_pipe_type	pipe_type;
+	t_cmd_data	*cmd_data;
 	int			args_after;
 	char		**new_args;
+	int			len_till_sep;
+	int			cmd_start;
+	int			end_cmd;
 
 	pipe_type = command_separator_type(args[(*start_pos) + (*len)]);
 	if (*len == 0)
@@ -261,41 +331,49 @@ t_bool	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 		*len += 2;
 		if (args[(*start_pos) + *len] == NULL)
 			return (err_int_return("parse error", -1));
-		if (create_command_from_args(head, args + (*start_pos), 2, pipe_type) == false)
-			return (false);
-//		command = create_command(pipe_type, args, *len);
-//		if (!command)
-//			return (false);
 		if (command_separator_type(args[(*start_pos) + 2]))
-			*start_pos += 3;
+			cmd_start = 3;
 		else
-			*start_pos += 2;
+			cmd_start = 2;
+		len_till_sep = len_till_seperator(args + *start_pos + cmd_start);
+		cmd_data = create_cmd_from_args(head, args + *start_pos + cmd_start, len_till_sep);
+		if (!cmd_data)
+			return (false);
+		cmd_data->input.type = pipe_type;
+		cmd_data->input.file = ft_strdup(args[*start_pos + 1]);
+		if (!cmd_data->input.file)
+			return (false);
+		end_cmd = set_output(&(cmd_data->output), args + *start_pos + cmd_start + len_till_sep);
+		if (end_cmd < 0)
+			return (false);
+		*start_pos += cmd_start + len_till_sep + end_cmd;
+		if (cmd_data->output.type == APPEND_OUTPUT || cmd_data->output.type == REDIRECT_OUTPUT)
+			*start_pos += 1;
+		if (command_separator_type(args[*start_pos]))
+			*start_pos += 1;
 		*len = 0;
-//		command->args_len = 2;
-//		return (store_command(command, head));
 		return (true);
 	}
 	else
 	{
-		if (create_command_from_args(head, args + *start_pos + *len, 2
-				, pipe_type) == false)
-			return (false);
 		args_after = len_till_seperator(args + (*start_pos) + (*len) + 2);
 		new_args = ft_calloc(args_after + (*len), sizeof(char *));
+		if (!new_args)
+			return (false);
 		ft_memcpy(new_args, args + (*start_pos), (*len) * sizeof(char *));
 		ft_memcpy(new_args + (*len), args + (*start_pos) + (*len)
 			+ 2, args_after * sizeof(char *));
-		if (!new_args)
-			return (false);
-		pipe_type = command_separator_type(args[*start_pos + *len + 1]);
-		if (create_command_from_args(head, new_args, args_after,
-				pipe_type) == false)
-		{
-			free(new_args);
-			return (false);
-		}
+		pipe_type = command_separator_type(args[*start_pos + *len]);
+		cmd_data = create_cmd_from_args(head, new_args, args_after);
 		free(new_args);
-		*start_pos += (*len) + args_after + 2;
+		if (!cmd_data)
+			return (false);
+		cmd_data->input.type = pipe_type;
+		cmd_data->input.file = ft_strdup(args[*start_pos + *len + 1]);
+		if (!cmd_data->input.file)
+			return (false);
+		end_cmd = set_output(&cmd_data->output, args + *start_pos + *len + 2 + args_after);
+		*start_pos += (*len) + 2 + args_after + end_cmd;
 		*len = 0;
 		return (true);
 	}
@@ -344,7 +422,8 @@ t_bool	find_commands_in_args(t_list **head, char **args)
  *
  * @return	NULL on error, command data success
  */
-t_list	**find_commands(char **args)
+t_list	**find_commands(char **args) //TODO REMINDER IF COMMAND IS NULL YOU MIGHT NEED TO EXEC PIPE
+//TODO or command can be a < b mayb???
 {
 	t_list	**head;
 
