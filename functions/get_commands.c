@@ -22,7 +22,7 @@
  *
  * @return	non zero on error, 0 on success
  */
-int	store_command(t_command *command, t_list **head)
+t_bool	store_command(t_command *command, t_list **head)
 {
 	t_list	*new;
 	char	*entry;
@@ -30,7 +30,6 @@ int	store_command(t_command *command, t_list **head)
 	new = ft_lstnew(command);
 	if (new == NULL)
 	{
-		free_commands(head);
 		free(command->command);
 		entry = *command->args;
 		while (*entry)
@@ -39,10 +38,10 @@ int	store_command(t_command *command, t_list **head)
 			entry++;
 		}
 		free(command);
-		err_int_return("Not enough memory.", -1);
+		return (err_int_return("Not enough memory.", false));
 	}
 	ft_lstadd_back(head, new);
-	return (0);
+	return (true);
 }
 
 t_bool	store_args(char **args, int len, t_command *command)
@@ -104,12 +103,20 @@ t_command	*create_command(t_pipe_type pipe_type, char **args, int len)
 		free(command);
 		return (err_ptr_return("Not enough memory.", NULL));
 	}
-	store_args(args, len, command);
+	if (store_args(args, len, command) == false)
+		return (NULL);
 	command->type = pipe_type;
 	command->args_len = len;
 	return (command);
 }
 
+/**
+ * Loop through args until the end is reached or a command separator is found
+ *
+ * @param	args	Arguments to loop through
+ *
+ * @return	Amount of arguments until separator is found
+ */
 int	len_till_seperator(char **args)
 {
 	int	i;
@@ -120,6 +127,16 @@ int	len_till_seperator(char **args)
 	return (i);
 }
 
+/**
+ * Create a command from a list of arguments, length, and a pipe type
+ *
+ * @param	head		List containing all commands
+ * @param	args		Arguments to create command from
+ * @param	len			Amount of arguments to add to command
+ * @param	pipe_type	Pipe type that command pipes to
+ *
+ * @return	True if command was created successfully
+ */
 t_bool	create_command_from_args(t_list **head, char **args, int len,
 	t_pipe_type pipe_type)
 {
@@ -128,10 +145,21 @@ t_bool	create_command_from_args(t_list **head, char **args, int len,
 	command = create_command(pipe_type, args, len);
 	if (!command)
 		return (false);
-	store_command(command, head);
-	return (true);
+	return (store_command(command, head));
 }
 
+/**
+ * Should be called when > or >> separator type is found
+ * 	creates two commands, one to write/append to file and
+ * 	one command that can be anything depending on what the user specified
+ *
+ * @param	head		List containing all commands
+ * @param	args		All arguments given by user
+ * @param	start_pos	Start pos of current command
+ * @param	len			Length of current command
+ *
+ * @return	True if commands were created successfully
+ */
 t_bool	output_file_command(t_list **head, char **args, int *start_pos,
 	int *len)
 {
@@ -190,7 +218,8 @@ t_bool	output_file_command(t_list **head, char **args, int *start_pos,
  *
  * @return	non zero on error, 0 on success
  */
-t_bool	output_pipe_command(t_list **head, char **args, int *start_pos, int *len)
+t_bool	output_pipe_command(t_list **head, char **args, int *start_pos,
+	int *len)
 {
 	t_pipe_type	pipe_type;
 
@@ -220,8 +249,8 @@ t_bool	output_pipe_command(t_list **head, char **args, int *start_pos, int *len)
  *
  * @return	non zero on error, 0 on success
  */
-t_bool	input_pipe_command(t_list **head, char **args, int *start_pos, int *len) {
-	t_command	*command;
+t_bool	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
+{
 	t_pipe_type	pipe_type;
 	int			args_after;
 	char		**new_args;
@@ -232,16 +261,18 @@ t_bool	input_pipe_command(t_list **head, char **args, int *start_pos, int *len) 
 		*len += 2;
 		if (args[(*start_pos) + *len] == NULL)
 			return (err_int_return("parse error", -1));
-		command = create_command(pipe_type, args, *len);
-		if (!command)
+		if (create_command_from_args(head, args + (*start_pos), 2, pipe_type) == false)
 			return (false);
-		if (command_separator_type(args[(*start_pos) + (*len)]))
-			*start_pos += (*len) + 1;
+//		command = create_command(pipe_type, args, *len);
+//		if (!command)
+//			return (false);
+		if (command_separator_type(args[(*start_pos) + 2]))
+			*start_pos += 3;
 		else
-			*start_pos += (*len);
+			*start_pos += 2;
 		*len = 0;
-		command->args_len = 2;
-		store_command(command, head);
+//		command->args_len = 2;
+//		return (store_command(command, head));
 		return (true);
 	}
 	else
@@ -323,6 +354,9 @@ t_list	**find_commands(char **args)
 	if (!head)
 		return (NULL);
 	if (find_commands_in_args(head, args) == false)
+	{
+		free_commands(head);
 		return (NULL);
+	}
 	return (head);
 }
