@@ -24,6 +24,10 @@ char	*ft_strdup(const char *s1)
 	char	*res;
 	size_t	strlen;
 
+	if (!s1)
+	{
+		return (NULL);
+	}
 	strlen = ft_strlen(s1);
 	res = ft_calloc(strlen + 1, sizeof(char));
 	if (res == 0)
