@@ -1,34 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   args.c                                             :+:    :+:            */
+/*   string_internal.h                                  :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/01/26 14:36:43 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/01/26 14:36:43 by sappunn       ########   odam.nl         */
+/*   Created: 2022/02/28 17:02:28 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/02/28 17:02:28 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
-#include "../headers/structs.h"
+#ifndef STRING_INTERNAL_H
+# define STRING_INTERNAL_H
 
-/**
- * Converts a user input string to arguments
- *
- * @param	input	User input
- *
- * @return	Malloced string array
- */
-
-char	**get_args(char *input)
-{
-	if (input == NULL)
-		return (NULL);
-	return (ft_split(input, ' '));
-}
-
-t_arg	**get_argz(char *input)
-{
-	f
-}
+void		free_string(t_string *s);
+t_string	*create(int len);
+#endif

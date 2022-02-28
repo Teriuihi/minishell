@@ -1,34 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   args.c                                             :+:    :+:            */
+/*   bool.h                                             :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/01/26 14:36:43 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/01/26 14:36:43 by sappunn       ########   odam.nl         */
+/*   Created: 2022/02/28 17:06:07 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/02/28 17:06:07 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
-#include "../headers/structs.h"
+#ifndef BOOL_H
+# define BOOL_H
 
-/**
- * Converts a user input string to arguments
- *
- * @param	input	User input
- *
- * @return	Malloced string array
- */
-
-char	**get_args(char *input)
+typedef enum s_bool
 {
-	if (input == NULL)
-		return (NULL);
-	return (ft_split(input, ' '));
-}
-
-t_arg	**get_argz(char *input)
-{
-	f
-}
+	false,
+	true
+}	t_bool;
+#endif

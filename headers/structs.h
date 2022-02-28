@@ -14,12 +14,7 @@
 # define STRUCTS_H
 # include <signal.h>
 # include "../libft/libft.h"
-
-typedef enum s_bool
-{
-	false,
-	true
-}	t_bool;
+# include "bool.h"
 
 typedef struct entry
 {
@@ -76,4 +71,10 @@ typedef struct s_cmd_data
 	t_redirect	input;
 	t_redirect	output;
 }	t_cmd_data;
+
+typedef struct s_arg
+{
+	char	*arg;
+	t_bool	literal;
+}	t_arg;
 #endif
