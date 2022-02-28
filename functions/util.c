@@ -107,17 +107,23 @@ void	free_splitted(char **splitted)
 
 void	free_command(void *content)
 {
+	t_cmd_data	*cmd_data;
 	t_command	*command;
-	char		*entry;
+	int			i;
 
-	command = content;
-	entry = *command->args;
-	while (*entry)
+	if (!content)
+		return ;
+	cmd_data = (t_cmd_data *)content;
+	command = cmd_data->command;
+	i = 0;
+	while (command->args[i])
 	{
-		free(entry);
-		entry++;
+		free(command->args[i]);
+		i++;
 	}
-	free(command);
+	free(cmd_data->input.file);
+	free(cmd_data->output.file);
+	free(cmd_data);
 }
 
 void	free_commands(t_list **head)

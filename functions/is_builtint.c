@@ -68,8 +68,9 @@ t_bool	env_variable_found(char *command) //check if its not =hellothere
 	}
 }
 
-t_bool	is_builtin(t_command *command)
+t_bool	is_builtin(t_cmd_data *cmd_data)
 {
+	t_command	*command;
 	int			i;
 	const char	*builtins[7] = {"echo",
 		"cd",
@@ -79,6 +80,9 @@ t_bool	is_builtin(t_command *command)
 		"env",
 		"exit"};
 
+	if (!cmd_data)
+		return (false);
+	command = cmd_data->command; // &cmd_data->command; was before
 	if (command == NULL || command->command == NULL)
 		return (0);
 	i = 0;
@@ -93,7 +97,7 @@ t_bool	is_builtin(t_command *command)
 			return (1);
 		i++;
 	}
-	if (command->type == REDIRECT_INPUT || command->type == DELIMITER_INPUT)
+	if (cmd_data->output.type == REDIRECT_INPUT || cmd_data->output.type == DELIMITER_INPUT)
 		return (true);
 	return (false);
 }

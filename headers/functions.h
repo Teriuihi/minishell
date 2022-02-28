@@ -29,7 +29,7 @@ char			*search_in_path(char *command);
 size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 t_bool			execute_builtin(t_command *command, t_minishell *minishell);
 void			ft_echo(t_command *command, int fd);
-t_bool			is_builtin(t_command *command);
+t_bool			is_builtin(t_cmd_data *cmd_data);
 void			crtld_handler(int signum);
 void			sigquit_handler(int signum);
 void			sigint_handler(int signum);
@@ -43,7 +43,7 @@ void			sigint_handler(int signum);
 t_signal		*init_signal(void);
 void			print_splitted(char **args);
 t_hash_table	*get_hash_table(void);
-void			exec_command(t_command *command, int *old_pid, int *cur_pid,
+void			exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 					t_bool is_built_in, t_minishell *minishell);
 void			err_exit(char *err, int status);
 int				err_int_return(char *err, int status);

@@ -23,6 +23,10 @@ size_t	ft_strlen(const char *c)
 {
 	const char	*tmp;
 
+	if (!c)
+	{
+		return (0);
+	}
 	tmp = c;
 	while (*tmp)
 		tmp++;

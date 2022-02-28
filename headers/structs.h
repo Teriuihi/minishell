@@ -62,6 +62,18 @@ typedef struct s_command
 	char		*command;
 	char		**args;
 	int			args_len;
-	t_pipe_type	type;
 }	t_command;
+
+typedef struct s_redirect
+{
+	t_pipe_type	type;
+	char		*file;
+}	t_redirect;
+
+typedef struct s_cmd_data
+{
+	t_command	*command; //this was t_command command; before
+	t_redirect	input;
+	t_redirect	output;
+}	t_cmd_data;
 #endif

@@ -23,10 +23,9 @@ t_list	*ft_lstnew(void *content)
 {
 	t_list	*start;
 
-	start = malloc(sizeof(*start));
-	if (start == 0)
+	start = ft_calloc(1, sizeof(*start));
+	if (!start)
 		return (NULL);
 	start->content = content;
-	start->next = NULL;
 	return (start);
 }
