@@ -453,7 +453,7 @@ t_list	**find_commands(char **args) //TODO REMINDER IF COMMAND IS NULL YOU MIGHT
 {
 	t_list	**head;
 
-	if (args == NULL
+	if (args == NULL)
 		return (NULL);
 	head = ft_calloc(1, sizeof(t_list *)); //?
 	if (!head)
