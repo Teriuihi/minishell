@@ -27,11 +27,11 @@ t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
 	t_list	*new;
 	char	*entry;
 
-	new = ft_lstnew(cmd_data);
+	new = ft_lstnew(cmd_data); //????? new->content = cmd_data
 	if (new == NULL)
 	{
-		free(cmd_data->command.command);
-		entry = *cmd_data->command.args;
+		free(cmd_data->command->command); //??
+		entry = *cmd_data->command->args;
 		while (*entry)
 		{
 			free(entry);
@@ -42,7 +42,7 @@ t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
 		free(cmd_data);
 		return (err_ptr_return("Not enough memory.", NULL));
 	}
-	ft_lstadd_back(head, new);
+	ft_lstadd_back(head, new); //actually the head will not be a simple list but a cmd_data
 	return (cmd_data);
 }
 
@@ -93,8 +93,11 @@ t_cmd_data	*create_command_data(char **args, int len)
 	cmd_data = ft_calloc(1, sizeof(t_cmd_data));
 	if (!cmd_data)
 		return (err_ptr_return("Not enough memory.", NULL));
-	command = &(cmd_data->command);
-	cmd_data->command.command = ft_strdup(*args);
+	cmd_data->command = ft_calloc(1, sizeof(t_command));
+	if (!cmd_data)
+		return (err_ptr_return("Not enough memory.", NULL));
+	cmd_data->command->command = ft_strdup(*args);; //cant write here?
+	command = (cmd_data->command);
 	if (!command->command)
 	{
 		free(command);
@@ -108,7 +111,11 @@ t_cmd_data	*create_command_data(char **args, int len)
 		return (err_ptr_return("Not enough memory.", NULL));
 	}
 	if (store_args(args, len, command) == false)
+	{
 		return (NULL);
+	}
+	//print_splitted(cmd_data->command->args);
+	//ft_printf("ARE TO NEWLY STORED ARGS\n");
 	command->args_len = len;
 	return (cmd_data);
 }
@@ -145,6 +152,7 @@ t_cmd_data	*create_cmd_from_args(t_list **head, char **args, int len)
 	t_cmd_data	*cmd_data;
 
 	cmd_data = create_command_data(args, len);
+	//UNTIL HERE ALL GOOD
 	if (!cmd_data)
 		return (NULL);
 	return (store_command(cmd_data, head));
@@ -278,12 +286,13 @@ int	set_output(t_redirect *output, char **args)
 		pipe_type = command_separator_type(args[i]);
 		if (pipe_type == REDIRECT_OUTPUT || pipe_type == APPEND_OUTPUT)
 		{
-			ft_printf("CREATE FILE %s\n", args[i + 1]);
+			ft_printf("CREATE FILE with next args %s\n", args[i + 1]);
 			i += 2;
 			if (args[i] && command_separator_type(args[i]))
 				continue ;
 			output->type = pipe_type;
 			output->file = ft_strdup(args[i - 1]);
+			ft_printf("OUTPUT FILE of %s is %s\n", output->file, args[i + 1]);
 			if (!output->file)
 				return (-1);
 			return (i);
@@ -325,12 +334,14 @@ t_bool	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 	int			cmd_start;
 	int			end_cmd;
 
+	//write(1, "IN INPUT PIPE COMMAND\n", 23);
 	pipe_type = command_separator_type(args[(*start_pos) + (*len)]);
 	if (*len == 0)
 	{
+		ft_printf("WE ARE IN INPUT PIPE COMMAND LEN == 0\n");
 		*len += 2;
 		if (args[(*start_pos) + *len] == NULL)
-			return (err_int_return("parse error", -1));
+			return (err_int_return("parse error INPUT\n", -1));
 		if (command_separator_type(args[(*start_pos) + 2]))
 			cmd_start = 3;
 		else
@@ -356,20 +367,31 @@ t_bool	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 	}
 	else
 	{
+		//ft_printf("WE ARE IN INPUT PIPE COMMAND else, %d LEN, %d STARTPOS\n", *len, *start_pos);
+		//print_splitted(args);
+		//ft_printf("\nare the current args in input pipe\n");
+
 		args_after = len_till_seperator(args + (*start_pos) + (*len) + 2);
+		//ft_printf("\n %d is args after len in input pipe\n", args_after);
 		new_args = ft_calloc(args_after + (*len), sizeof(char *));
 		if (!new_args)
 			return (false);
 		ft_memcpy(new_args, args + (*start_pos), (*len) * sizeof(char *));
 		ft_memcpy(new_args + (*len), args + (*start_pos) + (*len)
-			+ 2, args_after * sizeof(char *));
+			+ 2, args_after * sizeof(char *)); //what is this doing?
+		print_splitted(new_args);
+		//ft_printf("\nare the NEW ARGS in input pipe\n"); //essentially only cat
 		pipe_type = command_separator_type(args[*start_pos + *len]);
 		cmd_data = create_cmd_from_args(head, new_args, args_after);
+		//print_splitted(cmd_data->command->args);
+		//ft_printf("\nare the CMD DATA COMMAND ARGS\n"); //essentially only cat
 		free(new_args);
 		if (!cmd_data)
 			return (false);
 		cmd_data->input.type = pipe_type;
 		cmd_data->input.file = ft_strdup(args[*start_pos + *len + 1]);
+		//ft_printf("ELSE, CMDDATA %s, input type %d, %s input file\n", cmd_data->command->command, cmd_data->input.type, cmd_data->input.file);
+
 		if (!cmd_data->input.file)
 			return (false);
 		end_cmd = set_output(&cmd_data->output, args + *start_pos + *len + 2 + args_after);
@@ -400,9 +422,13 @@ t_bool	find_commands_in_args(t_list **head, char **args)
 	while (args[start_pos + len])
 	{
 		pipe_type = command_separator_type(args[start_pos + len]);
+		//ft_printf("%d is pipetype atm in the loop\n", pipe_type);
 		if (pipe_type == DELIMITER_INPUT
 			|| pipe_type == REDIRECT_INPUT)
-			success = input_pipe_command(head, args, &start_pos, &len);
+			{
+				//ft_printf("%d is len in find commands in args first if statement \n", len);
+				success = input_pipe_command(head, args, &start_pos, &len);
+			}
 		else if (pipe_type)
 			success = output_pipe_command(head, args, &start_pos, &len);
 		else
@@ -427,9 +453,9 @@ t_list	**find_commands(char **args) //TODO REMINDER IF COMMAND IS NULL YOU MIGHT
 {
 	t_list	**head;
 
-	if (args == NULL)
+	if (args == NULL
 		return (NULL);
-	head = ft_calloc(1, sizeof(t_list *));
+	head = ft_calloc(1, sizeof(t_list *)); //?
 	if (!head)
 		return (NULL);
 	if (find_commands_in_args(head, args) == false)

@@ -111,11 +111,16 @@ void	free_command(void *content)
 	t_command	*command;
 	int			i;
 
-	cmd_data = content;
-	command = &cmd_data->command;
+	if (!content)
+		return ;
+	cmd_data = (t_cmd_data *)content;
+	command = cmd_data->command;
 	i = 0;
 	while (command->args[i])
-		free(command->args[i++]);
+	{
+		free(command->args[i]);
+		i++;
+	}
 	free(cmd_data->input.file);
 	free(cmd_data->output.file);
 	free(cmd_data);

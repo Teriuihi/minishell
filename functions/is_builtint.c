@@ -80,7 +80,9 @@ t_bool	is_builtin(t_cmd_data *cmd_data)
 		"env",
 		"exit"};
 
-	command = &cmd_data->command;
+	if (!cmd_data)
+		return (false);
+	command = cmd_data->command; // &cmd_data->command; was before
 	if (command == NULL || command->command == NULL)
 		return (0);
 	i = 0;

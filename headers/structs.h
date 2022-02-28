@@ -72,7 +72,7 @@ typedef struct s_redirect
 
 typedef struct s_cmd_data
 {
-	t_command	command;
+	t_command	*command; //this was t_command command; before
 	t_redirect	input;
 	t_redirect	output;
 }	t_cmd_data;
