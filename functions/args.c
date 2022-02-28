@@ -27,8 +27,3 @@ char	**get_args(char *input)
 		return (NULL);
 	return (ft_split(input, ' '));
 }
-
-t_arg	**get_argz(char *input)
-{
-	f
-}

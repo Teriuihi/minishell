@@ -1,17 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   string_internal.h                                  :+:    :+:            */
+/*   internal_parser.h                                  :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/02/28 17:02:28 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/02/28 17:02:28 by sappunn       ########   odam.nl         */
+/*   Created: 2022/02/28 18:23:43 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/02/28 18:23:43 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef STRING_INTERNAL_H
-# define STRING_INTERNAL_H
+#ifndef INTERNAL_PARSER_H
+# define INTERNAL_PARSER_H
 
-t_string	*create(int len);
 #endif

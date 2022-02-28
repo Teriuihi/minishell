@@ -26,4 +26,5 @@ t_string	*join_strings(t_string *s1, t_string *s2);
 t_string	*append_char(t_string *s, char *arr);
 t_string	*dup_string(t_string *s);
 t_string	*init_string(char *arr);
+void		free_string(t_string *s);
 #endif

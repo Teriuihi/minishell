@@ -1,17 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   string_internal.h                                  :+:    :+:            */
+/*   arguments.h                                        :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/02/28 17:02:28 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/02/28 17:02:28 by sappunn       ########   odam.nl         */
+/*   Created: 2022/02/28 17:29:14 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/02/28 17:29:14 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef STRING_INTERNAL_H
-# define STRING_INTERNAL_H
+#ifndef ARGUMENTS_H
+# define ARGUMENTS_H
+# include "bool.h"
+# include "string.h"
 
-t_string	*create(int len);
+typedef struct s_arg
+{
+	t_string	*arg;
+	t_bool		literal;
+}	t_arg;
+
 #endif

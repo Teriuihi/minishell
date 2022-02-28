@@ -71,10 +71,4 @@ typedef struct s_cmd_data
 	t_redirect	input;
 	t_redirect	output;
 }	t_cmd_data;
-
-typedef struct s_arg
-{
-	char	*arg;
-	t_bool	literal;
-}	t_arg;
 #endif
