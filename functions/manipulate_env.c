@@ -53,6 +53,7 @@ void	ft_set_env(char *key, char *val, t_hash_table *h_table)
 	}
 	insert_succeeded = succesful_insert(h_table, key, val);
 	//free(key);
+	
 	//free(val);
 }
 

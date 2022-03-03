@@ -88,6 +88,7 @@ size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 	return (dst_len + ft_strlen(src));
 }
 
+
 void	free_splitted(char **splitted)
 {
 	int	i;
@@ -104,6 +105,7 @@ void	free_splitted(char **splitted)
 	}
 	free(splitted);
 }
+
 
 void	free_command(void *content)
 {

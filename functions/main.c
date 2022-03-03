@@ -38,9 +38,8 @@ void	set_data(t_data *data)
 	data->env = get_hash_table();
 }
 
-void	init(t_minishell *minishell)
+void	init(t_minishell *minishell, t_data *data)
 {
-	t_data		data;
 	char		*cur_dir;
 	t_signal	*signal_struct;
 
@@ -51,8 +50,8 @@ void	init(t_minishell *minishell)
 		exit(0);
 	}
 	minishell->cur_wd = cur_dir;
-	set_data(&data); //assigns hashtables
-	minishell->data = &data;
+	set_data(data); //assigns hashtables
+	minishell->data = data;
 	set_pwd(cur_dir, minishell);
 	signal_struct = init_signal();
 	signal(SIGQUIT, sigquit_handler);
@@ -61,8 +60,9 @@ void	init(t_minishell *minishell)
 int	main(void)
 {
 	t_minishell	minishell;
+    t_data      data;
 
-	init(&minishell);
+	init(&minishell, &data);
 	start_program_loop(&minishell);
 	return (0);
 }

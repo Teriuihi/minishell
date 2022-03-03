@@ -119,9 +119,13 @@ void	start_program_loop(t_minishell *minishell)
 	char		**args;
 	t_list		**head;
 
+
+	
 	input = readline("some shell>");
 	while (input)
 	{
+		//print_splitted(get_envp(minishell->data->env));
+
 		args = NULL;
 		if (input != NULL && should_use(input))
 		{
@@ -133,9 +137,12 @@ void	start_program_loop(t_minishell *minishell)
 				ft_printf("Error\n");
 				exit(0);
 			}
+			//print_splitted(get_envp(minishell->data->env));
+			//print_splitted(get_envp(minishell->data->env));
+			//ft_printf("\n\n\n\n");
 			run_commands(head, minishell);
-			//free_commands(head);
-			//free_char_arr(args);
+			free_commands(head);
+			free_char_arr(args);
 		}
 		free(input);
 		input = readline("some shell>");
