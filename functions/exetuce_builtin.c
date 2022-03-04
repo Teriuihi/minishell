@@ -93,8 +93,8 @@ t_bool	child_execute_built_in_not_child(t_command *command, t_minishell *minishe
 {	//cd, export, unset
 	char	*cur_dir;
 
-	//check if command is an env var, in that case call a setter etc function
-	//check for env var
+	ft_printf("wrong place is builtint not child\n");
+
 	cur_dir = get_pwd(minishell);
 	if (!command->command)
 		return (false);
@@ -115,8 +115,6 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->ar
 {
 	char	*cur_dir;
 
-	//check if command is an env var, in that case call a setter etc function
-	//check for env var
 	cur_dir = get_pwd(minishell);
 	if (!command->command)
 		return (false);
