@@ -12,6 +12,9 @@
 
 #include "../headers/functions.h"
 #include <readline/history.h>
+#include <readline/readline.h>
+#include "run_commands.h"
+#include "../create_commands/create_commands.h"
 
 /**
  * Copies cur_pid to old_pid
@@ -121,24 +124,24 @@ void	start_program_loop(t_minishell *minishell)
 
 
 	
-	input = readline("some shell>");
+	input = readline("some shell>"); //TODO free
 	while (input)
 	{
-		//print_splitted(get_envp(minishell->data->env));
+		//print_splitted(get_envp(minishell->env));
 
 		args = NULL;
-		if (input != NULL && should_use(input))
+		if (should_use(input))
 		{
 			add_history(input);
-			args = get_args(input);
-			head = find_commands(args);
+			args = get_args(input); //TODO free
+			head = find_commands(args); //TODO free
 			if (head == NULL)
 			{
 				ft_printf("Error\n");
 				exit(0);
 			}
-			//print_splitted(get_envp(minishell->data->env));
-			//print_splitted(get_envp(minishell->data->env));
+			//print_splitted(get_envp(minishell->env));
+			//print_splitted(get_envp(minishell->env));
 			//ft_printf("\n\n\n\n");
 			run_commands(head, minishell);
 			free_commands(head);

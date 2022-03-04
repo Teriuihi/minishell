@@ -13,8 +13,10 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include <readline/history.h>
+#include <readline/readline.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include "../buildins/buildins.h"
 
 /**
  * Assign pid's to STDOUT or STDIN as needed
@@ -315,7 +317,7 @@ void	child_execute_external(t_cmd_data *cmd_data, const int *old_pid,
 	command = cmd_data->command;
 	control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell);
 	if (execve(command->command, command->args,
-		get_envp(minishell->data->env)) < 0)
+		get_envp(minishell->env)) < 0)
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);
 		close(old_pid[0]);

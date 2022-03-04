@@ -12,6 +12,7 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
+#include "../buildins/buildins.h"
 
 /**
  * Takes an array of arrays (user input)
@@ -53,7 +54,7 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 				free_splitted(splitted_export); //should free both not just ** itself
 				return (false);
 			}
-			ft_set_env(splitted_export[0], splitted_export[1], minishell->data->env); //check if set fails for some reason?
+			ft_set_env(splitted_export[0], splitted_export[1], minishell->env); //check if set fails for some reason?
 			free_splitted(splitted_export); //also incorrect, should create a free split functio
 			return (true);
 		}
@@ -67,10 +68,8 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 {	
 	//command "export myvar=hello"
 	char	**splitted;
-	t_data	*data;
 
-	data = minishell->data;
-	if (!command || !data)
+	if (!command || !minishell)
 	{
 		return (false);
 	}
@@ -84,7 +83,7 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 		free_splitted(splitted);
 		return (false);
 	}
-	ft_set_env(splitted[0], splitted[1], data->current_env); //check if set fails for some reason?
+	ft_set_env(splitted[0], splitted[1], minishell->current_env); //check if set fails for some reason?
 	return (true);
 }
 
@@ -103,9 +102,9 @@ t_bool	child_execute_built_in_not_child(t_command *command, t_minishell *minishe
 	else if (ft_streq(command->command, "cd"))
 		return (cd(command, minishell));
 	else if (ft_streq(command->command, "env")) //next one should be the key
-		print_h_table(minishell->data->env);
+		print_h_table(minishell->env);
 	else if (ft_streq(command->command, "unset")) //next one should be the key
-		ft_remove_exported_var(command->args[1], minishell->data->env);
+		ft_remove_exported_var(command->args[1], minishell->env);
 	else
 		return (false);
 	return (true);
@@ -129,7 +128,7 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->ar
 	}
 	else if (ft_streq(command->command, "env")) //next one should be the key
 	{
-		print_h_table(minishell->data->env);
+		print_h_table(minishell->env);
 	}
 	else if (env_var_added(command, minishell) == true)
 		return (true);

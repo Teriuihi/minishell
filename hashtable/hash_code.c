@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "../libft/libft.h"
-#include "../headers/structs.h"
+#include "../hashtable/hashtable.h"
 /**
  * Checks if a string ends with a specific suffix
  *

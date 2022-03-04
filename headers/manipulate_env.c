@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../headers/functions.h"
-#include "../headers/structs.h"
+#include "functions.h"
+#include "structs.h"
 #include "../libft/libft.h"
 
 /**
