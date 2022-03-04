@@ -94,7 +94,7 @@ t_cmd_data	*create_command_data(char **args, int len)
 	if (!cmd_data)
 		return (err_ptr_return("Not enough memory.", NULL));
 	cmd_data->command = ft_calloc(1, sizeof(t_command));
-	if (!cmd_data)
+	if (!cmd_data->command)
 		return (err_ptr_return("Not enough memory.", NULL));
 	cmd_data->command->command = ft_strdup(*args);; //cant write here?
 	command = (cmd_data->command);
@@ -200,20 +200,20 @@ t_bool	output_file_command(t_list **head, char **args, int *start_pos,
 	pipe_type = command_separator_type(args[*start_pos]);
 	if (pipe_type) //command format is [>/>>] file cmd args
 	{
-		*len = len_till_seperator(args + (*start_pos) + 2);
+		*len = len_till_seperator(args + (*start_pos) + 1);
 		cmd_data = create_cmd_from_args(head, args + (*start_pos) + 2, *len);
 		if (!cmd_data)
 			return (false);
 		cmd_data->output.type = pipe_type;
 		cmd_data->output.file = ft_strdup(args[*start_pos + 1]); //TODO free created cmd_data and return false
 		set_input(head, cmd_data); // TODO free output.file and cmd_data and return false
-		*start_pos += 2 + *len + 1;
+		*start_pos += 1 + *len + 1;
 		*len = 0;
 		return (true);
 	}
 	else //command format is cmd args [>/>>] file [args]
 	{
-		args_after = len_till_seperator(args + (*start_pos) + (*len) + 2);
+		args_after = len_till_seperator(args + (*start_pos) + (*len) + 1);
 		new_args = ft_calloc(args_after + (*len), sizeof(char *));
 		if (!new_args)
 			return (false);
@@ -227,7 +227,7 @@ t_bool	output_file_command(t_list **head, char **args, int *start_pos,
 		cmd_data->output.type = command_separator_type(args[*start_pos + *len]);
 		cmd_data->output.file = ft_strdup(args[*start_pos + *len + 1]); //TODO free created cmd_data and return false
 		set_input(head, cmd_data); // TODO free output.file and cmd_data and return false
-		*start_pos += (*len) + args_after + 2;
+		*start_pos += (*len) + args_after + 1;
 		*len = 0;
 		return (true);
 	}

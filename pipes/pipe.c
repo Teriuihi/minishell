@@ -12,11 +12,12 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
-#include <readline/history.h>
 #include <readline/readline.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include "../buildins/buildins.h"
+#include "../run_commands/run_commands.h"
+#include <sys/wait.h>
 
 /**
  * Assign pid's to STDOUT or STDIN as needed
