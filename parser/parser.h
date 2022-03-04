@@ -1,21 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   internal_parser.h                                  :+:    :+:            */
+/*   parser.h                                           :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/02/28 18:23:43 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/02/28 18:23:43 by sappunn       ########   odam.nl         */
+/*   Created: 2022/03/04 20:24:34 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/03/04 20:24:34 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef INTERNAL_PARSER_H
-# define INTERNAL_PARSER_H
-# include "../headers/string.h"
+#ifndef PARSER_H
+# define PARSER_H
+# include "../libft/libft.h"
 
-t_string	*append_content(char *input, int start, int pos, t_string *arg);
-t_bool		add_to_list(t_list **head, t_string *string, t_bool literal);
-void		free_t_arg(void *ptr);
+t_list	**parse(char *input);
 
 #endif

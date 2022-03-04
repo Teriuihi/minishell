@@ -83,7 +83,7 @@ t_string	*append_char(t_string *s, char *arr)
 	arr_len = ft_strlen(arr);
 	if (s->empty >= arr_len)
 	{
-		ft_strlcpy(s->s + arr_len, arr, arr_len);
+		ft_strlcpy(s->s + ft_strlen(s->s), arr, arr_len + 1);
 		s->len += arr_len;
 		s->empty -= arr_len;
 		return (s);

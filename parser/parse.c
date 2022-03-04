@@ -12,6 +12,7 @@
 
 #include "../libft/libft.h"
 #include "../headers/arguments.h"
+#include "internal_parser.h"
 
 /**
  * Called when finding a $ indicating a variable should be parsed
@@ -55,39 +56,6 @@ t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg)
 	return (join_strings(arg, result));
 }
 
-/**
- * Appends everything from input between start and pos
- *
- * @param	input	Input to append from
- * @param	start	Start pos in input
- * @param	pos		End in input (current pos)
- * @param	arg		String to append to
- *
- * @return	String we appended too (could have a different address now)
- */
-t_string	*append_content(char *input, int start, int pos, t_string *arg)
-{
-	char		*to_add;
-	t_string	*result;
-
-	if (input == NULL)
-	{
-		free_string(arg);
-		return (NULL);
-	}
-	to_add = ft_calloc((pos - start) + 2, sizeof(char));
-	if (to_add == NULL)
-	{
-		free_string(arg);
-		return (NULL);
-	}
-	ft_strlcpy(to_add, input + start, pos - start + 1);
-	result = append_char(arg, to_add);
-	if (result == NULL)
-		free_string(arg);
-	return (result);
-}
-
 /** TODO handle " in ' and vice versa
  * Parse string between quotes
  *
@@ -117,14 +85,28 @@ t_string	*parse_quotation(char *input, int *start, char quote, t_string *arg)
 		}
 		else if (input[pos] == quote)
 		{
-			arg = append_content(input, *start, pos, arg);
+			if (pos != *start)
+				arg = append_content(input, *start, pos, arg);
 			if (arg == NULL)
 				return (NULL);
+			*start = pos + 1;
+			return (arg);
 		}
 		else
 			pos++;
 	}
-	return (arg);
+	return (arg); //todo add quote at the beginning
+}
+
+t_string	*safe_add_to_list(t_list **head, t_string *string, t_bool literal)
+{
+	if (add_to_list(head, string, literal) == false)
+	{
+		free_string(string);
+		ft_lstclear(head, free_t_arg);
+		return (NULL);
+	}
+	return (init_string(NULL));
 }
 
 /**
@@ -134,19 +116,64 @@ t_string	*parse_quotation(char *input, int *start, char quote, t_string *arg)
  *
  * @return	Array of arguments the user entered
  */
-t_arg	**parse(char *input)
+t_list	**parse(char *input)
 {
 	int			pos;
 	int			start;
 	t_string	*string;
+	t_list		**head;
+	t_bool		literal;
 
-	start = 0;
+	literal = false;
+	head = ft_calloc(1, sizeof(t_list *));
 	pos = 0;
+	start = 0;
 	string = init_string(NULL);
+	if (string == NULL)
+		return (NULL);
 	while (input[pos])
 	{
-		if (input[pos] == '"')
-			parse_quotation(input, &start, input[pos]);
+		if (input[pos] == '"' || input[pos] == '\'')
+		{
+			if (pos != 0 && pos != start)
+				string = append_content(input, start, pos - 1, string);
+			pos++;
+			parse_quotation(input, &pos, input[pos - 1], string);
+			start = pos;
+			literal = true;
+		}
+		else if (ft_iswhite_space(input[pos]))
+		{
+			if (pos == 0 || pos == start)
+			{
+				if (string->len != 0)
+				{
+					string = append_content(input, start, pos, string);
+					string = safe_add_to_list(head, string, literal);
+					if (string == NULL)
+						return (NULL);
+					literal = false;
+				}
+				pos++;
+				start = pos;
+				continue ;
+			}
+			string = append_content(input, start, pos, string);
+			string = safe_add_to_list(head, string, literal);
+			if (string == NULL)
+				return (NULL);
+			literal = false;
+			pos++;
+			start = pos;
+		}
+		else
 			pos++;
 	}
+	if (pos != start || string->len != 0)
+	{
+		string = append_content(input, start, pos, string);
+		if (safe_add_to_list(head, string, literal) == NULL)
+			return (NULL);
+	}
+	return (head);
 }

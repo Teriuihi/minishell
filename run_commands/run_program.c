@@ -15,6 +15,7 @@
 #include <readline/readline.h>
 #include "run_commands.h"
 #include "../create_commands/create_commands.h"
+#include "../buildins/buildins.h"
 
 /**
  * Copies cur_pid to old_pid
@@ -27,7 +28,6 @@ void	copy_pid(const int *cur_pid, int *old_pid)
 	old_pid[0] = cur_pid[0];
 	old_pid[1] = cur_pid[1];
 }
-
 
 t_cmd_data	*init_cmd()
 {
