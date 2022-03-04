@@ -93,7 +93,7 @@ char	**get_envp(t_hash_table *h_table)
 	{
 		return (NULL);
 	}
-	envp = (char **)malloc(h_table->size * sizeof(char *));
+	envp = (char **)ft_calloc(h_table->size, sizeof(char *));
 	if (!envp)
 	{
 		return (NULL);

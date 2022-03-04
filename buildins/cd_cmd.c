@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include "../libft/libft.h"
 #include "../headers/functions.h"
+#include "../buildins/buildins.h"
 
 /**
  * Get path to the new directory from the given argument

@@ -53,7 +53,7 @@ void	init(t_minishell *minishell)
 	}
 	minishell->cur_wd = cur_dir;
 	set_data(minishell); //assigns hashtables
-	set_pwd(cur_dir, minishell); //TODO check for failure
+	set_pwd(ft_strdup(cur_dir), minishell); //TODO check for failure
 	signal_struct = init_signal(); //TODO check for failure (NULL)
 	signal(SIGQUIT, sigquit_handler);
 }

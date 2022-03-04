@@ -54,7 +54,7 @@ t_bool	set_pwd(char *path, t_minishell *minishell)
 	char	*pwd_path;
 	char	*tmp;
 
-	pwd_path = get_pwd(minishell);
+	pwd_path = get_pwd(minishell); //TODO free if not used mayb??
 	if (!path || !*path)
 		return (false);
 	if (pwd_path == NULL || *path == '/')
