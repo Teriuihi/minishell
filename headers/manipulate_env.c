@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../headers/functions.h"
-#include "../headers/structs.h"
+#include "functions.h"
+#include "structs.h"
 #include "../libft/libft.h"
 
 /**
@@ -53,6 +53,7 @@ void	ft_set_env(char *key, char *val, t_hash_table *h_table)
 	}
 	insert_succeeded = succesful_insert(h_table, key, val);
 	//free(key);
+	
 	//free(val);
 }
 
@@ -92,7 +93,7 @@ char	**get_envp(t_hash_table *h_table)
 	{
 		return (NULL);
 	}
-	envp = (char **)malloc(h_table->size * sizeof(char *));
+	envp = (char **)ft_calloc(h_table->size, sizeof(char *));
 	if (!envp)
 	{
 		return (NULL);

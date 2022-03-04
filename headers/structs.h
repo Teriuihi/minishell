@@ -16,26 +16,6 @@
 # include "../libft/libft.h"
 # include "bool.h"
 
-typedef struct entry
-{
-	char			*val;
-	char			*key;
-	struct entry	*next;
-}	t_entry;
-
-typedef struct entry_table
-{
-	t_entry		**entries;
-	int			size;
-}	t_hash_table;
-
-typedef struct s_data
-{
-	int				export_flag;
-	t_hash_table	*env;
-	t_hash_table	*current_env;
-}	t_data;
-
 typedef struct signal
 {
 	pid_t	pid;

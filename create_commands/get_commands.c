@@ -94,7 +94,7 @@ t_cmd_data	*create_command_data(char **args, int len)
 	if (!cmd_data)
 		return (err_ptr_return("Not enough memory.", NULL));
 	cmd_data->command = ft_calloc(1, sizeof(t_command));
-	if (!cmd_data)
+	if (!cmd_data->command)
 		return (err_ptr_return("Not enough memory.", NULL));
 	cmd_data->command->command = ft_strdup(*args);; //cant write here?
 	command = (cmd_data->command);
@@ -200,20 +200,20 @@ t_bool	output_file_command(t_list **head, char **args, int *start_pos,
 	pipe_type = command_separator_type(args[*start_pos]);
 	if (pipe_type) //command format is [>/>>] file cmd args
 	{
-		*len = len_till_seperator(args + (*start_pos) + 2);
+		*len = len_till_seperator(args + (*start_pos) + 1);
 		cmd_data = create_cmd_from_args(head, args + (*start_pos) + 2, *len);
 		if (!cmd_data)
 			return (false);
 		cmd_data->output.type = pipe_type;
-		cmd_data->output.file = ft_strdup(args[*start_pos + 1]);
-		set_input(head, cmd_data);
-		*start_pos += 2 + *len + 1;
+		cmd_data->output.file = ft_strdup(args[*start_pos + 1]); //TODO free created cmd_data and return false
+		set_input(head, cmd_data); // TODO free output.file and cmd_data and return false
+		*start_pos += 1 + *len + 1;
 		*len = 0;
 		return (true);
 	}
 	else //command format is cmd args [>/>>] file [args]
 	{
-		args_after = len_till_seperator(args + (*start_pos) + (*len) + 2);
+		args_after = len_till_seperator(args + (*start_pos) + (*len) + 1);
 		new_args = ft_calloc(args_after + (*len), sizeof(char *));
 		if (!new_args)
 			return (false);
@@ -225,9 +225,9 @@ t_bool	output_file_command(t_list **head, char **args, int *start_pos,
 		if (cmd_data == NULL)
 			return (false);
 		cmd_data->output.type = command_separator_type(args[*start_pos + *len]);
-		cmd_data->output.file = ft_strdup(args[*start_pos + *len + 1]);
-		set_input(head, cmd_data);
-		*start_pos += (*len) + args_after + 2;
+		cmd_data->output.file = ft_strdup(args[*start_pos + *len + 1]); //TODO free created cmd_data and return false
+		set_input(head, cmd_data); // TODO free output.file and cmd_data and return false
+		*start_pos += (*len) + args_after + 1;
 		*len = 0;
 		return (true);
 	}
@@ -257,7 +257,7 @@ t_bool	output_pipe_command(t_list **head, char **args, int *start_pos,
 		if (!cmd_data)
 			return (false);
 		cmd_data->output.type = pipe_type;
-		set_input(head, cmd_data);
+		set_input(head, cmd_data); // TODO free cmd_data and return false
 		*start_pos += (*len) + 1;
 		*len = 0;
 		return (true);
@@ -275,8 +275,7 @@ t_bool	output_pipe_command(t_list **head, char **args, int *start_pos,
  * @return	Amount of args to skip to get to next command
  * 			or -1 on error
  */
-int	set_output(t_redirect *output, char **args)
-{
+int	set_output(t_redirect *output, char **args) {//TODO use t_bool
 	int			i;
 	t_pipe_type	pipe_type;
 
@@ -291,7 +290,7 @@ int	set_output(t_redirect *output, char **args)
 			if (args[i] && command_separator_type(args[i]))
 				continue ;
 			output->type = pipe_type;
-			output->file = ft_strdup(args[i - 1]);
+			output->file = ft_strdup(args[i - 1]);// TODO return false
 			ft_printf("OUTPUT FILE of %s is %s\n", output->file, args[i + 1]);
 			if (!output->file)
 				return (-1);
@@ -351,10 +350,10 @@ t_bool	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 		if (!cmd_data)
 			return (false);
 		cmd_data->input.type = pipe_type;
-		cmd_data->input.file = ft_strdup(args[*start_pos + 1]);
+		cmd_data->input.file = ft_strdup(args[*start_pos + 1]); // TODO free cmd_data and return false
 		if (!cmd_data->input.file)
 			return (false);
-		end_cmd = set_output(&(cmd_data->output), args + *start_pos + cmd_start + len_till_sep);
+		end_cmd = set_output(&(cmd_data->output), args + *start_pos + cmd_start + len_till_sep); //TODO on fail free cmd_data and return false (might need to pass an int pointer for end_cmd)
 		if (end_cmd < 0)
 			return (false);
 		*start_pos += cmd_start + len_till_sep + end_cmd;
@@ -379,7 +378,6 @@ t_bool	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 		ft_memcpy(new_args, args + (*start_pos), (*len) * sizeof(char *));
 		ft_memcpy(new_args + (*len), args + (*start_pos) + (*len)
 			+ 2, args_after * sizeof(char *)); //what is this doing?
-		print_splitted(new_args);
 		//ft_printf("\nare the NEW ARGS in input pipe\n"); //essentially only cat
 		pipe_type = command_separator_type(args[*start_pos + *len]);
 		cmd_data = create_cmd_from_args(head, new_args, args_after);
@@ -392,9 +390,9 @@ t_bool	input_pipe_command(t_list **head, char **args, int *start_pos, int *len)
 		cmd_data->input.file = ft_strdup(args[*start_pos + *len + 1]);
 		//ft_printf("ELSE, CMDDATA %s, input type %d, %s input file\n", cmd_data->command->command, cmd_data->input.type, cmd_data->input.file);
 
-		if (!cmd_data->input.file)
+		if (!cmd_data->input.file) //TODO free cmd_data
 			return (false);
-		end_cmd = set_output(&cmd_data->output, args + *start_pos + *len + 2 + args_after);
+		end_cmd = set_output(&cmd_data->output, args + *start_pos + *len + 2 + args_after); //TODO on fail free cmd_data and return false (might need to pass an int pointer for end_cmd)
 		*start_pos += (*len) + 2 + args_after + end_cmd;
 		*len = 0;
 		return (true);

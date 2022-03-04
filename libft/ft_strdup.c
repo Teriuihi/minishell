@@ -30,7 +30,7 @@ char	*ft_strdup(const char *s1)
 	}
 	strlen = ft_strlen(s1);
 	res = ft_calloc(strlen + 1, sizeof(char));
-	if (res == 0)
+	if (res == NULL)
 		return (res);
 	ft_memcpy(res, (void *)s1, strlen);
 	return (res);

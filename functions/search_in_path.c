@@ -12,6 +12,7 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
+#include "../buildins/buildins.h"
 
 extern char		**environ;
 /*

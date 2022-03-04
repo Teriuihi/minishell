@@ -12,6 +12,8 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
+#include "../buildins/buildins.h"
+#include "../hashtable/hashtable.h"
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -31,16 +33,15 @@ t_hash_table	*get_hash_table(void)
 	return (table);
 }
 
-void	set_data(t_data *data)
+void	set_data(t_minishell *minishell)
 {
-	data->export_flag = 0;
-	data->current_env = get_hash_table();
-	data->env = get_hash_table();
+	minishell->current_env = get_hash_table();
+    minishell->env = get_hash_table();
+    //TODO check failure
 }
 
 void	init(t_minishell *minishell)
 {
-	t_data		data;
 	char		*cur_dir;
 	t_signal	*signal_struct;
 
@@ -51,10 +52,9 @@ void	init(t_minishell *minishell)
 		exit(0);
 	}
 	minishell->cur_wd = cur_dir;
-	set_data(&data); //assigns hashtables
-	minishell->data = &data;
-	set_pwd(cur_dir, minishell);
-	signal_struct = init_signal();
+	set_data(minishell); //assigns hashtables
+	set_pwd(ft_strdup(cur_dir), minishell); //TODO check for failure
+	signal_struct = init_signal(); //TODO check for failure (NULL)
 	signal(SIGQUIT, sigquit_handler);
 }
 
