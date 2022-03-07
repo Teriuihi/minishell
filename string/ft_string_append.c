@@ -28,12 +28,13 @@ t_string	*join_to_new(t_string *s1, t_string *s2)
 	int			total_len;
 
 	total_len = s1->len + s2->len;
-	s_new = create(total_len + 100 - (total_len % 100));
+	s_new = create(total_len + 100);
 	if (s_new == NULL)
 		return (NULL);
 	s_new->len = total_len;
-	ft_strlcpy(s_new->s, s1->s, s1->len);
-	ft_strlcpy(s_new->s + s1->len, s2->s, s2->len);
+	s_new->empty -= total_len;
+	ft_strlcpy(s_new->s, s1->s, s1->len + 1);
+	ft_strlcpy(s_new->s + s1->len, s2->s, s2->len + 1);
 	free_string(s1);
 	free_string(s2);
 	return (s_new);
@@ -51,7 +52,7 @@ t_string	*join_strings(t_string *s1, t_string *s2)
 {
 	if (s1->empty >= s2->len)
 	{
-		ft_strlcpy(s1->s + s1->len, s2->s, s2->len);
+		ft_strlcpy(s1->s + s1->len, s2->s, s2->len + 1);
 		s1->len += s2->len;
 		s1->empty -= s2->len;
 		free_string(s2);
@@ -91,11 +92,11 @@ t_string	*append_char(t_string *s, char *arr)
 	else
 	{
 		new_s = create(s->len + arr_len + 100);
-		if (s == NULL)
+		if (new_s == NULL)
 			return (NULL);
 		new_s->len = s->len + arr_len;
-		ft_strlcpy(new_s->s, s->s, s->len);
-		ft_strlcpy(new_s->s + s->len, arr, arr_len);
+		ft_strlcpy(new_s->s, s->s, s->len + 1);
+		ft_strlcpy(new_s->s + s->len, arr, arr_len + 1);
 		return (new_s);
 	}
 }

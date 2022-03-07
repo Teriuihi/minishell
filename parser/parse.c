@@ -13,6 +13,33 @@
 #include "../libft/libft.h"
 #include "../headers/arguments.h"
 #include "internal_parser.h"
+#include "../hashtable/hashtable.h"
+
+/** TODO FINISH COMMENTS
+ * Does not need a null check for value cus NULL is valid
+ * @param pos
+ * @param start
+ * @param input
+ * @return
+ */
+t_string	*get_string_from_var(int pos, int start, char *input)
+{
+	char			*key;
+	char			*value;
+	t_hash_table	*table;
+	t_string		*result;
+
+	table = get_hash_table();
+	key = ft_calloc(pos - start + 1, sizeof(char));
+	if (key == NULL)
+		return (NULL);
+	ft_strlcpy(key, input + start, pos - start + 1);
+	value = ft_get_env_val(key, table);
+	free(key);
+	result = init_string(value);
+	free(value);
+	return (result);
+}
 
 /**
  * Called when finding a $ indicating a variable should be parsed
@@ -27,7 +54,6 @@
  */
 t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg)
 {
-	char		*var;
 	t_string	*result;
 
 	while (input[*pos])
@@ -35,24 +61,18 @@ t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg)
 		if (ft_iswhite_space(input[*pos]) || input[*pos] == '$'
 			|| input[*pos] == '"' || input[*pos] == '\'')
 		{
-			var = ft_calloc(*pos - start, sizeof(char));
-			ft_strlcpy(var, input + start, *pos - start);
-			//get_var_from_str(var);
-			result = init_string(var); //Should use the variable not the string
-			free(var);
+			result = get_string_from_var(*pos, start, input);
+			if (result == NULL)
+				return (NULL);
 			return (join_strings(arg, result));
 		}
 		(*pos)++;
 	}
 	if (start == (*pos - 1))
 		return (append_char(arg, "$"));
-	var = ft_calloc(*pos - start, sizeof(char));
-	if (var == NULL)
+	result = get_string_from_var(*pos, start, input);
+	if (result == NULL)
 		return (NULL);
-	ft_strlcpy(var, input + start, *pos - start);
-	//get_var_from_str(var);
-	result = init_string(var); //Should use the variable not the string
-	free(var);
 	return (join_strings(arg, result));
 }
 
@@ -78,7 +98,7 @@ t_string	*parse_quotation(char *input, int *start, char quote, t_string *arg)
 			arg = append_content(input, *start, pos, arg);
 			if (arg == NULL)
 				return (NULL);
-			arg = parse_env_variable(input, pos, &pos, arg);
+			arg = parse_env_variable(input, ++pos, &pos, arg);
 			if (arg == NULL)
 				return (NULL);
 			*start = pos;
@@ -138,7 +158,7 @@ t_list	**parse(char *input)
 			if (pos != 0 && pos != start)
 				string = append_content(input, start, pos - 1, string);
 			pos++;
-			parse_quotation(input, &pos, input[pos - 1], string);
+			string = parse_quotation(input, &pos, input[pos - 1], string);
 			start = pos;
 			literal = true;
 		}
@@ -164,6 +184,17 @@ t_list	**parse(char *input)
 				return (NULL);
 			literal = false;
 			pos++;
+			start = pos;
+		}
+		else if (input[pos] == '$')
+		{
+			if (pos != 0 && pos != start)
+				string = append_content(input, start, pos - 1, string);
+			if (string == NULL)
+				return (NULL);
+			string = parse_env_variable(input, ++pos, &pos, string);
+			if (string == NULL)
+				return (NULL);
 			start = pos;
 		}
 		else

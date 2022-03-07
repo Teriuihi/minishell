@@ -56,8 +56,9 @@ t_string	*init_string(char *arr)
 	if (s == NULL)
 		return (NULL);
 	s->len = arr_len;
+	s->empty -= arr_len;
 	if (arr == NULL)
 		return (s);
-	ft_strlcpy(s->s, arr, arr_len);
+	ft_strlcpy(s->s, arr, arr_len + 1);
 	return (s);
 }
