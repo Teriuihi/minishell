@@ -14,6 +14,7 @@
 # define STRUCTS_H
 # include <signal.h>
 # include "../libft/libft.h"
+#include "bool.h"
 
 typedef struct signal
 {
@@ -49,5 +50,6 @@ typedef struct s_cmd_data
 	t_command	*command; //this was t_command command; before
 	t_redirect	input;
 	t_redirect	output;
+	t_bool		executable_found;
 }	t_cmd_data;
 #endif

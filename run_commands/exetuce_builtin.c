@@ -87,12 +87,17 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 	return (true);
 }
 
+t_bool	ft_env(t_minishell *minishell)
+{
+	print_h_table(minishell->env);
+	minishell->exit_status = 0; //what would happen if we remove everything from the table? should it not have an exit status 1?
+	return (true);
+}
 
-t_bool	child_execute_built_in_not_child(t_command *command, t_minishell *minishell)
+//command not found : 127 exit status
+t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell) //cd and unset, env ?, we do not need to call a child process for these?
 {	//cd, export, unset
 	char	*cur_dir;
-
-	ft_printf("wrong place is builtint not child\n");
 
 	cur_dir = get_pwd(minishell);
 	if (!command->command)
@@ -101,37 +106,32 @@ t_bool	child_execute_built_in_not_child(t_command *command, t_minishell *minishe
 		return (true);
 	else if (ft_streq(command->command, "cd"))
 		return (cd(command, minishell));
-	else if (ft_streq(command->command, "env")) //next one should be the key
-		print_h_table(minishell->env);
-	else if (ft_streq(command->command, "unset")) //next one should be the key
-		ft_remove_exported_var(command->args[1], minishell->env);
+	else if (ft_streq(command->command, "env"))
+		return (ft_env(minishell));
+	else if (ft_streq(command->command, "unset")) //unset returns always 0? even if its not in env?
+		return (ft_remove_exported_var(command->args[1], minishell->env, minishell));
 	else
 		return (false);
-	return (true);
 }
 
 t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->args + 1 == myvar=stmh
 {
 	char	*cur_dir;
 
-	cur_dir = get_pwd(minishell);
 	if (!command->command)
 		return (false);
-	else if (ft_streq(command->command, "echo"))
+	cur_dir = get_pwd(minishell);
+	if (env_var_added(command, minishell) == true)
+		return (true);
+	if (ft_streq(command->command, "exit"))
+		return (true);
+	if (ft_streq(command->command, "echo")) //echo nemtommi > file.txt so it should be forked
 		ft_echo(command, 1);
-	else if (ft_streq(command->command, "cd"))
-		return (cd(command, minishell));
-	else if (ft_streq(command->command, "pwd"))
+	else if (ft_streq(command->command, "pwd")) //pwd > teso.txt so it should be forked
 	{
 		ft_putstr_fd(cur_dir, 1);
 		ft_putstr_fd("\n", 1);
 	}
-	else if (ft_streq(command->command, "env")) //next one should be the key
-	{
-		print_h_table(minishell->env);
-	}
-	else if (env_var_added(command, minishell) == true)
-		return (true);
 	else
 		return (false);
 	return (true);

@@ -10,14 +10,15 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GLOBAL_H
-# define GLOBAL_H
+#ifndef MINISHELL_H
+# define MINISHELL_H
 # include "structs.h"
 # include "../hashtable/hashtable.h"
 
 typedef struct s_minishell
 {
-	char	*cur_wd;
+	char            *cur_wd;
+    int             exit_status;
     t_hash_table	*env;
     t_hash_table	*current_env;
 }	t_minishell;

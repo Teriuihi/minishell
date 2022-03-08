@@ -23,12 +23,12 @@ void	free_key_value(t_entry *entry)
 	if (entry->key != NULL)
 	{
 		free(entry->key);
-		entry->key = NULL;
+		//entry->key = NULL;
 	}
 	if (entry->val != NULL)
 	{
 		free(entry->val);
-		entry->val = NULL;
+		//entry->val = NULL;
 	}
 }
 

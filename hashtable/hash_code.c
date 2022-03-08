@@ -68,9 +68,13 @@ void	print_h_table(t_hash_table *h_table)
 	while (i < h_table->size) //size is essentially should be constant
 	{
 		curr = h_table->entries[i];
+		//ft_printf("%s=%s of htable->entries[i]\n", curr->key, curr->val);
 		while (curr != NULL)
 		{
-			ft_printf("%s=%s\n", curr->key, curr->val);
+			if (curr->key && curr->val)
+			{
+				ft_printf("%s=%s\n", curr->key, curr->val);
+			}
 			curr = curr->next;
 		}
 		i++;

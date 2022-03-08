@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "functions.h"
-#include "structs.h"
+#include "../headers/functions.h"
+#include "../headers/structs.h"
 #include "../libft/libft.h"
 
 /**
@@ -21,13 +21,14 @@
 
 extern char	**environ;
 
-void	ft_remove_exported_var(char *key, t_hash_table *h_table)
+t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table, t_minishell *minishell)
 {
 	unsigned int	hashkey;
 
-	if (!key || !h_table)
+	if (!key || !h_table || !minishell)
 	{
-		return ;
+		minishell->exit_status = 1;
+		return (false);
 	}
 	hashkey = hash(key, "", h_table->size);
 	while (h_table->entries[hashkey] != NULL)
@@ -36,11 +37,13 @@ void	ft_remove_exported_var(char *key, t_hash_table *h_table)
 				ft_strlen(key)) == 0)
 		{
 			free_key_value(h_table->entries[hashkey]);
-			return ;
+			minishell->exit_status = 0;
+			return (false);
 		}
 		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
 	}
-	ft_printf("didnt find a var with this name\n");
+	minishell->exit_status = 1;
+	return (true);
 }
 
 void	ft_set_env(char *key, char *val, t_hash_table *h_table)

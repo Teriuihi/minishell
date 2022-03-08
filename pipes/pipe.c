@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "../buildins/buildins.h"
+#include "../run_commands/run_commands.h"
 
 /**
  * Assign pid's to STDOUT or STDIN as needed
@@ -179,39 +180,23 @@ void	child_execute_built_in(t_cmd_data *cmd_data, const int *old_pid,
 
 	command = cmd_data->command; //this is also prob not needed &cmd_data->command; 
 	init_child(old_pid, cur_pid, cmd_data->output.type, minishell); //SOMETHING GOES WRONG HERE
-	//if (cmd_data->input.type == REDIRECT_INPUT) // ? cmd_data->output.type was before
-	//{
-	//	write(1, "in redirect input\n", 19);
-
-	//	redirect_file(cmd_data, minishell);
-		//redirect_file(command, minishell);
-	//	exit(0);
-	//}
-	if (cmd_data->output.type == DELIMITER_INPUT) // Enters here but why?
-	{
-		//ft_printf("%s is cmd command, %d is output type, %d is input type\n", cmd_data->command->command, cmd_data->output.type, cmd_data->input.type);
-		//read_input_write(command, cur_pid[1]);
-		exit(0);
-	}
 	if (execute_builtin(command, minishell) == false)
+	{
 		ft_printf("Unable to execute command: %s\n", command->command);
+		exit(127);
+	}
 	exit(0);
 }
 
-void	init_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid, t_minishell *minishell)
+void	check_input_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid, t_minishell *minishell)
 {
-//	int fd;
-	//control some pipes here as well?
-	if (cmd_data->input.type)
+	if (cmd_data->input.type == REDIRECT_INPUT)
 	{
-		if (cmd_data->input.type == REDIRECT_INPUT)
-		{
-			redirect_file(cmd_data, old_pid, cur_pid, minishell);
-		}
-		if (cmd_data->input.type == DELIMITER_INPUT)
-		{
-			read_input_write(cmd_data, old_pid, cur_pid, minishell);
-		}
+		redirect_file(cmd_data, old_pid, cur_pid, minishell);
+	}
+	if (cmd_data->input.type == DELIMITER_INPUT)
+	{
+		read_input_write(cmd_data, old_pid, cur_pid, minishell);
 	}
 }
 /* USED TO BE MAYBE NOT NECESSARY
@@ -244,6 +229,20 @@ void	open_dup_close(int to_close1, int to_close , int *dup_src, int dup_dst)
 	
 }
 */
+
+void	close_pipes(int *pid1, int *pid2)
+{
+	if (pid1 != NULL)
+	{
+		close(*pid1);
+	}
+	if (pid2 != NULL)
+	{
+		close(*pid2);
+	}
+}
+
+
 void	print_pid(int *old_pid, int *cur_pid)
 {
 	ft_printf("%d oldpid[0], %d oldpid[1], %d curpid[0], %d curpid[1]\n", old_pid[0],old_pid[1],cur_pid[0],cur_pid[1]);
@@ -260,33 +259,38 @@ void	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid, t_minishell
 		//ft_printf("%s is command and its suppose to be OUTPUT_TO_COMMAND\n", cmd_data->command->command);
 		
 		dup2(cur_pid[0], STDIN_FILENO);
-		close(cur_pid[0]);
-		close(cur_pid[1]);
+		close_pipes(&cur_pid[0], &cur_pid[1]);
+		//close(cur_pid[0]);
+		//close(cur_pid[1]);
 	}
 	if (cmd_data->input.type == DELIMITER_INPUT)
 	{
 		dup2(cur_pid[0], STDIN_FILENO);
-		close(cur_pid[0]);
-		close(cur_pid[1]);
+		close_pipes(&cur_pid[0], &cur_pid[1]);
+		//close(cur_pid[0]);
+		//close(cur_pid[1]);
 	}
 	if (cmd_data->input.type == REDIRECT_INPUT)
 	{
 		dup2(old_pid[0], STDIN_FILENO); //this for cat? cat < file.txt
-		close(old_pid[0]); // ??? IS THIS NEEDED?
+		close_pipes(NULL, &old_pid[0]);
+		//close(old_pid[0]); // ??? IS THIS NEEDED?
 	}
 	if (cmd_data->output.type == OUTPUT_TO_COMMAND)
 	{
 		if (old_pid[0] > -1)
 		{
 			dup2(old_pid[0], STDIN_FILENO);
-			close(old_pid[0]);
-			close(old_pid[1]);
+			close_pipes(&old_pid[0], &old_pid[1]);
+			//close(old_pid[0]);
+			//close(old_pid[1]);
 		}
 		if (cur_pid[0] > -1)
 		{
 			dup2(cur_pid[1], STDOUT_FILENO);
-			close(cur_pid[1]);
-			close(cur_pid[0]);
+			close_pipes(&cur_pid[0], &cur_pid[1]);
+			//close(cur_pid[1]);
+			//close(cur_pid[0]);
 		}
 	}
 	if (cmd_data->output.type == REDIRECT_OUTPUT)
@@ -309,19 +313,23 @@ void	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid, t_minishell
  * @param	cur_pid		PIDs used by the current process
  * @param	minishell	Data for minishell
  */
-void	child_execute_external(t_cmd_data *cmd_data, const int *old_pid,
+void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 								const int *cur_pid, t_minishell *minishell)
 {
 	t_command	*command;
 
 	command = cmd_data->command;
 	control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell);
-	if (execve(command->command, command->args,
+	if (cmd_data->executable_found == false)
+	{
+		exit(127);
+	}
+	else if (execve(command->command, command->args,
 		get_envp(minishell->env)) < 0)
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);
-		close(old_pid[0]);
-		exit(0);
+		close(old_pid[0]); //?
+		exit(126);
 	}
 }
 //ft_printf("before control pipes with command %s, output %d, %d input\n", command->command, cmd_data->output.type, cmd_data->input.type);
@@ -335,7 +343,7 @@ void	child_execute_external(t_cmd_data *cmd_data, const int *old_pid,
  * @param	c_pid	PID of fork
  * @param	old_pid	PIDs from previous pipes
  */
-void	parent(pid_t c_pid, const int *old_pid)
+void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 {
 	int	status;
 
@@ -345,6 +353,11 @@ void	parent(pid_t c_pid, const int *old_pid)
 		close(old_pid[0]);
 	}
 	waitpid(c_pid, &status, 0);
+	if (WIFEXITED(status))
+	{
+		minishell->exit_status = WEXITSTATUS(status); //should be added to $?
+		//ft_printf("%d is last executed exit status\n", minishell->exit_status);
+	}
 }
 
 /**
@@ -354,7 +367,7 @@ void	parent(pid_t c_pid, const int *old_pid)
  *
  * @return	True if it should be executed in a child process, false if not
  */
-t_bool	should_be_child(t_command *command)
+t_bool	should_be_child(t_command *command) //what about env? it should not be child i guess
 {
 	if (env_variable_found(command->command) == true) //what happens if its false but because of incorrect input? hello==myvar
 		return (false);
@@ -362,11 +375,13 @@ t_bool	should_be_child(t_command *command)
 		return (false);
 	if (ft_streq(command->command, "unset"))
 		return (false);
+	if (ft_streq(command->command, "env"))
+		return (false);
 	return (true);
 }
 
 
-static t_bool	search_executable_for_non_builtin(t_cmd_data *cmd_data)
+static t_bool	search_executable_for_non_builtin(t_cmd_data *cmd_data, t_minishell *minishell)
 {
 	t_command *command;
 	
@@ -374,7 +389,7 @@ static t_bool	search_executable_for_non_builtin(t_cmd_data *cmd_data)
 	command->command = search_in_path(command->command); //this is where we could just pull from hashtable
 	if (command->command == NULL)
 	{
-		ft_printf("Command not found: %s\n", *command->args);
+		ft_printf("Command not found: %s\n", *command->args); //this might have to be called also as child process even if command not found
 		return (false);
 	}
 	free(*command->args); //do we still have command args?
@@ -398,30 +413,28 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	t_command	*command;
 
 	command = cmd_data->command;
-	if (ft_streq(command->command, "exit"))
-		exit (0);
-	init_pipes(cmd_data, old_pid, cur_pid, minishell);
+	check_input_pipes(cmd_data, old_pid, cur_pid, minishell);
+	//EXIT DOESNT WORK YET!!!!!!!!!!
 	if (is_built_in == false) //if its not a builtin command
 	{
-		if (search_executable_for_non_builtin(cmd_data) == false)
-			return ;
+		cmd_data->executable_found = search_executable_for_non_builtin(cmd_data, minishell); //if this returns with false still have to execute and return w 127
 	}
-	if (is_built_in == true && should_be_child(command) == false)
+	if (should_be_child(command) == false) //is_built_in == true && 
 	{
-		child_execute_built_in_not_child(command, minishell);
+		execute_non_forked_builtin(command, minishell);
 		return ;
 	}
-	c_pid = fork();
+	c_pid = fork(); //assign it to cmd_datas process?
 	if (c_pid == 0)
 	{
 		if (is_built_in == true) //we have to make this somehow true
 		{
-			ft_printf("wrong place is builtint true\n");
-			child_execute_built_in(cmd_data, old_pid, cur_pid, minishell);
+			child_execute_built_in(cmd_data, old_pid, cur_pid, minishell); //echo && pwd which should be forked
 		}
 		else
-			child_execute_external(cmd_data, old_pid, cur_pid, minishell); //here first we have to enter the built in, organize pipes then execute it
+			child_execute_non_builtin(cmd_data, old_pid, cur_pid, minishell); //here first we have to enter the built in, organize pipes then execute it
 	}
 	else
-		parent(c_pid, old_pid);
+		parent(c_pid, old_pid, minishell);
+	//save the last executed commands exit status here or in parent?
 }

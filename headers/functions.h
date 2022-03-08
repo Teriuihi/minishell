@@ -41,5 +41,6 @@ void			free_char_arr(char **args);
 void			start_program_loop(t_minishell *minishell);
 size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 void			free_splitted(char **splitted);
+t_bool          ft_remove_exported_var(char *key, t_hash_table *h_table, t_minishell *minishell);
 
 #endif

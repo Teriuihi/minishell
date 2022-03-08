@@ -80,6 +80,7 @@ t_bool	is_builtin(t_cmd_data *cmd_data)
 		"env",
 		"exit"};
 
+
 	if (!cmd_data)
 		return (false);
 	command = cmd_data->command; // &cmd_data->command; was before
@@ -93,8 +94,11 @@ t_bool	is_builtin(t_cmd_data *cmd_data)
 	}
 	while (i < 7)
 	{
+
 		if (ft_streq(command->command, builtins[i]))
-			return (1);
+		{
+			return (true);
+		}
 		i++;
 	}
 	if (cmd_data->output.type == REDIRECT_INPUT || cmd_data->output.type == DELIMITER_INPUT)

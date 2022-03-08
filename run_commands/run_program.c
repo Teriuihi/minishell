@@ -15,6 +15,7 @@
 #include <readline/readline.h>
 #include "run_commands.h"
 #include "../create_commands/create_commands.h"
+#include "../buildins/buildins.h"
 
 /**
  * Copies cur_pid to old_pid
