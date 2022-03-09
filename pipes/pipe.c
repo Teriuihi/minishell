@@ -180,7 +180,6 @@ void	child_execute_built_in(t_cmd_data *cmd_data, const int *old_pid,
 
 	command = cmd_data->command; //this is also prob not needed &cmd_data->command; 
 	init_child(old_pid, cur_pid, cmd_data->output.type, minishell); //SOMETHING GOES WRONG HERE
-	ft_printf("WTF\n");
 	if (execute_builtin(command, minishell) == false)
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);
@@ -325,7 +324,9 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	{
 		exit(127);
 	}
-	else if (execve(command->command, command->args,
+	//char **eng = get_envp(minishell->env);
+	//print_splitted(eng);
+	if (execve(command->command, command->args,
 		get_envp(minishell->env)) < 0)
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);

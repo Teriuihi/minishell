@@ -56,6 +56,29 @@ unsigned int	hash(const char *key, char *val, unsigned long int table_size)
 	return (value);
 }
 
+void	set_to_exported(t_hash_table *h_table)
+{
+	int		i;
+	t_entry *curr;
+	i = 0;
+
+	while (i < h_table->size)
+	{
+		if (h_table->entries[i] != NULL)
+		{
+			curr = h_table->entries[i];
+			while (curr)
+			{
+				curr->is_exported = true;
+				curr = curr->next;
+			}
+		}
+		i++;
+	}
+}
+
+
+
 t_bool	print_h_table(t_hash_table *h_table)
 {
 	t_entry	*curr;

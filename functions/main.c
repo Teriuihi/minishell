@@ -37,7 +37,18 @@ void	set_data(t_minishell *minishell)
 {
 	minishell->current_env = get_hash_table();
     minishell->env = get_hash_table();
+	set_to_exported(minishell->current_env);
+	set_to_exported(minishell->env);
     //TODO check failure
+	//set is_exported in env on to all, in current env as well
+}
+
+void	init_signal_struct()
+{
+	global_signal.sigint = 0;
+	global_signal.sigquit = 0;
+	global_signal.pid = 0;
+	global_signal.exit_status = 0;
 }
 
 void	init(t_minishell *minishell)
@@ -55,6 +66,7 @@ void	init(t_minishell *minishell)
 	minishell->exit_status = 0;
 	set_data(minishell); //assigns hashtables
 	set_pwd(ft_strdup(cur_dir), minishell); //TODO check for failure
+	
 	signal_struct = init_signal(); //TODO check for failure (NULL)
 	signal(SIGQUIT, sigquit_handler);
 }

@@ -76,7 +76,7 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 		return (false);
 	}
 	if (export_found(command, minishell) == true)
-	{
+	{	//in this case we should add an: is_exported flag to true
 		minishell->exit_status = 0;
 		return (true);
 	}
@@ -87,6 +87,10 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 		minishell->exit_status = 2;
 		return (false);
 	}
+	//here we should check which one we have to add to
+	//ft_printf("%s %s is splitted0, splitted1 before entering to current env set\n", splitted[0], splitted[1]);
+	//print_h_table(minishell->current_env);
+	//ft_printf("is current env table before\n");
 	if (ft_set_env(splitted[0], splitted[1], minishell->current_env) == false) //check if set fails for some reason?
 	{
 		minishell->exit_status = 1;
@@ -94,6 +98,8 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 	}
 	else
 	{
+		//print_h_table(minishell->current_env);
+		//ft_printf("is current env table after\n");
 		minishell->exit_status = 0;
 		return (true);
 	}
@@ -153,8 +159,8 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->ar
 	if (!command->command || !minishell)
 		return (false);
 	cur_dir = get_pwd(minishell);
-	if (env_var_added(command, minishell) == true)
-		return (true);
+	//if (env_var_added(command, minishell) == true)
+	//	return (true);
 	if (ft_streq(command->command, "echo")) //echo nemtommi > file.txt so it should be forked
 		return (ft_echo(command, 1, minishell));
 	else if (ft_streq(command->command, "pwd")) //pwd > teso.txt so it should be forked

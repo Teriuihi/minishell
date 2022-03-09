@@ -31,14 +31,32 @@ void	crtld_handler(int signum)
 
 void	sigquit_handler(int signum) /* crtl + \ , do nothing */
 {
-	(void)signum;
-	write(1, "entered to crtl + backslash signal\n", 36);
+	(void)signum; //write(1, "entered to crtl + backslash signal\n", 36);
+	if (global_signal.pid != 0)
+	{
+		global_signal.exit_status = 128 + 3;
+		global_signal.sigquit = 1;
+	}
+	else
+	{
+		/* code */
+		//some error somewhere?
+	}
 }
 
 void	sigint_handler(int signum) /* crtl + C , repeat prompt */
 {
 	(void)signum;
-	//have to get somehow the exit status, 127 or 0 and assign it into a struct?
+	global_signal.sigint = 1;
+	if (global_signal.pid == 0)
+	{
+		global_signal.exit_status = 1;
+	}
+	else
+	{
+		global_signal.exit_status = 128 + 2; //https://unix.stackexchange.com/questions/386836/why-is-doing-an-exit-130-is-not-the-same-as-dying-of-sigint
+	}
+	//have to get somehow the exit status, 1 iter27 or 0 and assign it into a struct?
 }
 
 t_signal	*init_signal(void) //should this be global?
