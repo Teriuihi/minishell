@@ -62,6 +62,7 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	if (command->args_len != 2 || command->args[1] == NULL)
 	{
 		ft_printf("Invalid command, not enough args\n");
+		minishell->exit_status = 2; //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 		return (false);
 	}
 	dir = get_path_from_arg(command->args[1], minishell);
@@ -76,5 +77,9 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	if (dir != command->args[1])
 		free(dir);
 	result = set_pwd(getcwd(NULL, 0), minishell);
+	if (result == true)
+		minishell->exit_status = 1;
+	else
+		minishell->exit_status = 0;
 	return (result);
 }

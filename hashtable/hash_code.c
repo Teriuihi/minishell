@@ -12,6 +12,7 @@
 
 #include "../libft/libft.h"
 #include "../hashtable/hashtable.h"
+
 /**
  * Checks if a string ends with a specific suffix
  *
@@ -55,14 +56,15 @@ unsigned int	hash(const char *key, char *val, unsigned long int table_size)
 	return (value);
 }
 
-void	print_h_table(t_hash_table *h_table)
+t_bool	print_h_table(t_hash_table *h_table)
 {
 	t_entry	*curr;
 	int		i;
 
+	
 	if (!h_table)
 	{
-		return ;
+		return (false);
 	}
 	i = 0;
 	while (i < h_table->size) //size is essentially should be constant
@@ -78,5 +80,6 @@ void	print_h_table(t_hash_table *h_table)
 			curr = curr->next;
 		}
 		i++;
-	}
+	} //what if not found?
+	return (true);
 }

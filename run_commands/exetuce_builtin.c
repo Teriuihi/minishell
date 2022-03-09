@@ -13,6 +13,7 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include "../buildins/buildins.h"
+#include "../headers/minishell.h"
 
 /**
  * Takes an array of arrays (user input)
@@ -71,27 +72,45 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 
 	if (!command || !minishell)
 	{
+		minishell->exit_status = 2;
 		return (false);
 	}
 	if (export_found(command, minishell) == true)
 	{
+		minishell->exit_status = 0;
 		return (true);
 	}
 	splitted = ft_split(command->command, '='); //what about more = eg: hello=there=johhny?
 	if (split_len(splitted) != 2) //should be only 2
 	{
 		free_splitted(splitted);
+		minishell->exit_status = 2;
 		return (false);
 	}
-	ft_set_env(splitted[0], splitted[1], minishell->current_env); //check if set fails for some reason?
-	return (true);
+	if (ft_set_env(splitted[0], splitted[1], minishell->current_env) == false) //check if set fails for some reason?
+	{
+		minishell->exit_status = 1;
+		return (false);
+	}
+	else
+	{
+		minishell->exit_status = 0;
+		return (true);
+	}
 }
 
-t_bool	ft_env(t_minishell *minishell)
+t_bool	ft_env(t_hash_table *h_table, t_minishell *minishell)
 {
-	print_h_table(minishell->env);
-	minishell->exit_status = 0; //what would happen if we remove everything from the table? should it not have an exit status 1?
-	return (true);
+	if (print_h_table(h_table) == false)
+	{
+		minishell->exit_status = 1;
+		return (false);
+	}
+	else
+	{
+		minishell->exit_status = 0;
+		return (true);
+	}
 }
 
 //command not found : 127 exit status
@@ -100,39 +119,47 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell) //
 	char	*cur_dir;
 
 	cur_dir = get_pwd(minishell);
-	if (!command->command)
+	if (!command->command || !minishell)
 		return (false);
 	else if (env_var_added(command, minishell) == true) //export? but also a=b should be here
 		return (true);
 	else if (ft_streq(command->command, "cd"))
 		return (cd(command, minishell));
 	else if (ft_streq(command->command, "env"))
-		return (ft_env(minishell));
+		return (ft_env(minishell->env, minishell));
 	else if (ft_streq(command->command, "unset")) //unset returns always 0? even if its not in env?
 		return (ft_remove_exported_var(command->args[1], minishell->env, minishell));
 	else
 		return (false);
 }
 
+t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
+{
+	if (!cur_dir)
+	{
+		minishell->exit_status = 1;
+		return (false);
+	}
+	ft_putstr_fd(cur_dir, 1);
+	ft_putstr_fd("\n", 1);
+	minishell->exit_status = 0;
+	return (true);
+}
+
 t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->args + 1 == myvar=stmh
 {
 	char	*cur_dir;
 
-	if (!command->command)
+	if (!command->command || !minishell)
 		return (false);
 	cur_dir = get_pwd(minishell);
 	if (env_var_added(command, minishell) == true)
 		return (true);
-	if (ft_streq(command->command, "exit"))
-		return (true);
 	if (ft_streq(command->command, "echo")) //echo nemtommi > file.txt so it should be forked
-		ft_echo(command, 1);
+		return (ft_echo(command, 1, minishell));
 	else if (ft_streq(command->command, "pwd")) //pwd > teso.txt so it should be forked
-	{
-		ft_putstr_fd(cur_dir, 1);
-		ft_putstr_fd("\n", 1);
-	}
+		return (ft_pwd(cur_dir, minishell));
 	else
 		return (false);
-	return (true);
+
 }

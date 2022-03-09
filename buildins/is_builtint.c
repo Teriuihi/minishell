@@ -77,12 +77,12 @@ t_bool	is_builtin(t_cmd_data *cmd_data)
 		"pwd",
 		"export",
 		"unset",
-		"env",
-		"exit"};
+		"env"};
 
 
 	if (!cmd_data)
 		return (false);
+	
 	command = cmd_data->command; // &cmd_data->command; was before
 	if (command == NULL || command->command == NULL)
 		return (0);
@@ -92,9 +92,8 @@ t_bool	is_builtin(t_cmd_data *cmd_data)
 		//if its true, can we not just add immediately to hashtable?
 		return (true);
 	}
-	while (i < 7)
+	while (i < 6)
 	{
-
 		if (ft_streq(command->command, builtins[i]))
 		{
 			return (true);

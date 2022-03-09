@@ -42,22 +42,20 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table, t_minishell *min
 		}
 		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
 	}
-	minishell->exit_status = 1;
+	minishell->exit_status = 1; //bash behaviour is still 0 tho
 	return (true);
 }
 
-void	ft_set_env(char *key, char *val, t_hash_table *h_table)
+t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table)
 {
 	t_bool			insert_succeeded;
 
 	if (!key || !val  || !h_table)
 	{
-		return ;
+		return (false);
 	}
 	insert_succeeded = succesful_insert(h_table, key, val);
-	//free(key);
-	
-	//free(val);
+	return (insert_succeeded);
 }
 
 char	*ft_get_env_val(char *key, t_hash_table *h_table)

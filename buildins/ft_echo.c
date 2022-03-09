@@ -24,7 +24,7 @@
  *
  * @return	void
 */
-void	ft_echo(t_command *command, int fd)
+t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 {
 	int		i;
 	char	c;
@@ -34,7 +34,10 @@ void	ft_echo(t_command *command, int fd)
 	i = 1;
 	c = '\0';
 	if (!args || args[0] == NULL || args[1] == NULL)
-		return ;
+	{
+		minishell->exit_status = 2;
+		return (false);
+	}
 	if (ft_strncmp(args[1], "-n", 3) == 0)
 		i++;
 	else
@@ -47,4 +50,5 @@ void	ft_echo(t_command *command, int fd)
 		i++;
 	}
 	write(fd, &c, 1);
+	minishell->exit_status = 0;
 }

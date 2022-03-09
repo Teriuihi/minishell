@@ -180,6 +180,7 @@ void	child_execute_built_in(t_cmd_data *cmd_data, const int *old_pid,
 
 	command = cmd_data->command; //this is also prob not needed &cmd_data->command; 
 	init_child(old_pid, cur_pid, cmd_data->output.type, minishell); //SOMETHING GOES WRONG HERE
+	ft_printf("WTF\n");
 	if (execute_builtin(command, minishell) == false)
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);
@@ -413,15 +414,17 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	t_command	*command;
 
 	command = cmd_data->command;
+	if (ft_streq(command->command, "exit"))
+		exit(0);
 	check_input_pipes(cmd_data, old_pid, cur_pid, minishell);
-	//EXIT DOESNT WORK YET!!!!!!!!!!
 	if (is_built_in == false) //if its not a builtin command
 	{
 		cmd_data->executable_found = search_executable_for_non_builtin(cmd_data, minishell); //if this returns with false still have to execute and return w 127
 	}
 	if (should_be_child(command) == false) //is_built_in == true && 
 	{
-		execute_non_forked_builtin(command, minishell);
+		if (execute_non_forked_builtin(command, minishell) == false)
+			ft_printf("Built in command execution failed\n");
 		return ;
 	}
 	c_pid = fork(); //assign it to cmd_datas process?
