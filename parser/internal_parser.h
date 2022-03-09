@@ -12,7 +12,7 @@
 
 #ifndef INTERNAL_PARSER_H
 # define INTERNAL_PARSER_H
-# include "../headers/string.h"
+# include "../string/string.h"
 
 t_string	*append_content(char *input, int start, int pos, t_string *arg);
 t_bool		add_to_list(t_list **head, t_string *string, t_bool literal);

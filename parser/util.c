@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "../headers/bool.h"
-#include "../headers/string.h"
+#include "../string/string.h"
 #include "../headers/arguments.h"
 #include "../libft/libft.h"
 

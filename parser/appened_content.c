@@ -1,4 +1,4 @@
-#include "../headers/string.h"
+#include "../string/string.h"
 #include "../libft/libft.h"
 
 /**

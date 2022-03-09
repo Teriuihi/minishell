@@ -13,7 +13,7 @@
 #ifndef ARGUMENTS_H
 # define ARGUMENTS_H
 # include "bool.h"
-# include "string.h"
+# include "../string/string.h"
 
 typedef struct s_arg
 {

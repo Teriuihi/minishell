@@ -16,6 +16,7 @@
 #include "run_commands.h"
 #include "../create_commands/create_commands.h"
 #include "../buildins/buildins.h"
+#include "../parser/parser.h"
 
 /**
  * Copies cur_pid to old_pid
@@ -119,22 +120,24 @@ t_bool	should_use(char *input)
 void	start_program_loop(t_minishell *minishell)
 {
 	char		*input;
-	char		**args;
 	t_list		**head;
-
+	t_list		**parse_results;
 
 	
 	input = readline("some shell>"); //TODO free
 	while (input)
 	{
 		//print_splitted(get_envp(minishell->env));
-
-		args = NULL;
 		if (should_use(input))
 		{
 			add_history(input);
-			args = get_args(input); //TODO free
-			head = find_commands(args); //TODO free
+			parse_results = parse(input); //TODO free
+			if (parse_results == NULL)
+			{
+				ft_printf("Error\n");
+				exit(0);
+			}
+			head = find_commands(parse_results); //TODO free
 			if (head == NULL)
 			{
 				ft_printf("Error\n");
@@ -145,7 +148,6 @@ void	start_program_loop(t_minishell *minishell)
 			//ft_printf("\n\n\n\n");
 			run_commands(head, minishell);
 			free_commands(head);
-			free_char_arr(args);
 		}
 		free(input);
 		input = readline("some shell>");
