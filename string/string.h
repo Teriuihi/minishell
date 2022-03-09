@@ -12,7 +12,7 @@
 
 #ifndef STRING_H
 # define STRING_H
-# include "bool.h"
+# include "../headers/bool.h"
 
 typedef struct s_string
 {

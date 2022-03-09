@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "../libft/libft.h"
-#include "../headers/string.h"
+#include "string.h"
 #include "string_internal.h"
 
 /**

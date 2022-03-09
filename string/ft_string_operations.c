@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../headers/string.h"
+#include "string.h"
 #include "../libft/libft.h"
 
 t_bool	ft_str_eq(t_string *s1, t_string *s2)
