@@ -17,10 +17,11 @@
 # include <sys/types.h>
 
 
+
 typedef struct	s_signal
 {
 	int			sigint;
-	int			sigquit
+	int			sigquit;
 	pid_t		pid;
 	pid_t		exit_status; //this to alter when we quit?
 }				t_signal;
@@ -32,8 +33,8 @@ typedef struct s_minishell
 	pid_t           current_pid;
 	t_hash_table	*env;
 	t_hash_table	*current_env;
+	t_bool			are_we_still_running;
 }	t_minishell;
 
-extern	t_signal global_signal;
-
+//extern	t_signal *global_signal;
 #endif

@@ -354,12 +354,20 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 		close(old_pid[1]);
 		close(old_pid[0]);
 	}
-	waitpid(c_pid, &status, 0);
-	if (WIFEXITED(status))
+	waitpid(c_pid, &status, 0); //check if we interrupted the status with a signa;?
+	if (WIFEXITED(status)) //use ps to check if child process is still running?
 	{
 		minishell->exit_status = WEXITSTATUS(status); //should be added to $?
-		//ft_printf("%d is last executed exit status\n", minishell->exit_status);
+		ft_printf("%d is last executed exit status\n", minishell->exit_status);
+		if (WIFSIGNALED(status))
+		{
+			ft_printf("Killed by signal %d\n", WTERMSIG(status));
+		}
 	}
+	
+	//https://linuxhint.com/waitpid-syscall-in-c/
+	//WTERMSIG(status) returns the number of the signal that caused the child process to terminate. This macro should only be employed if WIFSIGNALED returned true.
+
 }
 
 /**
@@ -388,6 +396,13 @@ static t_bool	search_executable_for_non_builtin(t_cmd_data *cmd_data, t_minishel
 	t_command *command;
 	
 	command = cmd_data->command;
+	if (ft_streq(command->command, "./minishell")) //get maybe also other executables?
+	{
+		free(*command->args); //do we still have command args?
+		*command->args = ft_strdup(command->command);
+		return (true);
+	}
+	//if not in path, search in current dir?
 	command->command = search_in_path(command->command); //this is where we could just pull from hashtable
 	if (command->command == NULL)
 	{
@@ -418,7 +433,7 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	if (ft_streq(command->command, "exit"))
 		exit(0);
 	check_input_pipes(cmd_data, old_pid, cur_pid, minishell);
-	if (is_built_in == false) //if its not a builtin command
+	if (is_built_in == false || ft_streq(command->command, "./minishell")) //if its not a builtin command, or its another executable of shell
 	{
 		cmd_data->executable_found = search_executable_for_non_builtin(cmd_data, minishell); //if this returns with false still have to execute and return w 127
 	}

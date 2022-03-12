@@ -43,4 +43,11 @@ size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 void			free_splitted(char **splitted);
 t_bool          ft_remove_exported_var(char *key, t_hash_table *h_table, t_minishell *minishell);
 
+/*
+//signals
+void	sigquit_handler(int signum);
+void	sigint_handler(int signum);
+void	crtld_handler(int signum);
+t_signal	*init_signal(void);
+*/
 #endif

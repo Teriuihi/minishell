@@ -123,8 +123,18 @@ void	start_program_loop(t_minishell *minishell)
 	char		**args;
 	t_list		**head;
 
+	//check the global var keep running
+	//minishell->are_we_still_running = 1;
 
-	minishell->are_we_still_running = 1;
+	//if crtlc then this sequence should start over
+	/*
+	while (keep_running == 1)
+	{
+		//call input loop
+		//if not then reinit everythin and call the while keep_running == 1
+	}
+
+	*/
 	input = readline("some shell>"); //TODO free
 	while (input && minishell->are_we_still_running)
 	{

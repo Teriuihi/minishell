@@ -16,11 +16,13 @@
 # include "../libft/libft.h"
 #include "bool.h"
 
+/*
 typedef struct signal
 {
 	pid_t	pid;
 	int		exit_status;
 }	t_signal;
+*/
 
 typedef enum e_pipe_type
 {

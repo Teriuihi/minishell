@@ -50,7 +50,7 @@ t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table)
 {
 	t_bool			insert_succeeded;
 
-	ft_printf("%s %s is splitted0, splitted1\n", key, val);
+	//ft_printf("%s %s is splitted0, splitted1\n", key, val);
 	if (!key || !val  || !h_table)
 	{
 		return (false);
