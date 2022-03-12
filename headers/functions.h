@@ -25,13 +25,12 @@ size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 void			crtld_handler(int signum);
 void			sigquit_handler(int signum);
 void			sigint_handler(int signum);
-t_signal		*init_signal(void);
 void			print_splitted(char **args);
 t_pipe_type		command_separator_type(char *str);
 void			crtld_handler(int signum);
 void			sigquit_handler(int signum);
 void			sigint_handler(int signum);
-t_signal		*init_signal(void);
+void	        init_signal(void); //should this be global?
 void			print_splitted(char **args);
 void			err_exit(char *err, int status);
 int				err_int_return(char *err, int status);

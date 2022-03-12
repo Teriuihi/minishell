@@ -31,6 +31,9 @@ void	crtld_handler(int signum)
 {
 	(void)signum;
 }
+
+
+
 /*
 void	sigquit_handler(int signum) //crtl + \ 
 {
@@ -62,20 +65,13 @@ void	sigint_handler(int signum) // crtl + C , repeat prompt /
 	}
 	//have to get somehow the exit status, 1 iter27 or 0 and assign it into a struct?
 }
-
-t_signal	*init_signal(void) //should this be global?
-{
-	t_signal	*signal;
-
-	signal = ft_calloc(1, sizeof(t_signal));
-	if (!signal)
-	{
-		return (NULL);
-	}
-	signal->sigint = 0;
-	signal->sigquit = 0;
-	signal->exit_status = 0;
-	signal->pid = 0;
-	return (signal);
-}
 */
+
+void	init_signal(void) //should this be global?
+{
+	g_signal.sigint = 0;
+	g_signal.sigquit = 0;
+	g_signal.finished = false;
+	g_signal.pid = getpid();
+	g_signal.keep_running = 1;
+}

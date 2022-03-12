@@ -358,7 +358,8 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 	if (WIFEXITED(status)) //use ps to check if child process is still running?
 	{
 		minishell->exit_status = WEXITSTATUS(status); //should be added to $?
-		ft_printf("%d is last executed exit status\n", minishell->exit_status);
+		ft_printf("%d is last executed exit status, %d is WIFSIGNALED\n", minishell->exit_status, WIFSIGNALED(status));
+		
 		if (WIFSIGNALED(status))
 		{
 			ft_printf("Killed by signal %d\n", WTERMSIG(status));

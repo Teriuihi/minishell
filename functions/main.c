@@ -19,7 +19,7 @@
 #include <unistd.h>
 #include <termios.h> 
 
-volatile sig_atomic_t keep_running = 1;
+t_signal g_signal;
 
 t_hash_table	*get_hash_table(void)
 {
@@ -63,17 +63,34 @@ void	sig_hnd(int sig)
 	//exit(0);
 }
 
+
 void	sigint_handler(int this_signal)
 {
 	if (this_signal == SIGINT)
 	{
 		//global signal stuff to 0
-		keep_running = 0;
-		ft_printf("global signal received andchanged to 1\n");
+		//ft_printf("sigint registered\n");
+		g_signal.sigint = 1;
+		g_signal.exit_status = 1;
+		ft_printf("\nsome shell>");
+		//ft_printf("global signal received andchanged to 1\n");
 	}
-	ft_printf("exit\n");
+	
 	//exit(0);
 }
+
+
+void	sigquit_handler(int this_signal)
+{
+	if (this_signal == SIGQUIT) //crtl c lett ez?
+	{
+		ft_printf("exit\n");
+		g_signal.sigquit = 1;
+		exit(0);
+	}
+	//exit(0);
+}
+
 
 void	init(t_minishell *minishell)
 {
@@ -95,18 +112,47 @@ void	init(t_minishell *minishell)
 	//signal(SIGQUIT, sigquit_handler);
 }
 
+/*
+void	main_loop()
+{
+	
+	
+}
+*/
 int	main(void)
 {
-	t_minishell	minishell;
+	t_minishell minishell;
+	struct termios old_termios, new_termios;
+	init_signal();
+	//signal(SIGINT, sigint_handler);
+	//signal(SIGQUIT, sigquit_handler);
 
-	signal(SIGINT, sigint_handler);
-	//ssignal(SIGQUIT, sigint_handler);
-	init(&minishell);
-	while (keep_running == 1)
+
+	tcgetattr(0, &old_termios);
+	signal(SIGINT, sigint_handler); //crtl c
+	signal(SIGQUIT, sigquit_handler); 
+	new_termios = old_termios;
+	new_termios.c_cc[VEOF] = 3; //C
+	new_termios.c_cc[VINTR] = 34; //D, lehet crtl backslash kene ide
+	new_termios.c_cc[VQUIT] = 4; //ez a d jo
+	tcsetattr(0, TCSANOW, &new_termios);
+	//main loop
+	while (g_signal.sigquit != 1)
 	{
-		//init stuff, keep running
+		//init stuff et
+
+		//ssignal(SIGQUIT, sigint_handler);
+		init(&minishell);
+		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
+		{
+			ft_printf("in small loop\n");
+			start_program_loop(&minishell);
+		}
+		g_signal.sigint = 0;
+		ft_printf("Resetting sigint, %d is sigquit\n", g_signal.sigquit);
 	}
-	start_program_loop(&minishell);
+	ft_printf("outside after mainloop\n");
+	exit(0);
 	return (0);
 }
 

@@ -15,15 +15,17 @@
 # include "structs.h"
 # include "../hashtable/hashtable.h"
 # include <sys/types.h>
-
+# include <signal.h>
 
 
 typedef struct	s_signal
 {
 	int			sigint;
 	int			sigquit;
+	t_bool		finished;
 	pid_t		pid;
 	pid_t		exit_status; //this to alter when we quit?
+	int			keep_running;
 }				t_signal;
 
 typedef struct s_minishell
@@ -37,4 +39,7 @@ typedef struct s_minishell
 }	t_minishell;
 
 //extern	t_signal *global_signal;
+
+extern  t_signal g_signal;
+
 #endif
