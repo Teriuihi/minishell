@@ -136,7 +136,7 @@ void	start_program_loop(t_minishell *minishell)
 
 	*/
 	input = readline("some shell>"); //TODO free
-	while (input)
+	while (input && g_signal.sigquit != 1)
 	{
 		//print_splitted(get_envp(minishell->env));
 		args = NULL;

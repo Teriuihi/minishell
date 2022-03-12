@@ -70,10 +70,13 @@ void	sigint_handler(int this_signal)
 	{
 		//global signal stuff to 0
 		//ft_printf("sigint registered\n");
-		g_signal.sigint = 1;
-		g_signal.exit_status = 1;
+		if (g_signal.pid != 0)
+		{
+			//g_signal.sigquit = 0;
+			g_signal.sigint = 1;
+			kill(g_signal.pid, SIGINT);
+		}
 		ft_printf("\nsome shell>");
-		//ft_printf("global signal received andchanged to 1\n");
 	}
 	
 	//exit(0);
@@ -85,8 +88,20 @@ void	sigquit_handler(int this_signal)
 	if (this_signal == SIGQUIT) //crtl c lett ez?
 	{
 		ft_printf("exit\n");
-		g_signal.sigquit = 1;
-		exit(0);
+		if (g_signal.pid != 0)
+		{
+			//g_signal.sigquit = 0;
+			g_signal.sigquit = 0;
+			kill(g_signal.pid, SIGKILL);
+		}
+		else
+		{
+			g_signal.sigquit = 1;
+			kill(g_signal.pid, SIGKILL);
+			exit(0);
+		}
+		//exit(0); //just set the status, and maybe check at the parent?
+		//we only need to exit the forked pid not the entire shell
 	}
 	//exit(0);
 }
@@ -124,35 +139,33 @@ int	main(void)
 	t_minishell minishell;
 	struct termios old_termios, new_termios;
 	init_signal();
-	//signal(SIGINT, sigint_handler);
-	//signal(SIGQUIT, sigquit_handler);
 
 
 	tcgetattr(0, &old_termios);
 	signal(SIGINT, sigint_handler); //crtl c
 	signal(SIGQUIT, sigquit_handler); 
 	new_termios = old_termios;
-	new_termios.c_cc[VEOF] = 3; //C
-	new_termios.c_cc[VINTR] = 34; //D, lehet crtl backslash kene ide
-	new_termios.c_cc[VQUIT] = 4; //ez a d jo
+	new_termios.c_cc[VINTR] = 3; //C
+	//new_termios.c_cc[VINTR] = 34; //D, lehet crtl backslash kene ide
+	new_termios.c_cc[VQUIT] = 4; //
 	tcsetattr(0, TCSANOW, &new_termios);
+
 	//main loop
 	while (g_signal.sigquit != 1)
 	{
 		//init stuff et
-		
 		//ssignal(SIGQUIT, sigint_handler);
 		init(&minishell);
 		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
 		{
-			ft_printf("in small loop\n");
+			//ft_printf("in small loop\n");
 			start_program_loop(&minishell);
 		}
 		g_signal.sigint = 0;
-		ft_printf("Resetting sigint, %d is sigquit\n", g_signal.sigquit);
+		//ft_printf("Resetting sigint, %d is sigquit\n", g_signal.sigquit);
 	}
-	ft_printf("outside after mainloop\n");
-	exit(0);
+	//ft_printf("outside after mainloop\n");
+	//exit(0);
 	return (0);
 }
 

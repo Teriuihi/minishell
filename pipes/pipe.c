@@ -359,12 +359,25 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 	{
 		minishell->exit_status = WEXITSTATUS(status); //should be added to $?
 		ft_printf("%d is last executed exit status, %d is WIFSIGNALED\n", minishell->exit_status, WIFSIGNALED(status));
-		
-		if (WIFSIGNALED(status))
+		//if (g_signal.sigquit == 1)
+		//{
+			//g_signal.sigquit = 0;
+			//exit(0);
+		//	ft_printf("pid %d is about to get killed\n", c_pid);
+		//	kill(c_pid, SIGKILL);
+		//}
+	}
+	if (WIFSIGNALED(status))
+	{
+		if (WTERMSIG(status) == 9)
 		{
 			ft_printf("Killed by signal %d\n", WTERMSIG(status));
 		}
+		g_signal.pid = getpid();
+		ft_printf("%d is gsignalpid\n", g_signal.pid);
+
 	}
+
 	
 	//https://linuxhint.com/waitpid-syscall-in-c/
 	//WTERMSIG(status) returns the number of the signal that caused the child process to terminate. This macro should only be employed if WIFSIGNALED returned true.
@@ -444,8 +457,8 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			ft_printf("Built in command execution failed\n");
 		return ;
 	}
-	c_pid = fork(); //assign it to cmd_datas process?
-	if (c_pid == 0)
+	g_signal.pid = fork(); //assign it to cmd_datas process?
+	if (g_signal.pid == 0)
 	{
 		if (is_built_in == true) //we have to make this somehow true
 		{
@@ -455,6 +468,6 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			child_execute_non_builtin(cmd_data, old_pid, cur_pid, minishell); //here first we have to enter the built in, organize pipes then execute it
 	}
 	else
-		parent(c_pid, old_pid, minishell);
+		parent(g_signal.pid, old_pid, minishell);
 	//save the last executed commands exit status here or in parent?
 }
