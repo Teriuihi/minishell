@@ -140,7 +140,7 @@ int	main(void)
 	while (g_signal.sigquit != 1)
 	{
 		//init stuff et
-
+		
 		//ssignal(SIGQUIT, sigint_handler);
 		init(&minishell);
 		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
