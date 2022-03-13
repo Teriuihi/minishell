@@ -106,6 +106,10 @@ void	run_commands(t_list **head, t_minishell *minishell)
  */
 t_bool	should_use(char *input)
 {
+	if (!input)
+	{
+		return (false);
+	}
 	while (*input && ft_iswhite_space(*input))
 		input++;
 	return ((*input) != '\0');
@@ -135,15 +139,17 @@ void	start_program_loop(t_minishell *minishell)
 	}
 
 	*/
-	input = readline("some shell>"); //TODO free
-	while (input && g_signal.sigquit != 1)
+	input = ";"; //TODO free
+	while (input && g_signal.sigint != 1)
 	{
+		input = readline("\nsome shell>");
 		//print_splitted(get_envp(minishell->env));
 		args = NULL;
 		if (should_use(input))
 		{
 			add_history(input);
 			args = get_args(input); //TODO free
+			free(input);
 			head = find_commands(args); //TODO free
 			if (head == NULL)
 			{
@@ -157,8 +163,9 @@ void	start_program_loop(t_minishell *minishell)
 			free_commands(head);
 			free_char_arr(args);
 		}
-		free(input);
-		input = readline("some shell>");
+		//input = readline("some shell>");
 	}
+	if (input != NULL)
+		free(input);
 	
 }

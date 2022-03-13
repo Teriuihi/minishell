@@ -20,12 +20,12 @@
 
 typedef struct	s_signal
 {
-	int			sigint;
-	volatile sig_atomic_t sigquit;
-	t_bool		finished;
-	pid_t		pid;
-	pid_t		exit_status; //this to alter when we quit?
-	int			keep_running;
+	volatile sig_atomic_t	sigint;
+	volatile sig_atomic_t	sigquit;
+	t_bool					finished;
+	pid_t					pid;
+	pid_t					exit_status; //this to alter when we quit?
+	int						keep_running;
 }				t_signal;
 
 typedef struct s_minishell

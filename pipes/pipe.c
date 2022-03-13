@@ -322,6 +322,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell);
 	if (cmd_data->executable_found == false)
 	{
+		ft_printf("executable not found\n");
 		exit(127);
 	}
 	//char **eng = get_envp(minishell->env);
@@ -348,7 +349,9 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 {
 	int	status;
+	int exitonsig;
 
+	exitonsig = 0;
 	if (old_pid[0] > -1)
 	{
 		close(old_pid[1]);
@@ -357,27 +360,47 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 	waitpid(c_pid, &status, 0); //check if we interrupted the status with a signa;?
 	if (WIFEXITED(status)) //use ps to check if child process is still running?
 	{
+		g_signal.pid = getpid();
 		minishell->exit_status = WEXITSTATUS(status); //should be added to $?
-		ft_printf("%d is last executed exit status, %d is WIFSIGNALED\n", minishell->exit_status, WIFSIGNALED(status));
+		//at this point child process is finished
+		exitonsig = WIFSIGNALED(status) ? WTERMSIG(status) : 0;
+		ft_printf("%d is exitonsig\n", exitonsig);
+		//check if we received any signal during?
+	
+		//if (exitonsig)
+		//{
+		//	kill(getpid(), exitonsig);
+		//}		
+		//else
+		//{
+		//	ft_printf("%d is last executed exit status, %d is WIFSIGNALED\n", minishell->exit_status, WIFSIGNALED(status));
+			//exit (WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE);
+		//	minishell->exit_status = (WIFEXITED(status) ? WEXITSTATUS(status) : EXIT_FAILURE);
+		//}
+
 		//if (g_signal.sigquit == 1)
 		//{
-			//g_signal.sigquit = 0;
-			//exit(0);
-		//	ft_printf("pid %d is about to get killed\n", c_pid);
+		//	g_signal.sigquit = 0;
+		//	exit(0);
+			//ft_printf("pid %d is about to get killed\n", c_pid);
 		//	kill(c_pid, SIGKILL);
 		//}
 	}
+	/*
 	if (WIFSIGNALED(status))
 	{
+		ft_printf("Killed by signal %d\n", WTERMSIG(status));
+
 		if (WTERMSIG(status) == 9)
 		{
 			ft_printf("Killed by signal %d\n", WTERMSIG(status));
 		}
 		g_signal.pid = getpid();
 		ft_printf("%d is gsignalpid\n", g_signal.pid);
+		kill(g_signal.pid, SIGKILL);
 
 	}
-
+	*/
 	
 	//https://linuxhint.com/waitpid-syscall-in-c/
 	//WTERMSIG(status) returns the number of the signal that caused the child process to terminate. This macro should only be employed if WIFSIGNALED returned true.
