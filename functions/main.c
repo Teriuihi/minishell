@@ -91,12 +91,16 @@ void	sigint_handler(int this_signal)
 	}
 	
 }
+*/
 
 void	sigquit_handler(int this_signal)
 {
-	if (this_signal == SIGQUIT) //crtl c lett ez?
+	if (this_signal == SIGINT) //crtl c lett ez?
 	{
-		ft_printf("exit\n");
+		g_signal.sigint = 1;
+		ft_printf("%d is sigint now\n", g_signal.sigint);
+
+		/*
 		if (g_signal.pid != 0)
 		{
 			//g_signal.sigquit = 0;
@@ -111,12 +115,16 @@ void	sigquit_handler(int this_signal)
 			kill(g_signal.pid, SIGKILL);
 			//exit(0);
 		}
+		*/
 		//exit(0); //just set the status, and maybe check at the parent?
 		//we only need to exit the forked pid not the entire shell
 	}
+	if (this_signal == SIGQUIT)
+	{
+		ft_printf("SIGQUIT CAUGHT\n");
+	}
 	//exit(0);
 }
-*/
 
 void	init(t_minishell *minishell)
 {
@@ -148,28 +156,32 @@ void	init(t_minishell *minishell)
 //https://stackoverflow.com/users/14701326/mampac?tab=profile
 //https://www.youtube.com/watch?v=RU0ULe2f6hI
 int	main(void)
-{
+{ 
 	t_minishell minishell;
 	struct termios old_termios, new_termios;
 	init_signal();
 	tcgetattr(0, &old_termios);
-	//signal(SIGINT, sigint_handler); //crtl c
+	//signal(SIGINT, sigquit_handler); //crtl c, essentially exit
 	//signal(SIGQUIT, sigquit_handler); 
-	//(void)signal(SIGINT, sigint_handler);
+	(void)signal(SIGINT, sigquit_handler);
+	(void)signal(SIGINT, sigquit_handler);
+
 	//(void)signal(SIGQUIT, SIG_IGN);
 
-	
+	new_termios.c_lflag |= ICANON; //Talking of pipe here is misleading. CTRL-D is only relevant for terminal devices, not pipes, and it's only relevant on the master side of the pseudo-terminal or when sent by the (real) terminal, and only when in icanon mode.
+
 	new_termios = old_termios;
 	new_termios.c_lflag |= ISIG; //If ISIG is set each input character is checked against the special control character INTR and QUIT. If an input character matches one of these control character the function associated with that character is performed. If ISIG is not set, no checking is done. Thus these special functions are possible only if ISIG is set.
-	new_termios.c_cc[VINTR] = 3; //C
-	new_termios.c_cc[VEOF] = 4; //D
+	new_termios.c_cc[VINTR] = 3; //C, sends SIGINT SIGNAL
+	new_termios.c_cc[VEOF] = 4;//_POSIX_VDISABLE;//4; //D
+	new_termios.c_cc[VQUIT] = 34; // crtl backslash
 
 	//new_termios.c_cc[VINTR] = 34; //D, lehet crtl backslash kene ide
-	//new_termios.c_cc[VQUIT] = 34; //
 	//new_termios.c_lflag &= ~ECHOCTL; //https://stackoverflow.com/questions/608916/ignoring-ctrl-c
 	//new_termios.c_lflag |= ECHO; //this alone would disable echoing c
 	new_termios.c_lflag |= ECHOK;
-	new_termios.c_lflag |= ICANON;
+	new_termios.c_lflag |= ECHOCTL;
+
 
 
 	tcsetattr(0, TCSANOW, &new_termios);
@@ -179,10 +191,16 @@ int	main(void)
 		init(&minishell);
 		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
 		{
+			ft_printf("in loop\n");
 			start_program_loop(&minishell);
 		}
-		tcsetattr(0,TCSANOW,&old_termios);	
+		if (g_signal.sigquit == 1)
+		{
+			ft_printf("\b\b  \b\b");
+			exit(0);
+		}
 	}
+	tcsetattr(0,TCSANOW,&old_termios);	
 	return (0);
 }
 

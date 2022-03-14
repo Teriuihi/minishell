@@ -140,9 +140,17 @@ void	start_program_loop(t_minishell *minishell)
 
 	*/
 	input = ";"; //TODO free
-	while (input && g_signal.sigint != 1)
+	while (input)
 	{
 		input = readline("\nsome shell>");
+		if (input == 0) //EOF RECEIVED crtld at the moment
+		{
+			//ft_printf("\b\b  \b\b"); //delete the prev char apostrophe D
+			g_signal.sigquit = 1;
+			//kill(getpid(), SIGKILL);
+			//exit(0);
+			//should exit the shell?
+		}
 		//print_splitted(get_envp(minishell->env));
 		args = NULL;
 		if (should_use(input))
