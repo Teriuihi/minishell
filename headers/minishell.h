@@ -24,9 +24,11 @@ typedef struct	s_signal
 	volatile sig_atomic_t	sigint;
 	volatile sig_atomic_t	sigquit;
 	t_bool					finished;
+	t_bool					interrupted;
 	pid_t					pid;
 	pid_t					exit_status; //this to alter when we quit?
 	int						keep_running;
+
 	int						terminal_descriptor;
 	struct termios			terminal_original;
 	struct termios			terminal_settings;

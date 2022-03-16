@@ -116,24 +116,25 @@ t_bool	should_use(char *input)
 }
 
 
-static int interrupted = false;
+//static int interrupted = false;
 static int interruptible_getc(void)
 {
    int	r;
    char c;
 
-   if (interrupted)
+   if (g_signal.interrupted == true)
 	  return EOF;
-
    r = read(0, &c, 1); // read from stdin, will return -1 when interrupted by a signal
-	if (r == -1 && errno == EINTR)
-   {
-	   if (errno == EINTR && g_signal.sigint != 1) //we have to check which signal was which it interrupted
-	   {
-			interrupted = true;
-	   }
+	if (r == -1 && errno == EINTR) //then this is sigint (crtl c here)
+	{
+		if (errno == EINTR && g_signal.sigint != 1) //we have to check which signal was which it interrupted
+		{
+			g_signal.interrupted = true;
+		}
+	  // return (-1); //crtl c == -1 when reading
 	}
-   return r == 1 ? c : EOF; //if we use signals this we always return EOF
+	//at r == -1 is signal crtl c, r == 1 is signal crtl d
+   return (r == 1 ? c : EOF); //if we use signals this we always return EOF
 }
 /**
  * Starts (minishell) program loop,
@@ -148,16 +149,16 @@ void	start_program_loop(t_minishell *minishell)
 	t_list		**head;
 
 	rl_getc_function = interruptible_getc;
-
-	input = ";"; //TODO free
+	input = "hi";
 	while (input && g_signal.sigint != 1 && g_signal.sigquit != 1)
 	{
-		input = readline("\nsome shell>"); //this waits here until I put smth in
+		input = readline("\nsome shell>");
 		if (input == 0 || g_signal.sigint == 1) //EOF RECEIVED crtld at the moment
 		{
-			//ft_printf("\b\b  \b\b"); //delete the prev char apostrophe D
 			if (g_signal.sigint != 1)
+			{
 				g_signal.sigquit = 1;
+			}
 		}
 		args = NULL;
 		if (should_use(input))
@@ -179,3 +180,16 @@ void	start_program_loop(t_minishell *minishell)
 	if (input != NULL)
 		free(input);
 }
+
+
+/*
+if (g_signal.sigint != 1)
+			{
+				//ft_printf("setting sigquit to 1\n"); //delete the prev char apostrophe D
+				//int stdout_copy = dup(STDOUT_FILENO);
+				//close(STDOUT_FILENO);
+				//dup2(stdout_copy, STDOUT_FILENO);
+				//close(stdout_copy);
+				g_signal.sigquit = 1;
+			}
+*/

@@ -364,7 +364,7 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 		minishell->exit_status = WEXITSTATUS(status); //should be added to $?
 		//at this point child process is finished
 		exitonsig = WIFSIGNALED(status) ? WTERMSIG(status) : 0;
-		ft_printf("%d is exitonsig\n", exitonsig);
+		//ft_printf("%d is exitonsig\n", exitonsig);
 		//check if we received any signal during?
 	
 		//if (exitonsig)
@@ -494,3 +494,5 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 		parent(g_signal.pid, old_pid, minishell);
 	//save the last executed commands exit status here or in parent?
 }
+
+

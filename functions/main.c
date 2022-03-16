@@ -50,15 +50,17 @@ void	set_data(t_minishell *minishell)
 	//set is_exported in env on to all, in current env as well
 }
 
-/*
+
 void	init_signal_struct()
 {
-	global_signal.sigint = 0;
-	global_signal.sigquit = 0;
-	global_signal.pid = 0;
-	global_signal.exit_status = 0;
+	g_signal.sigint = 0;
+	g_signal.sigquit = 0;
+	g_signal.pid = 0;
+	g_signal.exit_status = 0;
+	g_signal.interrupted = false;
 }
 
+/*
 void	sig_hnd(int sig)
 {
 	(void)sig;
@@ -100,15 +102,18 @@ void	sigquit_handler(int this_signal)
 {
 	if (this_signal == SIGINT) //crtl c lett ez?
 	{
-	
 		g_signal.sigint = 1;
-		//ft_printf("%d is sigint now\n", g_signal.sigint);
-		//close stdin etc?
-			//close(STDOUT_FILENO);
-		//close(STDERR_FILENO);
+	}
+	if (this_signal == SIGQUIT)
+	{
+		ft_printf("SIGQUIT\n");
+	}
+}
 
-
-		/*
+/* WAS IN SIGINT AFTER ASSIGNED VAL
+if (this_signal == SIGINT) //crtl c lett ez?
+	{
+		g_signal.sigint = 1;
 		if (g_signal.pid != 0)
 		{
 			//g_signal.sigquit = 0;
@@ -123,16 +128,10 @@ void	sigquit_handler(int this_signal)
 			kill(g_signal.pid, SIGKILL);
 			//exit(0);
 		}
-		*/
 		//exit(0); //just set the status, and maybe check at the parent?
 		//we only need to exit the forked pid not the entire shell
-	}
-	if (this_signal == SIGQUIT)
-	{
-		ft_printf("sigveof CAUGHT\n");
-	}
-	//exit(0);
 }
+*/
 
 void	init(t_minishell *minishell)
 {
@@ -157,7 +156,6 @@ static void terminal_done(void)
     if (g_signal.terminal_descriptor != -1)
         tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.terminal_original);
 }
- 
 static void terminal_signal(int signum)
 {
 	ft_printf("%d is signum, received\n", signum);
@@ -279,32 +277,67 @@ void termios_init(t_minishell *minishell)
 int	main(void)
 { 
 	t_minishell minishell;
-	
-	init_signal();
-	//termios_init(&minishell);
-	
 	struct termios old_termios, new_termios;
 
-	//tcgetattr(0, &old_termios); //THIS DOES SMTH INTERESTING
-	//????
+	init_signal();
+	//which stream is connected to our device
+	if (isatty(STDERR_FILENO))
+		g_signal.terminal_descriptor = STDERR_FILENO;
+	if (isatty(STDIN_FILENO))
+		g_signal.terminal_descriptor = STDIN_FILENO;
+	if (isatty(STDOUT_FILENO))
+		g_signal.terminal_descriptor = STDOUT_FILENO;
+	//termios_init(&minishell);
 
 
-	//(void)signal(SIGQUIT, SIG_IGN);
-	(void)signal(SIGINT, sigquit_handler);
-	(void)signal(SIGINT, sigquit_handler);
+	//assign original terminal settings
+	if (tcgetattr(g_signal.terminal_descriptor, &old_termios) ||
+		tcgetattr(g_signal.terminal_descriptor, &new_termios))
+	{
+		ft_printf("error\n");
+	}
+	//DISABLE BUFFERING
+	 if (isatty(STDIN_FILENO))
+        setvbuf(stdin, NULL, _IONBF, 0);
+    if (isatty(STDOUT_FILENO))
+        setvbuf(stdout, NULL, _IONBF, 0);
+    if (isatty(STDERR_FILENO))
+        setvbuf(stderr, NULL, _IONBF, 0);
+
 
 	new_termios.c_lflag |= ICANON; //Talking of pipe here is misleading. CTRL-D is only relevant for terminal devices, not pipes, and it's only relevant on the master side of the pseudo-terminal or when sent by the (real) terminal, and only when in icanon mode.
-	new_termios = old_termios;
-	new_termios.c_lflag |= ISIG; //If ISIG is set each input character is checked against the special control character INTR and QUIT. If an input character matches one of these control character the function associated with that character is performed. If ISIG is not set, no checking is done. Thus these special functions are possible only if ISIG is set.
-	
-	new_termios.c_cc[VINTR] = 4; //C, sends SIGINT SIGNAL
-	new_termios.c_cc[VEOF] = 3;//_POSIX_VDISABLE;//4; //D
-	new_termios.c_cc[VQUIT] = 34; // crtl backslashs
+	new_termios.c_lflag |= ISIG; //If ISIG is set each input character is checked against the special control character INTR and QUIT. If an input character matches one of these control character the function associated with that character is performed. If ISIG is not set, no checking is done. Thus these special functions are possible only if ISIG is set.	
+	new_termios.c_cc[VINTR] = 3; //C, sends SIGINT SIGNAL
+	new_termios.c_cc[VEOF] = 4;//_POSIX_VDISABLE;//4; //D
+	//new_termios.c_cc[VQUIT] = 34; // crtl backslashs
 	//new_termios.c_lflag &= ~ECHOCTL; //https://stackoverflow.com/questions/608916/ignoring-ctrl-c
-	//new_termios.c_lflag |= ECHO; //this alone would disable echoing c
-	new_termios.c_lflag |= ECHOK;
-	new_termios.c_lflag |= ECHOCTL;
-	tcsetattr(0, TCSANOW, &new_termios);
+	new_termios.c_lflag |= ECHO;
+	new_termios = old_termios;
+	signal(SIGINT, sigquit_handler);
+	while (g_signal.sigquit != 1)
+	{
+		tcsetattr(g_signal.terminal_descriptor, TCSANOW, &new_termios);
+		init(&minishell);
+		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
+		{
+			start_program_loop(&minishell);
+		}
+		if (g_signal.sigquit == 1)
+		{
+			ft_printf("\b\bexit\n");
+		}
+		if (g_signal.sigint == 1)
+		{
+			g_signal.sigint = 0;
+		}
+		tcsetattr(0,TCSANOW,&old_termios);	
+		//TO FREE MINISHELLs
+	}
+	return (0);
+}
+
+
+/*
 
 	//int c;
     //termios_init(&minishell);
@@ -328,30 +361,7 @@ int	main(void)
 		}	
     }
      printf("Done.\n");
-	*/
-	while (g_signal.sigquit != 1)
-	{
-		init(&minishell);
-		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
-		{
-			start_program_loop(&minishell);
-		}
-		if (g_signal.sigquit == 1)
-		{
-			ft_printf("\b\b");
-			exit(0);
-		}
-		if (g_signal.sigint == 1)
-		{
-			g_signal.sigint = 0;
-		}
-	}
-	//tcsetattr(0,TCSANOW,&old_termios);	
-	return (0);
-}
 
-
-/*
 	//struct termios old_termios, new_termios;
 	tcgetattr(0, &old_termios);
 	signal(SIGINT, sig_hnd); //crtl c
