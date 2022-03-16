@@ -119,7 +119,7 @@ t_bool	should_use(char *input)
 static int interrupted = false;
 static int interruptible_getc(void)
 {
-   int r;
+   int	r;
    char c;
 
    if (interrupted)
@@ -128,14 +128,12 @@ static int interruptible_getc(void)
    r = read(0, &c, 1); // read from stdin, will return -1 when interrupted by a signal
 	if (r == -1 && errno == EINTR)
    {
-	   if (errno == EINTR)
+	   if (errno == EINTR && g_signal.sigint != 1) //we have to check which signal was which it interrupted
 	   {
-		   ft_printf("errno is EINTR");
+			interrupted = true;
 	   }
-		interrupted = true;
 	}
-
-   return r == 1 ? c : EOF;
+   return r == 1 ? c : EOF; //if we use signals this we always return EOF
 }
 /**
  * Starts (minishell) program loop,
@@ -149,42 +147,18 @@ void	start_program_loop(t_minishell *minishell)
 	char		**args;
 	t_list		**head;
 
-	//check the global var keep running
-	//minishell->are_we_still_running = 1;
-
-	//if crtlc then this sequence should start over
-	/*
-	while (keep_running == 1)
-	{
-		//call input loop
-		//if not then reinit everythin and call the while keep_running == 1
-	}
-
-	*/
 	rl_getc_function = interruptible_getc;
 
 	input = ";"; //TODO free
-	while (input && g_signal.sigint != 1)
+	while (input && g_signal.sigint != 1 && g_signal.sigquit != 1)
 	{
 		input = readline("\nsome shell>"); //this waits here until I put smth in
-
 		if (input == 0 || g_signal.sigint == 1) //EOF RECEIVED crtld at the moment
 		{
-			ft_printf("%d is sigint here, %s is input\n", g_signal.sigint, input);
-			ft_printf("\b\b  \b\b"); //delete the prev char apostrophe D
-		
+			//ft_printf("\b\b  \b\b"); //delete the prev char apostrophe D
 			if (g_signal.sigint != 1)
-			{
 				g_signal.sigquit = 1;
-				ft_printf("setting sigquit to 1\n");
-			}
-			return ;
-
-			//kill(getpid(), SIGKILL);
-			//exit(0);
-			//should exit the shell?
 		}
-		//print_splitted(get_envp(minishell->env));
 		args = NULL;
 		if (should_use(input))
 		{
@@ -197,16 +171,11 @@ void	start_program_loop(t_minishell *minishell)
 				ft_printf("Error\n");
 				exit(0);
 			}
-			//print_splitted(get_envp(minishell->env));
-			//print_splitted(get_envp(minishell->env));
-			//ft_printf("\n\n\n\n");
 			run_commands(head, minishell);
 			free_commands(head);
 			free_char_arr(args);
 		}
-		//input = readline("some shell>");
 	}
 	if (input != NULL)
 		free(input);
-	
 }

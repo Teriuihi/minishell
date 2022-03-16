@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <termios.h> 
 #include <stdio.h>
+#include <errno.h>
 
 
 t_signal g_signal;
@@ -99,6 +100,7 @@ void	sigquit_handler(int this_signal)
 {
 	if (this_signal == SIGINT) //crtl c lett ez?
 	{
+	
 		g_signal.sigint = 1;
 		//ft_printf("%d is sigint now\n", g_signal.sigint);
 		//close stdin etc?
@@ -282,18 +284,22 @@ int	main(void)
 	//termios_init(&minishell);
 	
 	struct termios old_termios, new_termios;
-	//tcgetattr(0, &old_termios);
-	(void)signal(SIGINT, sigquit_handler);
-	(void)signal(SIGINT, sigquit_handler);
+
+	//tcgetattr(0, &old_termios); //THIS DOES SMTH INTERESTING
+	//????
+
+
 	//(void)signal(SIGQUIT, SIG_IGN);
+	(void)signal(SIGINT, sigquit_handler);
+	(void)signal(SIGINT, sigquit_handler);
 
 	new_termios.c_lflag |= ICANON; //Talking of pipe here is misleading. CTRL-D is only relevant for terminal devices, not pipes, and it's only relevant on the master side of the pseudo-terminal or when sent by the (real) terminal, and only when in icanon mode.
 	new_termios = old_termios;
 	new_termios.c_lflag |= ISIG; //If ISIG is set each input character is checked against the special control character INTR and QUIT. If an input character matches one of these control character the function associated with that character is performed. If ISIG is not set, no checking is done. Thus these special functions are possible only if ISIG is set.
+	
 	new_termios.c_cc[VINTR] = 4; //C, sends SIGINT SIGNAL
 	new_termios.c_cc[VEOF] = 3;//_POSIX_VDISABLE;//4; //D
 	new_termios.c_cc[VQUIT] = 34; // crtl backslashs
-	//new_termios.c_cc[VINTR] = 34; //D, lehet crtl backslash kene ide
 	//new_termios.c_lflag &= ~ECHOCTL; //https://stackoverflow.com/questions/608916/ignoring-ctrl-c
 	//new_termios.c_lflag |= ECHO; //this alone would disable echoing c
 	new_termios.c_lflag |= ECHOK;
@@ -322,27 +328,22 @@ int	main(void)
 		}	
     }
      printf("Done.\n");
-		*/
-
-
+	*/
 	while (g_signal.sigquit != 1)
 	{
-		//init stuff et
 		init(&minishell);
 		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
 		{
-			ft_printf("in loop\n");
 			start_program_loop(&minishell);
 		}
 		if (g_signal.sigquit == 1)
 		{
-			ft_printf("\b\b  \b\b");
+			ft_printf("\b\b");
 			exit(0);
 		}
 		if (g_signal.sigint == 1)
 		{
 			g_signal.sigint = 0;
-			ft_printf("sigint is %d after exiting the loop\n", g_signal.sigint);
 		}
 	}
 	//tcsetattr(0,TCSANOW,&old_termios);	
