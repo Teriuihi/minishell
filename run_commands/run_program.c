@@ -16,7 +16,7 @@
 #include "run_commands.h"
 #include "../create_commands/create_commands.h"
 #include "../buildins/buildins.h"
-
+#include <errno.h>
 /**
  * Copies cur_pid to old_pid
  *
@@ -115,6 +115,28 @@ t_bool	should_use(char *input)
 	return ((*input) != '\0');
 }
 
+
+static int interrupted = false;
+static int interruptible_getc(void)
+{
+   int r;
+   char c;
+
+   if (interrupted)
+	  return EOF;
+
+   r = read(0, &c, 1); // read from stdin, will return -1 when interrupted by a signal
+	if (r == -1 && errno == EINTR)
+   {
+	   if (errno == EINTR)
+	   {
+		   ft_printf("errno is EINTR");
+	   }
+		interrupted = true;
+	}
+
+   return r == 1 ? c : EOF;
+}
 /**
  * Starts (minishell) program loop,
  * 	reads from command line to receive commands
@@ -139,14 +161,25 @@ void	start_program_loop(t_minishell *minishell)
 	}
 
 	*/
+	rl_getc_function = interruptible_getc;
+
 	input = ";"; //TODO free
-	while (input)
+	while (input && g_signal.sigint != 1)
 	{
-		input = readline("\nsome shell>");
-		if (input == 0) //EOF RECEIVED crtld at the moment
+		input = readline("\nsome shell>"); //this waits here until I put smth in
+
+		if (input == 0 || g_signal.sigint == 1) //EOF RECEIVED crtld at the moment
 		{
-			//ft_printf("\b\b  \b\b"); //delete the prev char apostrophe D
-			g_signal.sigquit = 1;
+			ft_printf("%d is sigint here, %s is input\n", g_signal.sigint, input);
+			ft_printf("\b\b  \b\b"); //delete the prev char apostrophe D
+		
+			if (g_signal.sigint != 1)
+			{
+				g_signal.sigquit = 1;
+				ft_printf("setting sigquit to 1\n");
+			}
+			return ;
+
 			//kill(getpid(), SIGKILL);
 			//exit(0);
 			//should exit the shell?
