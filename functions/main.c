@@ -55,7 +55,7 @@ void	init_signal_struct()
 {
 	g_signal.sigint = 0;
 	g_signal.sigquit = 0;
-	g_signal.pid = 0;
+	g_signal.pid = 1;
 	g_signal.exit_status = 0;
 	g_signal.interrupted = false;
 }
@@ -103,6 +103,13 @@ void	sigquit_handler(int this_signal)
 	if (this_signal == SIGINT) //crtl c lett ez?
 	{
 		g_signal.sigint = 1;
+		//should we have an exit status?
+		//if sigpid == 0
+			//its a child
+			//print the prompt
+			//sigint is the exit status which will be the exit of this ones
+		//if its a parent process it should exit with 128 + 2
+	
 	}
 	if (this_signal == SIGQUIT)
 	{
@@ -303,8 +310,6 @@ int	main(void)
         setvbuf(stdout, NULL, _IONBF, 0);
     if (isatty(STDERR_FILENO))
         setvbuf(stderr, NULL, _IONBF, 0);
-
-
 	new_termios.c_lflag |= ICANON; //Talking of pipe here is misleading. CTRL-D is only relevant for terminal devices, not pipes, and it's only relevant on the master side of the pseudo-terminal or when sent by the (real) terminal, and only when in icanon mode.
 	new_termios.c_lflag |= ISIG; //If ISIG is set each input character is checked against the special control character INTR and QUIT. If an input character matches one of these control character the function associated with that character is performed. If ISIG is not set, no checking is done. Thus these special functions are possible only if ISIG is set.	
 	new_termios.c_cc[VINTR] = 3; //C, sends SIGINT SIGNAL
@@ -314,8 +319,14 @@ int	main(void)
 	new_termios.c_lflag |= ECHO;
 	new_termios = old_termios;
 	signal(SIGINT, sigquit_handler);
-	while (g_signal.sigquit != 1)
+	while (g_signal.sigquit != 1) //exit instead of sigquit, or find the main parent process
 	{
+		//should we set and reset std
+		//close fds
+		//reset fds
+		//waitpid(-1, &status, 0)
+		//status = WIFEXITSTATUS
+		ft_printf("%d is pid in loop\n", g_signal.pid);
 		tcsetattr(g_signal.terminal_descriptor, TCSANOW, &new_termios);
 		init(&minishell);
 		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
@@ -329,12 +340,15 @@ int	main(void)
 		if (g_signal.sigint == 1)
 		{
 			g_signal.sigint = 0;
+			errno = 0;
 		}
 		tcsetattr(0,TCSANOW,&old_termios);	
 		//TO FREE MINISHELLs
 	}
 	return (0);
 }
+
+//if its the last parent process then we print n at the end, otherwise not
 
 
 /*

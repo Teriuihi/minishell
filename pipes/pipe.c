@@ -60,6 +60,9 @@ void	init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
  */
 void	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2], t_minishell *minishell)
 {
+
+	//EDGE CASE: CRTL C DURING HEREDOC, IT SHOULD QUIT BUT IT TRIES TO EXECUTE THE COMMAND INSTEAD AT THE MOMENT
+	//EDGE CASE: CRTL D during HEREDOC, 
 	char		*input;
 	t_command	*command;
 
@@ -358,6 +361,12 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 		close(old_pid[0]);
 	}
 	waitpid(c_pid, &status, 0); //check if we interrupted the status with a signa;?
+	//check g_sigint or sigquit here?
+
+	ft_printf("%d is WIFEXITED STATUS, %d is sigint, %d is sigquit\n", WIFEXITED(status), g_signal.sigint, g_signal.sigquit);
+	
+	
+	
 	if (WIFEXITED(status)) //use ps to check if child process is still running?
 	{
 		g_signal.pid = getpid();
@@ -493,6 +502,8 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	else
 		parent(g_signal.pid, old_pid, minishell);
 	//save the last executed commands exit status here or in parent?
+	//close pipes?
+
 }
 
 

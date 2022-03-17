@@ -133,6 +133,11 @@ static int interruptible_getc(void)
 		}
 	  // return (-1); //crtl c == -1 when reading
 	}
+	if (r == 1 && errno == EINTR)
+	{
+		g_signal.sigquit = 1;
+		ft_printf("%d is r and signal interrupted\n", r);
+	}
 	//at r == -1 is signal crtl c, r == 1 is signal crtl d
    return (r == 1 ? c : EOF); //if we use signals this we always return EOF
 }
@@ -152,7 +157,7 @@ void	start_program_loop(t_minishell *minishell)
 	input = "hi";
 	while (input && g_signal.sigint != 1 && g_signal.sigquit != 1)
 	{
-		input = readline("\nsome shell>");
+		input = readline("some shell>");
 		if (input == 0 || g_signal.sigint == 1) //EOF RECEIVED crtld at the moment
 		{
 			if (g_signal.sigint != 1)
@@ -177,6 +182,8 @@ void	start_program_loop(t_minishell *minishell)
 			free_char_arr(args);
 		}
 	}
+	if (g_signal.sigquit != 1)
+		ft_printf("\n");
 	if (input != NULL)
 		free(input);
 }
