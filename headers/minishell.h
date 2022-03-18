@@ -28,10 +28,9 @@ typedef struct	s_signal
 	pid_t					pid;
 	pid_t					exit_status; //this to alter when we quit?
 	int						keep_running;
-
 	int						terminal_descriptor;
-	struct termios			terminal_original;
-	struct termios			terminal_settings;
+	struct termios			old_termios;
+	struct termios			new_termios;
 
 }				t_signal;
 
@@ -51,3 +50,4 @@ typedef struct s_minishell
 extern  t_signal g_signal;
 
 #endif
+

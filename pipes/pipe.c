@@ -75,10 +75,13 @@ void	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2], t_mi
 		close(old_pid[1]); //this one is not inited when trying to close it
 	}
 	input = readline("heredoc> ");
+	signal_check(input);
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
+		//if this was interrupted we should not print anything anymore from pipe
 		ft_putstr_fd(ft_strjoin(input, "\n"), cur_pid[1]); 
 		input = readline("heredoc> ");
+		signal_check(input);
 	}
 	close(cur_pid[1]);
 }
@@ -232,7 +235,6 @@ void	open_dup_close(int to_close1, int to_close , int *dup_src, int dup_dst)
 	
 }
 */
-
 void	close_pipes(int *pid1, int *pid2)
 {
 	if (pid1 != NULL)
@@ -244,7 +246,6 @@ void	close_pipes(int *pid1, int *pid2)
 		close(*pid2);
 	}
 }
-
 
 void	print_pid(int *old_pid, int *cur_pid)
 {
@@ -361,15 +362,13 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 		close(old_pid[0]);
 	}
 	waitpid(c_pid, &status, 0); //check if we interrupted the status with a signa;?
+	//ft_printf("%d is cpid which we were waiting for in parent function\n", c_pid);
 	//check g_sigint or sigquit here?
-
-	ft_printf("%d is WIFEXITED STATUS, %d is sigint, %d is sigquit\n", WIFEXITED(status), g_signal.sigint, g_signal.sigquit);
-	
-	
-	
+	//ft_printf("%d is current process's pid assigned, %d is getpid(), %d is WIFEXITED STATUS, %d is sigint, %d is sigquit\n", g_signal.pid, getpid(), WIFEXITED(status), g_signal.sigint, g_signal.sigquit);
+	/*
 	if (WIFEXITED(status)) //use ps to check if child process is still running?
 	{
-		g_signal.pid = getpid();
+		//g_signal.pid = getpid();
 		minishell->exit_status = WEXITSTATUS(status); //should be added to $?
 		//at this point child process is finished
 		exitonsig = WIFSIGNALED(status) ? WTERMSIG(status) : 0;
@@ -410,7 +409,6 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 
 	}
 	*/
-	
 	//https://linuxhint.com/waitpid-syscall-in-c/
 	//WTERMSIG(status) returns the number of the signal that caused the child process to terminate. This macro should only be employed if WIFSIGNALED returned true.
 

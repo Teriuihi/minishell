@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include <errno.h>
 
-
 t_signal g_signal;
 
 t_hash_table	*get_hash_table(void)
@@ -50,95 +49,41 @@ void	set_data(t_minishell *minishell)
 	//set is_exported in env on to all, in current env as well
 }
 
-
-void	init_signal_struct()
-{
-	g_signal.sigint = 0;
-	g_signal.sigquit = 0;
-	g_signal.pid = 1;
-	g_signal.exit_status = 0;
-	g_signal.interrupted = false;
-}
-
-/*
-void	sig_hnd(int sig)
-{
-	(void)sig;
-	ft_printf("CRTL C\n");
-	//exit(0);
-}
-
-
-void	sigint_handler(int this_signal)
-{
-
-	if (this_signal == SIGINT)
-	{
-		//global signal stuff to 0
-		ft_printf("sigint registered\n");
-		g_signal.sigint = 1;
-		if (g_signal.pid == 0) //if we are in a child process
-		{
-			//we have to stop the child process, kill it?
-			//ft_printf("setting sigint to 1 inside CHILD\n");
-			kill(g_signal.pid, SIGKILL);
-			g_signal.sigint = 0;
-		}
-		if (g_signal.pid != 0) //if we are in the parent
-		{
-			//g_signal.sigquit = 0;
-			//ft_printf("setting sigint to 1 inside parent\n");
-			g_signal.pid = 1;
-			g_signal.sigint = 1; //this sets the loop var to one, breaks start program loop
-			//kill(g_signal.pid, SIGINT);
-		}
-		//ft_printf("\nsome shell>");
-	}
-	
-}
-*/
-
 void	sigquit_handler(int this_signal)
 {
-	if (this_signal == SIGINT) //crtl c lett ez?
+	if (this_signal == SIGINT) //crtl c
 	{
 		g_signal.sigint = 1;
-		//should we have an exit status?
-		//if sigpid == 0
-			//its a child
-			//print the prompt
-			//sigint is the exit status which will be the exit of this ones
-		//if its a parent process it should exit with 128 + 2
-	
-	}
-	if (this_signal == SIGQUIT)
-	{
-		ft_printf("SIGQUIT\n");
 	}
 }
 
-/* WAS IN SIGINT AFTER ASSIGNED VAL
-if (this_signal == SIGINT) //crtl c lett ez?
+void	set_termios()
+{
+	//which stream is connected to our device
+	if (isatty(STDERR_FILENO))
+		g_signal.terminal_descriptor = STDERR_FILENO;
+	if (isatty(STDIN_FILENO))
+		g_signal.terminal_descriptor = STDIN_FILENO;
+	if (isatty(STDOUT_FILENO))
+		g_signal.terminal_descriptor = STDOUT_FILENO;
+	//assign original terminal settings
+	if (tcgetattr(g_signal.terminal_descriptor, &g_signal.old_termios) ||
+		tcgetattr(g_signal.terminal_descriptor, &g_signal.new_termios))
 	{
-		g_signal.sigint = 1;
-		if (g_signal.pid != 0)
-		{
-			//g_signal.sigquit = 0;
-			ft_printf("entered here pid %d\n", g_signal.pid);
-			g_signal.sigquit = 1;
-			exit(0); //if its the parent we have to exit it
-			//kill(getpid(), SIGKILL);
-		}
-		else //else its now we are in the child process, quit that while waiting 
-		{
-			//g_signal.sigquit = 0;
-			kill(g_signal.pid, SIGKILL);
-			//exit(0);
-		}
-		//exit(0); //just set the status, and maybe check at the parent?
-		//we only need to exit the forked pid not the entire shell
+		ft_printf("error\n");
+	}
+	//prob this is not even needed
+	g_signal.new_termios.c_lflag |= (ICANON | ISIG | ECHO);  //Talking of pipe here is misleading. CTRL-D is only relevant for terminal devices, not pipes, and it's only relevant on the master side of the pseudo-terminal or when sent by the (real) terminal, and only when in icanon mode.
+	g_signal.new_termios.c_cc[VINTR] = 3; //C, sends SIGINT SIGNAL
+	g_signal.new_termios.c_cc[VEOF] = 4;//_POSIX_VDISABLE;//4; //D
+
+	g_signal.old_termios.c_lflag |= (ICANON | ISIG | ECHO);  //Talking of pipe here is misleading. CTRL-D is only relevant for terminal devices, not pipes, and it's only relevant on the master side of the pseudo-terminal or when sent by the (real) terminal, and only when in icanon mode.
+	g_signal.old_termios.c_cc[VINTR] = 3; //C, sends SIGINT SIGNAL
+	g_signal.old_termios.c_cc[VEOF] = 4;//_POSIX_VDISABLE;//4; //D
+	signal(SIGINT, sigquit_handler);
+
 }
-*/
+
 
 void	init(t_minishell *minishell)
 {
@@ -156,137 +101,33 @@ void	init(t_minishell *minishell)
 	set_pwd(ft_strdup(cur_dir), minishell); //TODO check for failure
 }
 
-/*
-// Restore terminal to original settings
-static void terminal_done(void)
-{
-    if (g_signal.terminal_descriptor != -1)
-        tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.terminal_original);
-}
-static void terminal_signal(int signum)
-{
-	ft_printf("%d is signum, received\n", signum);
-
-	if (signum == SIGINT)
-	{
-		ft_printf("we also sent sigint here\n");
-		if (g_signal.terminal_descriptor != -1)
-			tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.terminal_original);
-		ft_printf("gonna exit in terminal signal w 128 + %\n", signum);
-		g_signal.sigint = 1;
-		return ;
-		//_exit(128 + signum);
-	}	
-}
-
-void termios_init(t_minishell *minishell)
-{
-	//struct termios terminal_original, terminal_settings;
-	struct sigaction act;
-
-	if (isatty(STDERR_FILENO))
-		g_signal.terminal_descriptor = STDERR_FILENO;
-	if (isatty(STDIN_FILENO))
-		g_signal.terminal_descriptor = STDIN_FILENO;
-	if (isatty(STDOUT_FILENO))
-		g_signal.terminal_descriptor = STDOUT_FILENO;
-	else
-        ft_printf("Error while initializing terminal\n");
-
-	if (tcgetattr(g_signal.terminal_descriptor, &g_signal.terminal_original) ||
-		tcgetattr(g_signal.terminal_descriptor, &g_signal.terminal_settings))
-	{
-		ft_printf("Error while initializing terminal2\n");
-	}
-	if (atexit(terminal_done))
-		ft_printf("Error while calling atexit\n");
-	sigemptyset(&act.sa_mask);
-	act.sa_handler = terminal_signal;
-	if (sigaction(SIGHUP,  &act, NULL) ||
-        sigaction(SIGINT,  &act, NULL) ||
-        sigaction(SIGQUIT, &act, NULL) ||
-        sigaction(SIGTERM, &act, NULL) ||
-#ifdef SIGXCPU
-        sigaction(SIGXCPU, &act, NULL) ||
-#endif
-#ifdef SIGXFSZ    
-        sigaction(SIGXFSZ, &act, NULL) ||
-#endif
-#ifdef SIGIO
-        sigaction(SIGIO,   &act, NULL) ||
-#endif
-        sigaction(SIGPIPE, &act, NULL) ||
-        sigaction(SIGALRM, &act, NULL))
-
- // Let BREAK cause a SIGINT in input. /
-    g_signal.terminal_settings.c_iflag &= ~IGNBRK;
-    g_signal.terminal_settings.c_iflag |=  BRKINT;
- 
-    // Ignore framing and parity errors in input. /
-    g_signal.terminal_settings.c_iflag |=  IGNPAR;
-    g_signal.terminal_settings.c_iflag &= ~PARMRK;
- 
-    // Do not strip eighth bit on input. /
-    g_signal.terminal_settings.c_iflag &= ~ISTRIP;
- 
-    // Do not do newline translation on input. /
-    g_signal.terminal_settings.c_iflag &= ~(INLCR | IGNCR | ICRNL);
- 
-#ifdef IUCLC
-    // Do not do uppercase-to-lowercase mapping on input. /
-    terminal_settings.c_iflag &= ~IUCLC;
-#endif
- 
-    // Use 8-bit characters. This too may affect standard streams,
-     // but any sane C library can deal with 8-bit characters. /
-   	g_signal.terminal_settings.c_cflag &= ~CSIZE;
-    g_signal.terminal_settings.c_cflag |=  CS8;
-    // Enable receiver. /
-    g_signal.terminal_settings.c_cflag |=  CREAD;
-    // Let INTR/QUIT/SUSP/DSUSP generate the corresponding signals. /
-    g_signal.terminal_settings.c_lflag |=  ISIG;
-    // Enable noncanonical mode.
-    // This is the most important bit, as it disables line buffering etc. /
-    g_signal.terminal_settings.c_lflag &= ~ICANON;
-    // Disable echoing input characters. /
-    g_signal.terminal_settings.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL);
-    // Disable implementation-defined input processing. /
-    g_signal.terminal_settings.c_lflag &= ~IEXTEN;
-    // To maintain best compatibility with normal behaviour of terminals,
-     // we set TIME=0 and MAX=1 in noncanonical mode. This means that
-     // read() will block until at least one byte is available. /
-    g_signal.terminal_settings.c_cc[VTIME] = 0;
-    g_signal.terminal_settings.c_cc[VMIN] = 1;
- 	g_signal.terminal_settings.c_cc[VINTR] = 3; //C, sends SIGINT SIGNAL
-	g_signal.terminal_settings.c_cc[VEOF] = 4;//_POSIX_VDISABLE;//4; //D
-    // Set the new terminal settings.
-     // Note that we don't actually check which ones were successfully
-     // set and which not, because there isn't much we can do about it. /
-    tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.terminal_settings);
-
-}
-
-*/
-//https://cboard.cprogramming.com/linux-programming/158476-termios-examples.html
-//https://stackoverflow.com/questions/68602211/forcing-a-terminal-not-to-print-ctrl-hotkeys-when-signals-are-caughts
-//https://www.mkssoftware.com/docs/man5/struct_termios.5.asp
-//https://www.gnu.org/software/libc/manual/html_node/Local-Modes.html
-//https://viewsourcecode.org/snaptoken/kilo/04.aTextViewer.html
-//https://blog.nelhage.com/2009/12/a-brief-introduction-to-termios/s
-//https://www.cons.org/cracauer/sigint.html
-//https://www.gnu.org/software/libc/manual/html_node/Canonical-or-Not.html
-//https://github.com/scocoyash/Text-Editor-In-C/blob/master/stex.cs
-//https://en.wikibooks.org/wiki/Serial_Programming/termios
-//https://stackoverflow.com/users/14701326/mampac?tab=profile
-//https://www.youtube.com/watch?v=RU0ULe2f6hI
-
-
 int	main(void)
 { 
-	t_minishell minishell;
-	struct termios old_termios, new_termios;
+	t_minishell		minishell;
 
 	init_signal();
+	while (g_signal.sigquit != 1) //exit instead of sigquit, or find the main parent process
+	{
+		tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.new_termios);
+		init(&minishell);
+		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
+		{
+			start_program_loop(&minishell);
+		}
+		if (g_signal.sigquit == 1)
+		{
+			ft_printf("exit\n"); //this prints twice if we call crtld in heredoc, why? 	//if it was cancelled in heredoc, this should not be printed
+		}
+		if (g_signal.sigint == 1)
+		{
+			g_signal.sigint = 0; //errno = 0; prob not needed
+		}
+		g_signal.new_termios = g_signal.old_termios; // sort of resetting? , //tcsetattr(g_signal.terminal_descriptor, TCSANOW, &old_termios);	 //sets everything back to the original settings
+	}
+	return (0);
+}
+
+/*
 	//which stream is connected to our device
 	if (isatty(STDERR_FILENO))
 		g_signal.terminal_descriptor = STDERR_FILENO;
@@ -295,21 +136,12 @@ int	main(void)
 	if (isatty(STDOUT_FILENO))
 		g_signal.terminal_descriptor = STDOUT_FILENO;
 	//termios_init(&minishell);
-
-
 	//assign original terminal settings
 	if (tcgetattr(g_signal.terminal_descriptor, &old_termios) ||
 		tcgetattr(g_signal.terminal_descriptor, &new_termios))
 	{
 		ft_printf("error\n");
 	}
-	//DISABLE BUFFERING
-	 if (isatty(STDIN_FILENO))
-        setvbuf(stdin, NULL, _IONBF, 0);
-    if (isatty(STDOUT_FILENO))
-        setvbuf(stdout, NULL, _IONBF, 0);
-    if (isatty(STDERR_FILENO))
-        setvbuf(stderr, NULL, _IONBF, 0);
 	new_termios.c_lflag |= ICANON; //Talking of pipe here is misleading. CTRL-D is only relevant for terminal devices, not pipes, and it's only relevant on the master side of the pseudo-terminal or when sent by the (real) terminal, and only when in icanon mode.
 	new_termios.c_lflag |= ISIG; //If ISIG is set each input character is checked against the special control character INTR and QUIT. If an input character matches one of these control character the function associated with that character is performed. If ISIG is not set, no checking is done. Thus these special functions are possible only if ISIG is set.	
 	new_termios.c_cc[VINTR] = 3; //C, sends SIGINT SIGNAL
@@ -318,44 +150,21 @@ int	main(void)
 	//new_termios.c_lflag &= ~ECHOCTL; //https://stackoverflow.com/questions/608916/ignoring-ctrl-c
 	new_termios.c_lflag |= ECHO;
 	new_termios = old_termios;
-	signal(SIGINT, sigquit_handler);
-	while (g_signal.sigquit != 1) //exit instead of sigquit, or find the main parent process
-	{
-		//should we set and reset std
+	*/
+
+/*
+//should we set and reset std
 		//close fds
 		//reset fds
-		//waitpid(-1, &status, 0)
-		//status = WIFEXITSTATUS
-		ft_printf("%d is pid in loop\n", g_signal.pid);
-		tcsetattr(g_signal.terminal_descriptor, TCSANOW, &new_termios);
-		init(&minishell);
-		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
-		{
-			start_program_loop(&minishell);
-		}
-		if (g_signal.sigquit == 1)
-		{
-			ft_printf("\b\bexit\n");
-		}
-		if (g_signal.sigint == 1)
-		{
-			g_signal.sigint = 0;
-			errno = 0;
-		}
-		tcsetattr(0,TCSANOW,&old_termios);	
-		//TO FREE MINISHELLs
-	}
-	return (0);
-}
-
+	//waitpid(-1, &status, 0)
+	//status = WIFEXITSTATUS
+	//ft_printf("%d is g_signal.pid in loop, %d is getpid\n", g_signal.pid, getpid());
+*/
 //if its the last parent process then we print n at the end, otherwise not
-
-
 /*
 
 	//int c;
     //termios_init(&minishell);
-	/*
     printf("Press CTRL+C or Q to quit.\n");
     while ((c = getc(stdin)) != EOF && g_signal.keep_running != 0)
 	{
