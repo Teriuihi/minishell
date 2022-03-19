@@ -38,6 +38,11 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 		minishell->exit_status = 2;
 		return (false);
 	}
+	if (ft_strncmp(args[1], "-n", 3) == 1)
+	{
+		minishell->exit_status = 2;
+		return (false);
+	}
 	if (ft_strncmp(args[1], "-n", 3) == 0)
 		i++;
 	else
@@ -51,4 +56,5 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 	}
 	write(fd, &c, 1);
 	minishell->exit_status = 0;
+	return (true);
 }

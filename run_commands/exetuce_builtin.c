@@ -14,7 +14,7 @@
 #include "../headers/functions.h"
 #include "../buildins/buildins.h"
 #include "../headers/minishell.h"
-
+#include "../headers/functions.h"
 /**
  * Takes an array of arrays (user input)
  * Selects the function to execute based on the first argument (args[0])
@@ -109,11 +109,11 @@ t_bool	ft_env(t_hash_table *h_table, t_minishell *minishell)
 {
 	if (print_h_table(h_table) == false)
 	{
-		return (false);
+		return (set_exit_status(minishell, 1));
 	}
 	else
 	{
-		return (true);
+		return (set_exit_status(minishell, 0));
 	}
 }
 
@@ -123,12 +123,16 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell) //
 	char	*cur_dir;
 	t_bool	did_execution_succeed;
 
-	if (!command->command || !minishell)
-		return (false);
 	did_execution_succeed = false;
+	if (!command->command || !minishell)
+	{
+		return (did_execution_succeed);
+	}
 	cur_dir = get_pwd(minishell);
 	if (!cur_dir)
-		did_execution_succeed = false;
+	{
+		return (set_exit_status(minishell, 1));
+	}
 	else if (env_var_added(command, minishell) == true) //export? but also a=b should be here
 	{
 		did_execution_succeed = true;
@@ -141,42 +145,51 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell) //
 	{
 		did_execution_succeed = ft_env(minishell->env, minishell);
 	}
-	else if (ft_streq(command->command, "unset")) //unset returns always 0? even if its not in env?
+	else if (ft_streq(command->command, "unset")) //unset returns always 0? even if its not in env?, it should return true if succeeded, even if there was no var named x will return 0 and true
 	{
 		did_execution_succeed = ft_remove_exported_var(command->args[1], minishell->env, minishell);
 	} 
-	if (did_execution_succeed == true)
-		minishell->exit_status = 0;
-	else
-		minishell->exit_status = 1;
 	return (did_execution_succeed);
 }
 
 t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
 {
-	if (!cur_dir)
-	{
-		return (false);
-	}
 	ft_putstr_fd(cur_dir, 1);
 	ft_putstr_fd("\n", 1);
+	minishell->exit_status = 0;
 	return (true);
 }
 
 t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->args + 1 == myvar=stmh
 {
-	char	*cur_dir;
+	char		*cur_dir;
+	t_bool		did_execution_succeed;
 
+	did_execution_succeed = false;
 	if (!command->command || !minishell)
-		return (false);
+	{
+		return (did_execution_succeed);
+	}
 	cur_dir = get_pwd(minishell);
+	if (!cur_dir)
+	{
+		minishell->exit_status = 1;
+		return (did_execution_succeed);
+	}
 	//if (env_var_added(command, minishell) == true)
 	//	return (true);
 	if (ft_streq(command->command, "echo")) //echo nemtommi > file.txt so it should be forked
-		return (ft_echo(command, 1, minishell));
+	{
+		did_execution_succeed = ft_echo(command, 1, minishell));
+	}
 	else if (ft_streq(command->command, "pwd")) //pwd > teso.txt so it should be forked
-		return (ft_pwd(cur_dir, minishell));
-	else
-		return (false);
+	{
+		did_execution_succeed = ft_pwd(cur_dir, minishell);
+	}
+	else //its not found probably, and its a builtin, prob should we treat it unlike executables from dev/
+	{
+		minishell->exit_status = 1;
+	}
+	return (did_execution_succeed);
 
 }

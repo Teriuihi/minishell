@@ -62,20 +62,35 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	if (command->args_len != 2 || command->args[1] == NULL)
 	{
 		ft_printf("Invalid command, not enough args\n");
-		minishell->exit_status = 2; //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
-		return (false);
+		return (set_exit_status(minishell, 2)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 	}
 	dir = get_path_from_arg(command->args[1], minishell);
 	if (dir == NULL)
-		return (false);
+	{
+		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+	}
 	tmp = opendir(dir);
 	result = tmp != NULL;
 	free(tmp);
 	if (result == false)
-		return (false);
+	{
+		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+	}
 	chdir(dir);
 	if (dir != command->args[1])
+	{
 		free(dir);
+		return (set_exit_status(minishell, 2)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+	}
 	result = set_pwd(getcwd(NULL, 0), minishell);
-	return (result);
+		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+
+	if (result == true)
+	{
+		return (set_exit_status(minishell, 0)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+	}
+	if (result == false)
+	{
+		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+	}
 }

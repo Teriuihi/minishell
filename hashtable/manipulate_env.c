@@ -27,7 +27,7 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table, t_minishell *min
 
 	if (!key || !h_table || !minishell)
 	{
-		return (false);
+		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 	}
 	hashkey = hash(key, "", h_table->size); //no need for val here, hashcode being calculated without it
 	while (h_table->entries[hashkey] != NULL)
@@ -36,11 +36,11 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table, t_minishell *min
 				ft_strlen(key)) == 0)
 		{
 			free_key_value(h_table->entries[hashkey]);
-			return (true);
+			return (set_exit_status(minishell, 0)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 		}
 		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
 	}
-	return (false);
+	return (set_exit_status(minishell, 0)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 }
 
 t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table)
