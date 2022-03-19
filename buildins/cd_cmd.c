@@ -77,9 +77,5 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	if (dir != command->args[1])
 		free(dir);
 	result = set_pwd(getcwd(NULL, 0), minishell);
-	if (result == true)
-		minishell->exit_status = 1;
-	else
-		minishell->exit_status = 0;
 	return (result);
 }

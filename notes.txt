@@ -1,7 +1,0 @@
-goal:
-    1, Two hashtables, one current env, other extended (carried over to child process with export being added to these)
-    2, In the beginning all of them are exported since its just the env var
-    3, When adding an non-exported var, add it to current_env with the flag non_exported
-
-#SIGNALS
-    we need a global struct to hold info about exit status, pid, and if it was sigint or sigquit etc

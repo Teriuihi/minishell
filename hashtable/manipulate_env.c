@@ -27,23 +27,20 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table, t_minishell *min
 
 	if (!key || !h_table || !minishell)
 	{
-		minishell->exit_status = 1;
 		return (false);
 	}
-	hashkey = hash(key, "", h_table->size);
+	hashkey = hash(key, "", h_table->size); //no need for val here, hashcode being calculated without it
 	while (h_table->entries[hashkey] != NULL)
 	{
 		if (ft_strncmp(key, h_table->entries[hashkey]->key,
 				ft_strlen(key)) == 0)
 		{
 			free_key_value(h_table->entries[hashkey]);
-			minishell->exit_status = 0;
-			return (false);
+			return (true);
 		}
 		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
 	}
-	minishell->exit_status = 1; //bash behaviour is still 0 tho
-	return (true);
+	return (false);
 }
 
 t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table)

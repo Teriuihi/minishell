@@ -77,6 +77,7 @@ void	set_termios()
 	g_signal.new_termios.c_cc[VINTR] = 3; //C, sends SIGINT SIGNAL
 	g_signal.new_termios.c_cc[VEOF] = 4;//_POSIX_VDISABLE;//4; //D
 
+	//in case we want to reset
 	g_signal.old_termios.c_lflag |= (ICANON | ISIG | ECHO);  //Talking of pipe here is misleading. CTRL-D is only relevant for terminal devices, not pipes, and it's only relevant on the master side of the pseudo-terminal or when sent by the (real) terminal, and only when in icanon mode.
 	g_signal.old_termios.c_cc[VINTR] = 3; //C, sends SIGINT SIGNAL
 	g_signal.old_termios.c_cc[VEOF] = 4;//_POSIX_VDISABLE;//4; //D
@@ -105,27 +106,27 @@ int	main(void)
 { 
 	t_minishell		minishell;
 
+	init(&minishell);
 	init_signal();
 	while (g_signal.sigquit != 1) //exit instead of sigquit, or find the main parent process
 	{
-		tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.new_termios);
-		init(&minishell);
+		set_termios();
 		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
 		{
 			start_program_loop(&minishell);
 		}
 		if (g_signal.sigquit == 1)
 		{
-			ft_printf("exit\n"); //this prints twice if we call crtld in heredoc, why? 	//if it was cancelled in heredoc, this should not be printed
+			ft_printf("\b\bexit\n"); //this prints twice if we call crtld in heredoc, why? 	//if it was cancelled in heredoc, this should not be printed
 		}
 		if (g_signal.sigint == 1)
 		{
 			g_signal.sigint = 0; //errno = 0; prob not needed
 		}
-		g_signal.new_termios = g_signal.old_termios; // sort of resetting? , //tcsetattr(g_signal.terminal_descriptor, TCSANOW, &old_termios);	 //sets everything back to the original settings
 	}
 	return (0);
 }
+//g_signal.new_termios = g_signal.old_termios; // sort of resetting? , //tcsetattr(g_signal.terminal_descriptor, TCSANOW, &old_termios);	 //sets everything back to the original settings
 
 /*
 	//which stream is connected to our device

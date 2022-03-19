@@ -78,7 +78,9 @@ void	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2], t_mi
 	signal_check(input);
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
+		//if its interrupted with crtl d, it should not try to execute eg cat after
 		//if this was interrupted we should not print anything anymore from pipe
+		//we could check if we would need to write it already to pipe
 		ft_putstr_fd(ft_strjoin(input, "\n"), cur_pid[1]); 
 		input = readline("heredoc> ");
 		signal_check(input);
@@ -361,17 +363,46 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 		close(old_pid[1]);
 		close(old_pid[0]);
 	}
-	waitpid(c_pid, &status, 0); //check if we interrupted the status with a signa;?
-	//ft_printf("%d is cpid which we were waiting for in parent function\n", c_pid);
-	//check g_sigint or sigquit here?
-	//ft_printf("%d is current process's pid assigned, %d is getpid(), %d is WIFEXITED STATUS, %d is sigint, %d is sigquit\n", g_signal.pid, getpid(), WIFEXITED(status), g_signal.sigint, g_signal.sigquit);
-	/*
+	waitpid(c_pid, &status, 0);
 	if (WIFEXITED(status)) //use ps to check if child process is still running?
 	{
 		//g_signal.pid = getpid();
-		minishell->exit_status = WEXITSTATUS(status); //should be added to $?
+		if (g_signal.sigint == 1)
+		{
+			minishell->exit_status = 128 + 2;
+		}
+		else
+		{
+			minishell->exit_status = WEXITSTATUS(status); 
+		}
+		//should be added to $?
+		//ft_printf("%d is minishell->exit status now\n", minishell->exit_status);
+		ft_printf("exited:	%d status: %d\n", WIFEXITED(status), WEXITSTATUS(status));
+		ft_printf("signalled:	%d signal: %d\n", WIFSIGNALED(status), WTERMSIG(status));
+		ft_printf("stopped:	%d signal: %d\n", WIFSTOPPED(status), WSTOPSIG(status));
+		ft_printf("continued: %d\n", WIFCONTINUED(status));
+	}
+}
+/*
+	if (WIFSIGNALED(status))
+	{
+		ft_printf("Killed by signal %d\n", WTERMSIG(status));
+
+		if (WTERMSIG(status) == 9)
+		{
+			ft_printf("Killed by signal %d\n", WTERMSIG(status));
+		}
+		g_signal.pid = getpid();
+		ft_printf("%d is gsignalpid\n", g_signal.pid);
+		kill(g_signal.pid, SIGKILL);
+
+	}
+	*/
+	//https://linuxhint.com/waitpid-syscall-in-c/
+	//WTERMSIG(status) returns the number of the signal that caused the child process to terminate. This macro should only be employed if WIFSIGNALED returned true.
+
 		//at this point child process is finished
-		exitonsig = WIFSIGNALED(status) ? WTERMSIG(status) : 0;
+		//exitonsig = WIFSIGNALED(status) ? WTERMSIG(status) : 0;
 		//ft_printf("%d is exitonsig\n", exitonsig);
 		//check if we received any signal during?
 	
@@ -393,26 +424,10 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 			//ft_printf("pid %d is about to get killed\n", c_pid);
 		//	kill(c_pid, SIGKILL);
 		//}
-	}
-	/*
-	if (WIFSIGNALED(status))
-	{
-		ft_printf("Killed by signal %d\n", WTERMSIG(status));
 
-		if (WTERMSIG(status) == 9)
-		{
-			ft_printf("Killed by signal %d\n", WTERMSIG(status));
-		}
-		g_signal.pid = getpid();
-		ft_printf("%d is gsignalpid\n", g_signal.pid);
-		kill(g_signal.pid, SIGKILL);
 
-	}
-	*/
-	//https://linuxhint.com/waitpid-syscall-in-c/
-	//WTERMSIG(status) returns the number of the signal that caused the child process to terminate. This macro should only be employed if WIFSIGNALED returned true.
 
-}
+
 
 /**
  * Check if a command should be executed in a child process
@@ -484,9 +499,13 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	if (should_be_child(command) == false) //is_built_in == true && 
 	{
 		if (execute_non_forked_builtin(command, minishell) == false)
-			ft_printf("Built in command execution failed\n");
+			ft_printf("Built in command execution failed, %d is minishell exit status\n", minishell->exit_status);
+		else
+			ft_printf("execute non forked builtin is true, %d is minishell exit status\n", minishell->exit_status);
 		return ;
 	}
+
+	
 	g_signal.pid = fork(); //assign it to cmd_datas process?
 	if (g_signal.pid == 0)
 	{

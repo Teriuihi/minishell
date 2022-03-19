@@ -109,12 +109,10 @@ t_bool	ft_env(t_hash_table *h_table, t_minishell *minishell)
 {
 	if (print_h_table(h_table) == false)
 	{
-		minishell->exit_status = 1;
 		return (false);
 	}
 	else
 	{
-		minishell->exit_status = 0;
 		return (true);
 	}
 }
@@ -123,32 +121,45 @@ t_bool	ft_env(t_hash_table *h_table, t_minishell *minishell)
 t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell) //cd and unset, env ?, we do not need to call a child process for these?
 {	//cd, export, unset
 	char	*cur_dir;
+	t_bool	did_execution_succeed;
 
-	cur_dir = get_pwd(minishell);
 	if (!command->command || !minishell)
 		return (false);
+	did_execution_succeed = false;
+	cur_dir = get_pwd(minishell);
+	if (!cur_dir)
+		did_execution_succeed = false;
 	else if (env_var_added(command, minishell) == true) //export? but also a=b should be here
-		return (true);
+	{
+		did_execution_succeed = true;
+	}
 	else if (ft_streq(command->command, "cd"))
-		return (cd(command, minishell));
+	{
+		did_execution_succeed = cd(command, minishell);
+	}
 	else if (ft_streq(command->command, "env"))
-		return (ft_env(minishell->env, minishell));
+	{
+		did_execution_succeed = ft_env(minishell->env, minishell);
+	}
 	else if (ft_streq(command->command, "unset")) //unset returns always 0? even if its not in env?
-		return (ft_remove_exported_var(command->args[1], minishell->env, minishell));
+	{
+		did_execution_succeed = ft_remove_exported_var(command->args[1], minishell->env, minishell);
+	} 
+	if (did_execution_succeed == true)
+		minishell->exit_status = 0;
 	else
-		return (false);
+		minishell->exit_status = 1;
+	return (did_execution_succeed);
 }
 
 t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
 {
 	if (!cur_dir)
 	{
-		minishell->exit_status = 1;
 		return (false);
 	}
 	ft_putstr_fd(cur_dir, 1);
 	ft_putstr_fd("\n", 1);
-	minishell->exit_status = 0;
 	return (true);
 }
 
