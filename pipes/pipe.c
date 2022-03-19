@@ -185,13 +185,15 @@ void	child_execute_built_in(t_cmd_data *cmd_data, const int *old_pid,
 								const int *cur_pid, t_minishell *minishell)
 {
 	t_command	*command;
-
+	//pwd and echo, echo -o hi -> -o hi
 	command = cmd_data->command; //this is also prob not needed &cmd_data->command; 
 	init_child(old_pid, cur_pid, cmd_data->output.type, minishell); //SOMETHING GOES WRONG HERE
 	if (execute_builtin(command, minishell) == false)
 	{
+		//check which is the current exit status of it
+		//something went wrong, exit status already set
 		ft_printf("Unable to execute command: %s\n", command->command);
-		exit(127);
+		exit(minishell->exit_status);
 	}
 	exit(0);
 }
@@ -261,9 +263,6 @@ void	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid, t_minishell
 	//ft_printf("Controlling pipes with command %s, output %d, input %d\n", cmd_data->command->command, cmd_data->output.type, cmd_data->input.type);
 	if (cmd_data->input.type == OUTPUT_TO_COMMAND)
 	{
-		//write(1, "WRONG\n", 7);
-		//ft_printf("%s is command and its suppose to be OUTPUT_TO_COMMAND\n", cmd_data->command->command);
-		
 		dup2(cur_pid[0], STDIN_FILENO);
 		close_pipes(&cur_pid[0], &cur_pid[1]);
 		//close(cur_pid[0]);
@@ -331,12 +330,10 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 		ft_printf("executable not found\n");
 		exit(127);
 	}
-	//char **eng = get_envp(minishell->env);
-	//print_splitted(eng);
 	if (execve(command->command, command->args,
 		get_envp(minishell->env)) < 0)
 	{
-		ft_printf("Unable to execute command: %s\n", command->command);
+		ft_printf("%s: command not found\n", command->command);
 		close(old_pid[0]); //?
 		exit(126);
 	}
@@ -355,18 +352,14 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 {
 	int	status;
-	int exitonsig;
 
-	exitonsig = 0;
 	if (old_pid[0] > -1)
 	{
-		close(old_pid[1]);
-		close(old_pid[0]);
+		close_pipes(&old_pid[1], &old_pid[0]);
 	}
 	waitpid(c_pid, &status, 0);
 	if (WIFEXITED(status)) //use ps to check if child process is still running?
 	{
-		//g_signal.pid = getpid();
 		if (g_signal.sigint == 1)
 		{
 			minishell->exit_status = 128 + 2;
@@ -375,15 +368,15 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 		{
 			minishell->exit_status = WEXITSTATUS(status); 
 		}
-		//should be added to $?
-		//ft_printf("%d is minishell->exit status now\n", minishell->exit_status);
-		ft_printf("exited:	%d status: %d\n", WIFEXITED(status), WEXITSTATUS(status));
-		ft_printf("signalled:	%d signal: %d\n", WIFSIGNALED(status), WTERMSIG(status));
-		ft_printf("stopped:	%d signal: %d\n", WIFSTOPPED(status), WSTOPSIG(status));
-		ft_printf("continued: %d\n", WIFCONTINUED(status));
 	}
 }
 /*
+
+	//ft_printf("%d is minishell->exit status now\n", minishell->exit_status);
+	//ft_printf("exited:	%d status: %d\n", WIFEXITED(status), WEXITSTATUS(status));
+	//ft_printf("signalled:	%d signal: %d\n", WIFSIGNALED(status), WTERMSIG(status));
+	//ft_printf("stopped:	%d signal: %d\n", WIFSTOPPED(status), WSTOPSIG(status));
+	//ft_printf("continued: %d\n", WIFCONTINUED(status));
 	if (WIFSIGNALED(status))
 	{
 		ft_printf("Killed by signal %d\n", WTERMSIG(status));
@@ -490,7 +483,10 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 
 	command = cmd_data->command;
 	if (ft_streq(command->command, "exit"))
-		exit(0);
+	{
+		signal_check(NULL);
+		return ;
+	}
 	check_input_pipes(cmd_data, old_pid, cur_pid, minishell);
 	if (is_built_in == false || ft_streq(command->command, "./minishell")) //if its not a builtin command, or its another executable of shell
 	{
@@ -505,7 +501,7 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 		return ;
 	}
 
-	
+
 	g_signal.pid = fork(); //assign it to cmd_datas process?
 	if (g_signal.pid == 0)
 	{
@@ -514,10 +510,14 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			child_execute_built_in(cmd_data, old_pid, cur_pid, minishell); //echo && pwd which should be forked
 		}
 		else
+		{
 			child_execute_non_builtin(cmd_data, old_pid, cur_pid, minishell); //here first we have to enter the built in, organize pipes then execute it
+		}
 	}
 	else
+	{
 		parent(g_signal.pid, old_pid, minishell);
+	}
 	//save the last executed commands exit status here or in parent?
 	//close pipes?
 

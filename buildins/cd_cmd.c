@@ -78,13 +78,10 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	}
 	chdir(dir);
 	if (dir != command->args[1])
-	{
+	{ 
 		free(dir);
-		return (set_exit_status(minishell, 2)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 	}
 	result = set_pwd(getcwd(NULL, 0), minishell);
-		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
-
 	if (result == true)
 	{
 		return (set_exit_status(minishell, 0)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.

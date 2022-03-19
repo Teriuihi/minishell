@@ -139,25 +139,28 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell) //
 	}
 	else if (ft_streq(command->command, "cd"))
 	{
-		did_execution_succeed = cd(command, minishell);
+		return (cd(command, minishell));
 	}
 	else if (ft_streq(command->command, "env"))
 	{
-		did_execution_succeed = ft_env(minishell->env, minishell);
+		return (ft_env(minishell->env, minishell));
 	}
 	else if (ft_streq(command->command, "unset")) //unset returns always 0? even if its not in env?, it should return true if succeeded, even if there was no var named x will return 0 and true
 	{
-		did_execution_succeed = ft_remove_exported_var(command->args[1], minishell->env, minishell);
-	} 
-	return (did_execution_succeed);
+		return (ft_remove_exported_var(command->args[1], minishell->env, minishell));
+	}
+	//everything that modifies env variable should be non forked
+	return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 }
+
+//unset | 
+//cd | pwd
 
 t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
 {
 	ft_putstr_fd(cur_dir, 1);
 	ft_putstr_fd("\n", 1);
-	minishell->exit_status = 0;
-	return (true);
+	return (set_exit_status(minishell, 0)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 }
 
 t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->args + 1 == myvar=stmh
@@ -168,28 +171,25 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->ar
 	did_execution_succeed = false;
 	if (!command->command || !minishell)
 	{
-		return (did_execution_succeed);
+		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 	}
 	cur_dir = get_pwd(minishell);
 	if (!cur_dir)
 	{
-		minishell->exit_status = 1;
-		return (did_execution_succeed);
+		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 	}
 	//if (env_var_added(command, minishell) == true)
 	//	return (true);
 	if (ft_streq(command->command, "echo")) //echo nemtommi > file.txt so it should be forked
 	{
-		did_execution_succeed = ft_echo(command, 1, minishell));
+		return (ft_echo(command, 1, minishell));
 	}
 	else if (ft_streq(command->command, "pwd")) //pwd > teso.txt so it should be forked
 	{
-		did_execution_succeed = ft_pwd(cur_dir, minishell);
+		return (ft_pwd(cur_dir, minishell));
 	}
 	else //its not found probably, and its a builtin, prob should we treat it unlike executables from dev/
 	{
-		minishell->exit_status = 1;
+		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 	}
-	return (did_execution_succeed);
-
 }

@@ -35,14 +35,12 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 	c = '\0';
 	if (!args || args[0] == NULL || args[1] == NULL)
 	{
-		minishell->exit_status = 2;
-		return (false);
+		return (set_exit_status(minishell, 2)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 	}
-	if (ft_strncmp(args[1], "-n", 3) == 1)
-	{
-		minishell->exit_status = 2;
-		return (false);
-	}
+	//if (ft_strncmp(args[1], "-n", 3) == 1) //we should only use -n option,
+	//{
+	//	return (set_exit_status(minishell, 2)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+	//}
 	if (ft_strncmp(args[1], "-n", 3) == 0)
 		i++;
 	else
@@ -55,6 +53,5 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 		i++;
 	}
 	write(fd, &c, 1);
-	minishell->exit_status = 0;
-	return (true);
+	return (set_exit_status(minishell, 0)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 }

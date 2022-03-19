@@ -163,11 +163,14 @@ void	start_program_loop(t_minishell *minishell)
 			free_char_arr(args);
 		}
 	}
-	//not sure about this yet
-	if (g_signal.sigquit != 1)
+	if (g_signal.sigquit != 1) //not sure about this yet
+	{
 		ft_printf("\n");
+	}
 	if (input != NULL)
+	{
 		free(input);
+	}
 }
 
 
