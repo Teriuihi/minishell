@@ -1,13 +1,9 @@
 NAME=minishell
 CC=gcc -g
-CFLAGS=-Wall -Wextra -Werror
+CFLAGS=
 RM=rm -f
-SRC_DIR=functions
 
-FUNCTIONS=args.c cd_cmd.c destroy.c exetuce_builtin.c ft_echo.c tmp_get_commands.c \
-get_path.c get_working_directory.c hash_code.c hash_table.c is_builtint.c main.c \
-manipulate_env.c print_splitted.c pwd.c search_in_path.c signals.c util.c
-FILES=$(wildcard $(SRC_DIR)/*.c)
+FILES=pipes/pipe.c hashtable/hash_table.c hashtable/destroy.c hashtable/hash_code.c functions/search_in_path.c functions/main.c functions/util.c functions/print_splitted.c functions/signals.c create_commands/get_commands.c create_commands/args.c libft/ft_lstnew.c libft/ft_itoa.c libft/ft_lstdelone.c libft/get_next_line/get_next_line_utils.c libft/get_next_line/get_next_line.c libft/ft_putchar_fd.c libft/ft_bzero.c libft/ft_digit_count.c libft/ft_strrchr.c libft/ft_strtrim.c libft/ft_putnbr_fd.c libft/ft_putstr_fd.c libft/ft_memcpy.c libft/ft_split.c libft/ft_ends_with.c libft/ft_strncmp.c libft/ft_lstadd_back.c libft/ft_calloc.c libft/ft_lstdelentry.c libft/ft_strlcpy.c libft/ft_strjoin.c libft/ft_iswhite_space.c libft/ft_strdup.c libft/ft_memset.c libft/ft_strlen.c libft/ft_strncpy.c libft/ft_contains.c libft/ft_lstadd_front.c libft/ft_lstlast.c libft/ft_printf/hex.c libft/ft_printf/printing.c libft/ft_printf/hex_util.c libft/ft_printf/ft_printf.c libft/ft_lstsize.c libft/ft_streq.c libft/ft_lstclear.c run_commands/run_program.c run_commands/exetuce_builtin.c hashtable/manipulate_env.c buildins/pwd.c buildins/cd_cmd.c buildins/is_builtint.c buildins/ft_echo.c buildins/get_path.c
 FILES_OBJ=$(FILES:%.c=%.o)
 
 all: $(NAME)
