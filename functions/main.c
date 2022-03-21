@@ -70,6 +70,8 @@ void	set_termios()
 	}
 	//prob this is not even needed
 	g_signal.new_termios.c_lflag |= (ICANON | ISIG | ECHO);  //Talking of pipe here is misleading. CTRL-D is only relevant for terminal devices, not pipes, and it's only relevant on the master side of the pseudo-terminal or when sent by the (real) terminal, and only when in icanon mode.
+	g_signal.new_termios.c_lflag = ~ECHOCTL ;  //Talking of pipe here is misleading. CTRL-D is only relevant for terminal devices, not pipes, and it's only relevant on the master side of the pseudo-terminal or when sent by the (real) terminal, and only when in icanon mode.
+
 	g_signal.new_termios.c_cc[VINTR] = 3; //C, sends SIGINT SIGNAL
 	g_signal.new_termios.c_cc[VEOF] = 4;//_POSIX_VDISABLE;//4; //D
 
@@ -111,7 +113,7 @@ int	main(void)
 		{
 			start_program_loop(&minishell);
 		}
-		if (g_signal.veof == 1)
+		if (g_signal.veof == 1) //bug, this should print \n only at the parent process
 		{
 			ft_printf("\b\bexit\n"); //this prints twice if we call crtld in heredoc, why? 	//if it was cancelled in heredoc, this should not be printed
 		}

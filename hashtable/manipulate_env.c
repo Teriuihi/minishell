@@ -90,11 +90,12 @@ char	**get_envp(t_hash_table *h_table)
 	{
 		return (NULL);
 	}
-	envp = (char **)ft_calloc(h_table->size, sizeof(char *));
+	envp = (char **)ft_calloc(h_table->size + 1, sizeof(char *));
 	if (!envp)
 	{
 		return (NULL);
 	}
+	envp[h_table->size] = NULL;
 	i = 0;
 	env_i = 0;
 	while (i < h_table->size)
