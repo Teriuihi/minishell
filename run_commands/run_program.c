@@ -15,7 +15,8 @@
 #include <readline/readline.h>
 #include "run_commands.h"
 #include "../create_commands/create_commands.h"
-
+#include "../buildins/buildins.h"
+#include <errno.h>
 /**
  * Copies cur_pid to old_pid
  *
@@ -28,8 +29,7 @@ void	copy_pid(const int *cur_pid, int *old_pid)
 	old_pid[1] = cur_pid[1];
 }
 
-
-t_cmd_data	*init_cmd()
+t_cmd_data	*init_cmd(void)
 {
 	t_cmd_data *cmd_data;
 
@@ -63,12 +63,9 @@ void	run_commands(t_list **head, t_minishell *minishell)
 {
 	int			cur_pid[2];
 	int			old_pid[2];
-	t_cmd_data	*cmd_data; //could be maybe simple struct and paass the & of it
+	t_cmd_data	*cmd_data;
 	t_list		*entry;
 
-	//cmd data init?
-	//cmd_data = init_cmd(); //should we init all the other stuff?
-	
 	cmd_data = init_cmd();
 	entry = *head;
 	cur_pid[0] = -1;
@@ -77,20 +74,17 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	old_pid[1] = -1;
 	while (entry)
 	{
-		//ft_printf("%s is entry content\n", entry->content);
-		cmd_data = (t_cmd_data *)entry->content; //cmd_data = entry->content; this was //command = entry->content before
-		//maybe use this cmd_data to copy from entry?
-		//ft_printf("%d is CMD_DATA INPUT TYPE, %d is CMD_DATA OUTPUT TYPE\n", cmd_data->input.type, cmd_data->output.type);
-		//cmd_data->output.type = cmd_data->output.type;
+		cmd_data = (t_cmd_data *)entry->content; //if this is null?
 		if (cur_pid[0])
+		{
 			copy_pid(cur_pid, old_pid);
+		}
 		if (cmd_data->output.type) //non initialized yet, if it has to put smth out?
 		{
-			//ft_printf("%s is command, %d is output type\n", cmd_data->command->command, cmd_data->output.type);
 			pipe(cur_pid); //now this gets two new fds
 		}
 		exec_command(cmd_data, old_pid, cur_pid,
-			is_builtin(cmd_data), minishell);
+			is_builtin(cmd_data->command), minishell);
 		entry = entry->next;
 	}
 }
@@ -105,9 +99,32 @@ void	run_commands(t_list **head, t_minishell *minishell)
  */
 t_bool	should_use(char *input)
 {
+	if (input == NULL)
+	{
+		return (false);
+	}
 	while (*input && ft_iswhite_space(*input))
 		input++;
 	return ((*input) != '\0');
+}
+
+//static int interrupted = false;
+static int interruptible_getc(void)
+{	
+	int		r;
+	char	c;
+
+	if (g_signal.interrupted == true)
+		return EOF;
+	r = read(0, &c, 1); // read from stdin, will return -1 when interrupted by a signal
+	if (r == -1 && errno == EINTR) //then this is sigint (crtl c here)
+	{
+		if (errno == EINTR && g_signal.sigint != 1) //we have to check which signal was which it interrupted
+		{
+			g_signal.interrupted = true;
+		}
+	}
+	return (r == 1 ? c : EOF); //if we use signals this we always return EOF
 }
 
 /**
@@ -122,32 +139,56 @@ void	start_program_loop(t_minishell *minishell)
 	char		**args;
 	t_list		**head;
 
-
-	
-	input = readline("some shell>"); //TODO free
-	while (input)
+	rl_getc_function = interruptible_getc;
+	input = "hi";
+	args = NULL;
+	while (input && g_signal.sigint != 1 && g_signal.veof != 1)
 	{
-		//print_splitted(get_envp(minishell->env));
-
-		args = NULL;
-		if (should_use(input))
+		input = readline("some shell>");
+		signal_check(input);
+		if (should_use(input) == true)
 		{
 			add_history(input);
 			args = get_args(input); //TODO free
+			free(input);
+			input = NULL;
 			head = find_commands(args); //TODO free
-			if (head == NULL)
+			if (head == NULL) //lets say that this is inside a child process, cant just exit the entire programme
 			{
-				ft_printf("Error\n");
-				exit(0);
+				signal_check(NULL);
+				return ;
 			}
-			//print_splitted(get_envp(minishell->env));
-			//print_splitted(get_envp(minishell->env));
-			//ft_printf("\n\n\n\n");
 			run_commands(head, minishell);
 			free_commands(head);
 			free_char_arr(args);
 		}
+	}
+	//if (g_signal.veof != 1) //not sure about this yet
+	//{
+	//	ft_printf("\n");
+	//}
+	if (input != NULL)
+	{
 		free(input);
-		input = readline("some shell>");
 	}
 }
+
+//was above the input != NULL
+//if (g_signal.veof != 1) //not sure about this yet
+	//{
+	//	ft_printf("\n");
+	//}
+
+
+
+/*
+if (g_signal.sigint != 1)
+{
+	//ft_printf("setting sigquit to 1\n"); //delete the prev char apostrophe D
+	//int stdout_copy = dup(STDOUT_FILENO);
+	//close(STDOUT_FILENO);
+	//dup2(stdout_copy, STDOUT_FILENO);
+	//close(stdout_copy);
+	g_signal.sigquit = 1;
+}
+*/

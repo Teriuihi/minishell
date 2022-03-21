@@ -14,12 +14,7 @@
 # define STRUCTS_H
 # include <signal.h>
 # include "../libft/libft.h"
-
-typedef struct signal
-{
-	pid_t	pid;
-	int		exit_status;
-}	t_signal;
+# include "bool.h"
 
 typedef enum e_pipe_type
 {
@@ -46,8 +41,9 @@ typedef struct s_redirect
 
 typedef struct s_cmd_data
 {
-	t_command	*command; //this was t_command command; before
+	t_command	*command;
 	t_redirect	input;
 	t_redirect	output;
+	t_bool		executable_found;
 }	t_cmd_data;
 #endif

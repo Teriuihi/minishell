@@ -13,44 +13,52 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include "../headers/structs.h"
+#include "../headers/minishell.h"
 
 /**
- * Handling different signals based on signum
+ * checks whether input is NULL (VEOF) or sigint flag is on
  *
- *
- * @param	args signum
+ * @param	input string, NULL if VEOF has been reached
  *
  * @return	void
  */
-
-//https://stackoverflow.com/questions/1516122/how-to-capture-controld-signal
-void	crtld_handler(int signum)
+void	signal_check(char *input)
 {
-	(void)signum;
-}
-
-void	sigquit_handler(int signum) /* crtl + \ , do nothing */
-{
-	(void)signum;
-	write(1, "entered to crtl + backslash signal\n", 36);
-}
-
-void	sigint_handler(int signum) /* crtl + C , repeat prompt */
-{
-	(void)signum;
-	//have to get somehow the exit status, 127 or 0 and assign it into a struct?
-}
-
-t_signal	*init_signal(void) //should this be global?
-{
-	t_signal	*signal;
-
-	signal = ft_calloc(1, sizeof(t_signal));
-	if (!signal)
+	if (input == 0 || g_signal.sigint == 1)
 	{
-		return (NULL);
+		if (g_signal.sigint != 1)
+		{
+			g_signal.veof = 1;
+		}
 	}
-	signal->exit_status = 0;
-	signal->pid = 0;
-	return (signal);
+}
+
+void	check_status(void)
+{
+	if (g_signal.veof == 1)
+	{
+		ft_printf("\b\bexit\n");
+	}
+	if (g_signal.sigint == 1)
+	{
+		g_signal.sigint = 0;
+		ft_printf("\n");
+	}
+}
+
+void	sigquit_handler(int this_signal)
+{
+	if (this_signal == SIGINT)
+	{
+		g_signal.sigint = 1;
+	}
+}
+
+void	init_signal(void)
+{
+	g_signal.sigint = 0;
+	g_signal.veof = 0;
+	g_signal.finished = false;
+	g_signal.pid = getpid();
+	g_signal.keep_running = 1;
 }

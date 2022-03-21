@@ -14,8 +14,14 @@
 #include "../headers/functions.h"
 #include "../buildins/buildins.h"
 #include "../hashtable/hashtable.h"
+#include "../headers/minishell.h"
 #include <sys/stat.h>
 #include <unistd.h>
+#include <termios.h> 
+#include <stdio.h>
+#include <errno.h>
+
+t_signal	g_signal;
 
 t_hash_table	*get_hash_table(void)
 {
@@ -23,46 +29,66 @@ t_hash_table	*get_hash_table(void)
 
 	if (!table)
 	{
-		table = duplicates_are_found_in_argv();
+		table = create_env_h_table();
 		if (table == NULL)
 		{
-			ft_printf("Error\n");
-			exit (0);
+			exit (1);
 		}
 	}
 	return (table);
 }
 
-void	set_data(t_minishell *minishell)
+void	set_termios(void)
 {
-	minishell->current_env = get_hash_table();
-    minishell->env = get_hash_table();
-    //TODO check failure
+	if (isatty(STDERR_FILENO))
+		g_signal.terminal_descriptor = STDERR_FILENO;
+	if (isatty(STDIN_FILENO))
+		g_signal.terminal_descriptor = STDIN_FILENO;
+	if (isatty(STDOUT_FILENO))
+		g_signal.terminal_descriptor = STDOUT_FILENO;
+	if (tcgetattr(g_signal.terminal_descriptor, &g_signal.old_termios)
+		|| tcgetattr(g_signal.terminal_descriptor, &g_signal.new_termios))
+	{
+		exit(1);
+	}
+	g_signal.new_termios.c_lflag |= (ICANON | ISIG | ECHO);
+	g_signal.new_termios.c_cc[VINTR] = 3;
+	g_signal.new_termios.c_cc[VEOF] = 4;
+	g_signal.old_termios.c_lflag |= (ICANON | ISIG | ECHO);
+	g_signal.old_termios.c_cc[VINTR] = 3;
+	g_signal.old_termios.c_cc[VEOF] = 4;
+	signal(SIGINT, sigquit_handler);
 }
 
 void	init(t_minishell *minishell)
 {
 	char		*cur_dir;
-	t_signal	*signal_struct;
 
 	cur_dir = getcwd(NULL, 0);
 	if (cur_dir == NULL)
 	{
-		ft_printf("Error\n");
-		exit(0);
+		exit(1);
 	}
 	minishell->cur_wd = cur_dir;
-	set_data(minishell); //assigns hashtables
-	set_pwd(ft_strdup(cur_dir), minishell); //TODO check for failure
-	signal_struct = init_signal(); //TODO check for failure (NULL)
-	signal(SIGQUIT, sigquit_handler);
+	minishell->exit_status = 0;
+	minishell->env = get_hash_table();
+	set_pwd(ft_strdup(cur_dir), minishell);
 }
 
 int	main(void)
 {
-	t_minishell	minishell;
+	t_minishell		minishell;
 
 	init(&minishell);
-	start_program_loop(&minishell);
+	init_signal();
+	while (g_signal.veof != 1)
+	{
+		set_termios();
+		while (g_signal.sigint != 1 && g_signal.veof != 1)
+		{
+			start_program_loop(&minishell);
+		}
+		check_status();
+	}
 	return (0);
 }

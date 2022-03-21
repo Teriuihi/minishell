@@ -62,19 +62,22 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	if (command->args_len != 2 || command->args[1] == NULL)
 	{
 		ft_printf("Invalid command, not enough args\n");
-		return (false);
+		return (set_exit_status(minishell, 2));
 	}
 	dir = get_path_from_arg(command->args[1], minishell);
 	if (dir == NULL)
-		return (false);
+		return (set_exit_status(minishell, 1));
 	tmp = opendir(dir);
 	result = tmp != NULL;
 	free(tmp);
 	if (result == false)
-		return (false);
+		return (set_exit_status(minishell, 1));
 	chdir(dir);
 	if (dir != command->args[1])
 		free(dir);
 	result = set_pwd(getcwd(NULL, 0), minishell);
-	return (result);
+	if (result == true)
+		return (set_exit_status(minishell, 0));
+	else
+		return (set_exit_status(minishell, 1));
 }

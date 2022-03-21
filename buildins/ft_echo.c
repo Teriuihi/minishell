@@ -22,9 +22,9 @@
  * @param	args	the input given by the user,
  *	excluding "echo" -> input: echo batman -> args = batman
  *
- * @return	void
+ * @return	true or false depending whether execution was successful
 */
-void	ft_echo(t_command *command, int fd)
+t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 {
 	int		i;
 	char	c;
@@ -34,7 +34,9 @@ void	ft_echo(t_command *command, int fd)
 	i = 1;
 	c = '\0';
 	if (!args || args[0] == NULL || args[1] == NULL)
-		return ;
+	{
+		return (set_exit_status(minishell, 2));
+	}
 	if (ft_strncmp(args[1], "-n", 3) == 0)
 		i++;
 	else
@@ -47,4 +49,5 @@ void	ft_echo(t_command *command, int fd)
 		i++;
 	}
 	write(fd, &c, 1);
+	return (set_exit_status(minishell, 0));
 }
