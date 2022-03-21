@@ -13,7 +13,8 @@
 #ifndef PARSER_H
 # define PARSER_H
 # include "../libft/libft.h"
+# include "../headers/minishell.h"
 
-t_list	**parse(char *input);
+t_list	**parse(char *input, t_minishell *minishell);
 
 #endif

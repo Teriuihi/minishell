@@ -14,6 +14,7 @@
 #include "../headers/arguments.h"
 #include "internal_parser.h"
 #include "../hashtable/hashtable.h"
+#include "../headers/minishell.h"
 
 /** TODO FINISH COMMENTS
  * Does not need a null check for value cus NULL is valid
@@ -22,7 +23,7 @@
  * @param input
  * @return
  */
-t_string	*get_string_from_var(int pos, int start, char *input)
+t_string	*get_string_from_var(int pos, int start, char *input, t_minishell *minishell)
 {
 	char			*key;
 	char			*value;
@@ -34,7 +35,10 @@ t_string	*get_string_from_var(int pos, int start, char *input)
 	if (key == NULL)
 		return (NULL);
 	ft_strlcpy(key, input + start, pos - start + 1);
-	value = ft_get_env_val(key, table);
+	if (ft_strlen(key) == 1 && *key == '?')
+		value = ft_itoa(minishell->exit_status); //TODO NULL check?
+	else
+		value = ft_get_env_val(key, table);
 	free(key);
 	result = init_string(value);
 	free(value);
@@ -52,7 +56,7 @@ t_string	*get_string_from_var(int pos, int start, char *input)
  *
  * @return	String we appended too (could have a different address now)
  */
-t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg)
+t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg, t_minishell *minishell)
 {
 	t_string	*result;
 
@@ -61,16 +65,16 @@ t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg)
 		if (ft_iswhite_space(input[*pos]) || input[*pos] == '$'
 			|| input[*pos] == '"' || input[*pos] == '\'')
 		{
-			result = get_string_from_var(*pos, start, input);
+			result = get_string_from_var(*pos, start, input, minishell);
 			if (result == NULL)
 				return (NULL);
 			return (join_strings(arg, result));
 		}
 		(*pos)++;
 	}
-	if (start == (*pos - 1))
+	if (start == *pos)
 		return (append_char(arg, "$"));
-	result = get_string_from_var(*pos, start, input);
+	result = get_string_from_var(*pos, start, input, minishell);
 	if (result == NULL)
 		return (NULL);
 	return (join_strings(arg, result));
@@ -86,7 +90,7 @@ t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg)
  *
  * @return	String we appended too (could have a different address now)
  */
-t_string	*parse_quotation(char *input, int *start, char quote, t_string *arg)
+t_string	*parse_quotation(char *input, int *start, char quote, t_string *arg, t_minishell *minishell)
 {
 	int		pos;
 
@@ -98,7 +102,7 @@ t_string	*parse_quotation(char *input, int *start, char quote, t_string *arg)
 			arg = append_content(input, *start, pos, arg);
 			if (arg == NULL)
 				return (NULL);
-			arg = parse_env_variable(input, ++pos, &pos, arg);
+			arg = parse_env_variable(input, ++pos, &pos, arg, minishell);
 			if (arg == NULL)
 				return (NULL);
 			*start = pos;
@@ -136,7 +140,7 @@ t_string	*safe_add_to_list(t_list **head, t_string *string, t_bool literal)
  *
  * @return	Array of arguments the user entered
  */
-t_list	**parse(char *input)
+t_list	**parse(char *input, t_minishell *minishell)
 {
 	int			pos;
 	int			start;
@@ -158,7 +162,7 @@ t_list	**parse(char *input)
 			if (pos != 0 && pos != start)
 				string = append_content(input, start, pos - 1, string);
 			pos++;
-			string = parse_quotation(input, &pos, input[pos - 1], string);
+			string = parse_quotation(input, &pos, input[pos - 1], string, minishell);
 			start = pos;
 			literal = true;
 		}
@@ -192,7 +196,7 @@ t_list	**parse(char *input)
 				string = append_content(input, start, pos - 1, string);
 			if (string == NULL)
 				return (NULL);
-			string = parse_env_variable(input, ++pos, &pos, string);
+			string = parse_env_variable(input, ++pos, &pos, string, minishell);
 			if (string == NULL)
 				return (NULL);
 			start = pos;

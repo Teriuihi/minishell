@@ -151,7 +151,7 @@ void	start_program_loop(t_minishell *minishell)
 		if (should_use(input))
 		{
 			add_history(input);
-			parse_results = parse(input); //TODO free
+			parse_results = parse(input, minishell); //TODO free
 			if (parse_results == NULL)
 			{
 				ft_printf("Error\n");
