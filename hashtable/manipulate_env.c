@@ -14,40 +14,38 @@
 #include "../headers/structs.h"
 #include "../libft/libft.h"
 
-/**
- * Manipulates env in the hashtable
-*
-*/
-
 extern char	**environ;
 
-t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table, t_minishell *minishell)
+t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
+								t_minishell *minishell)
 {
 	unsigned int	hashkey;
 
 	if (!key || !h_table || !minishell)
 	{
-		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+		return (set_exit_status(minishell, 1));
 	}
-	hashkey = hash(key, "", h_table->size); //no need for val here, hashcode being calculated without it
+	hashkey = hash(key, "", h_table->size);
 	while (h_table->entries[hashkey] != NULL)
 	{
 		if (ft_strncmp(key, h_table->entries[hashkey]->key,
 				ft_strlen(key)) == 0)
 		{
 			free_key_value(h_table->entries[hashkey]);
-			return (set_exit_status(minishell, 0)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+			return (set_exit_status(minishell, 0));
 		}
 		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
 	}
-	return (set_exit_status(minishell, 0)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+	return (set_exit_status(minishell, 0));
 }
 
-t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table, t_bool is_exported)
+t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,
+								t_bool is_exported)
 {
 	t_bool			insert_succeeded;
 
-	if (!key || !val  || !h_table)
+	insert_succeeded = false;
+	if (!key || !h_table)
 	{
 		return (false);
 	}
@@ -105,11 +103,10 @@ char	**get_envp(t_hash_table *h_table)
 		{
 			while (curr != NULL)
 			{
-				current_env = (char *)malloc((ft_strlen(curr->key) + ft_strlen(curr->val) + 2) * sizeof(char));
+				current_env = (char *)malloc((ft_strlen(curr->key)
+							+ ft_strlen(curr->val) + 2) * sizeof(char));
 				if (!current_env)
-				{
-					return (NULL);
-				}
+					exit(1);
 				current_env = ft_strjoin(curr->key, "=");
 				current_env = ft_strjoin(current_env, curr->val);
 				envp[env_i] = current_env;

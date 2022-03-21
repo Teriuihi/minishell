@@ -29,7 +29,7 @@ void	copy_pid(const int *cur_pid, int *old_pid)
 	old_pid[1] = cur_pid[1];
 }
 
-t_cmd_data	*init_cmd()
+t_cmd_data	*init_cmd(void)
 {
 	t_cmd_data *cmd_data;
 
@@ -74,7 +74,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	old_pid[1] = -1;
 	while (entry)
 	{
-		cmd_data = (t_cmd_data *)entry->content;
+		cmd_data = (t_cmd_data *)entry->content; //if this is null?
 		if (cur_pid[0])
 		{
 			copy_pid(cur_pid, old_pid);
@@ -84,7 +84,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 			pipe(cur_pid); //now this gets two new fds
 		}
 		exec_command(cmd_data, old_pid, cur_pid,
-			is_builtin(cmd_data), minishell);
+			is_builtin(cmd_data->command), minishell);
 		entry = entry->next;
 	}
 }
@@ -108,16 +108,14 @@ t_bool	should_use(char *input)
 	return ((*input) != '\0');
 }
 
-
+//static int interrupted = false;
 static int interruptible_getc(void)
 {	
 	int		r;
 	char	c;
 
 	if (g_signal.interrupted == true)
-	{
 		return EOF;
-	}
 	r = read(0, &c, 1); // read from stdin, will return -1 when interrupted by a signal
 	if (r == -1 && errno == EINTR) //then this is sigint (crtl c here)
 	{
@@ -128,51 +126,6 @@ static int interruptible_getc(void)
 	}
 	return (r == 1 ? c : EOF); //if we use signals this we always return EOF
 }
-
-#include <dirent.h>
-
-void    search_folder(char *command)
-{
-    int             entries;
-    char            *tmp;
-    char            *buf;
-
-    struct dirent   *file;
-    DIR             *directory;
-    char            **split_path;
-    struct stat     sb;
-
-    entries = 0;
-    directory = NULL;
-	tmp = NULL;
-    tmp = getcwd(tmp, 1000);
-    if (tmp == NULL)
-    {
-        ft_printf("couldnt use getcwd\n");
-    }
-    directory = opendir(tmp);
-    while ((file = readdir(directory)))
-    {
-        if (file->d_name[0] == '.')
-            continue ;
-        entries++;
-        char buffer[1024];
-        tmp = ft_strjoin(ft_strjoin(tmp, "/."), file->d_name);
-        ft_printf("%s is joined path\n", tmp);
-        if (stat(command, &sb) == -1)
-        {
-            ft_printf("STAT IS ERROR\n");
-        }
-        ft_printf("%d is entries\n", entries);
-        if (S_ISDIR(sb.st_mode))
-            ft_printf("DIR\n");
-        else
-            ft_printf("FILE\n");
-        ft_printf("%20s is filename\n", file->d_name);
-    }
-}
-
-
 
 /**
  * Starts (minishell) program loop,
@@ -189,10 +142,8 @@ void	start_program_loop(t_minishell *minishell)
 	rl_getc_function = interruptible_getc;
 	input = "hi";
 	args = NULL;
-	search_folder(NULL);
 	while (input && g_signal.sigint != 1 && g_signal.veof != 1)
 	{
-		
 		input = readline("some shell>");
 		signal_check(input);
 		if (should_use(input) == true)
@@ -212,6 +163,10 @@ void	start_program_loop(t_minishell *minishell)
 			free_char_arr(args);
 		}
 	}
+	//if (g_signal.veof != 1) //not sure about this yet
+	//{
+	//	ft_printf("\n");
+	//}
 	if (input != NULL)
 	{
 		free(input);

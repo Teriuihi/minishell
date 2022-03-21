@@ -27,10 +27,10 @@ t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
 	t_list	*new;
 	char	*entry;
 
-	new = ft_lstnew(cmd_data); //????? new->content = cmd_data
+	new = ft_lstnew(cmd_data);
 	if (new == NULL)
 	{
-		free(cmd_data->command->command); //??
+		free(cmd_data->command->command);
 		entry = *cmd_data->command->args;
 		while (*entry)
 		{
@@ -42,7 +42,7 @@ t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
 		free(cmd_data);
 		return (err_ptr_return("Not enough memory.", NULL));
 	}
-	ft_lstadd_back(head, new); //actually the head will not be a simple list but a cmd_data
+	ft_lstadd_back(head, new);
 	return (cmd_data);
 }
 
@@ -96,7 +96,7 @@ t_cmd_data	*create_command_data(char **args, int len)
 	cmd_data->command = ft_calloc(1, sizeof(t_command));
 	if (!cmd_data)
 		return (err_ptr_return("Not enough memory.", NULL));
-	cmd_data->command->command = ft_strdup(*args);; //cant write here?
+	cmd_data->command->command = ft_strdup(*args);
 	command = (cmd_data->command);
 	if (!command->command)
 	{
@@ -114,8 +114,6 @@ t_cmd_data	*create_command_data(char **args, int len)
 	{
 		return (NULL);
 	}
-	//print_splitted(cmd_data->command->args);
-	//ft_printf("ARE TO NEWLY STORED ARGS\n");
 	command->args_len = len;
 	return (cmd_data);
 }
@@ -198,15 +196,15 @@ t_bool	output_file_command(t_list **head, char **args, int *start_pos,
 	int			args_after;
 
 	pipe_type = command_separator_type(args[*start_pos]);
-	if (pipe_type) //command format is [>/>>] file cmd args
+	if (pipe_type)
 	{
 		*len = len_till_seperator(args + (*start_pos) + 2);
 		cmd_data = create_cmd_from_args(head, args + (*start_pos) + 2, *len);
 		if (!cmd_data)
 			return (false);
 		cmd_data->output.type = pipe_type;
-		cmd_data->output.file = ft_strdup(args[*start_pos + 1]); //TODO free created cmd_data and return false
-		set_input(head, cmd_data); // TODO free output.file and cmd_data and return false
+		cmd_data->output.file = ft_strdup(args[*start_pos + 1]);
+		set_input(head, cmd_data);
 		*start_pos += 2 + *len + 1;
 		*len = 0;
 		return (true);

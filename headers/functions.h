@@ -30,7 +30,7 @@ t_pipe_type		command_separator_type(char *str);
 void			crtld_handler(int signum);
 void			sigquit_handler(int signum);
 void			sigint_handler(int signum);
-void	        init_signal(void); //should this be global?
+void			init_signal(void);
 void			print_splitted(char **args);
 void			err_exit(char *err, int status);
 int				err_int_return(char *err, int status);
@@ -40,15 +40,11 @@ void			free_char_arr(char **args);
 void			start_program_loop(t_minishell *minishell);
 size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 void			free_splitted(char **splitted);
-t_bool          ft_remove_exported_var(char *key, t_hash_table *h_table, t_minishell *minishell);
-void	        signal_check(char *input);
-t_bool          set_exit_status(t_minishell *minishell, int status);
+t_bool			ft_remove_exported_var(char *key, t_hash_table *h_table,
+					t_minishell *minishell);
+void			signal_check(char *input);
+t_bool			set_exit_status(t_minishell *minishell, int status);
+void			check_status(void);
+void			search_folder(char *command);
 
-/*
-//signals
-void	sigquit_handler(int signum);
-void	sigint_handler(int signum);
-void	crtld_handler(int signum);
-t_signal	*init_signal(void);
-*/
 #endif

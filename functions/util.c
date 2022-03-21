@@ -55,7 +55,8 @@ int	err_int_return(char *err, int status)
 	return (status);
 }
 
-void	*err_ptr_return(char *err, void *ptr) {
+void	*err_ptr_return(char *err, void *ptr)
+{
 	ft_putstr_fd(err, STDERR_FILENO);
 	ft_putstr_fd("\n", STDERR_FILENO);
 	return (ptr);

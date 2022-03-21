@@ -15,6 +15,7 @@
 #include "../buildins/buildins.h"
 #include "../headers/minishell.h"
 #include "../headers/functions.h"
+
 /**
  * Takes an array of arrays (user input)
  * Selects the function to execute based on the first argument (args[0])
@@ -40,24 +41,22 @@ static int	split_len(char **splitted)
 
 static t_bool	export_found(t_command *command, t_minishell *minishell)
 {
-	char	**splitted_export;
+	char	**splitted;
 	int		i;
 
 	i = 0;
 	while (command->args[i])
 	{
-		if (ft_streq(command->args[i], "export")) //the next one should be the expression
+		if (ft_streq(command->args[i], "export"))
 		{
-
-			//check later for error/edge cases? ls | cat | export    ->missing second part?
-			splitted_export = ft_split(command->args[i + 1], '='); //what about more = eg: hello=there=johhny?
-			if (split_len(splitted_export) < 2) //if its not min 2
+			splitted = ft_split(command->args[i + 1], '=');
+			if (split_len(splitted) < 2)
 			{
-				free_splitted(splitted_export); //should free both not just ** itself
+				free_splitted(splitted);
 				return (false);
 			}
-			ft_set_env(splitted_export[0], splitted_export[1], minishell->env, true); //check if set fails for some reason?
-			free_splitted(splitted_export); //also incorrect, should create a free split functio
+			ft_set_env(splitted[0], splitted[1], minishell->env, true);
+			free_splitted(splitted);
 			return (true);
 		}
 		i++;
@@ -65,10 +64,8 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 	return (false);
 }
 
-//for now we take it for granted that at this point we might have a correct input, but we have to find another way to check it
-static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant we just assign a flag to the global struct which says, hey we have an equal sign found in is_built_in
+static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 {	
-	//command "export myvar=hello"
 	char	**splitted;
 
 	if (!command || !minishell)
@@ -81,20 +78,20 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 		minishell->exit_status = 0;
 		return (true);
 	}
-	splitted = ft_split(command->command, '='); //what about more = eg: hello=there=johhny?
-	if (split_len(splitted) != 2) //should be only 2
+	splitted = ft_split(command->command, '=');
+	if (split_len(splitted) != 2)
 	{
 		free_splitted(splitted);
 		minishell->exit_status = 2;
 		return (false);
 	}
-	if (ft_set_env(splitted[0], splitted[1], minishell->current_env, false) == false) //check if set fails for some reason?
+	if (ft_set_env(splitted[0], splitted[1], minishell->env, false) == false)
 	{
 		minishell->exit_status = 1;
 		return (false);
 	}
 	else
-	{;
+	{
 		minishell->exit_status = 0;
 		return (true);
 	}
@@ -111,52 +108,34 @@ t_bool	ft_env(t_hash_table *h_table, t_minishell *minishell)
 		return (set_exit_status(minishell, 0));
 	}
 }
-//command not found : 127 exit status
-t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell) //cd and unset, env ?, we do not need to call a child process for these?
-{	//cd, export, unset
-	char	*cur_dir;
-	t_bool	did_execution_succeed;
 
-	did_execution_succeed = false;
-	if (!command->command || !minishell)
-	{
-		return (did_execution_succeed);
-	}
+t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
+{
+	char	*cur_dir;
+	
 	cur_dir = get_pwd(minishell);
-	if (!cur_dir)
-	{
-		return (set_exit_status(minishell, 1));
-	}
-	else if (env_var_added(command, minishell) == true) //export? but also a=b should be here
-	{
+	if (!command->command || !minishell || !cur_dir)
+		exit(1);
+	else if (env_var_added(command, minishell) == true)
 		return (true);
-	}
-	else if (ft_streq(command->command, "cd")) //what happens if cd | cat ?
-	{
+	else if (ft_streq(command->command, "cd"))
 		return (cd(command, minishell));
-	}
 	else if (ft_streq(command->command, "env"))
-	{
 		return (ft_env(minishell->env, minishell));
-	}
-	else if (ft_streq(command->command, "unset")) //unset returns always 0? even if its not in env?, it should return true if succeeded, even if there was no var named x will return 0 and true
-	{
-		return (ft_remove_exported_var(command->args[1], minishell->env, minishell));
-	}
-	//everything that modifies env variable should be non forked
-	return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+	else if (ft_streq(command->command, "unset"))
+		return (ft_remove_exported_var(command->args[1], minishell->env,
+				minishell));
+	return (set_exit_status(minishell, 1));
 }
 
-//unset | 
-//cd | pwd
 t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
 {
 	ft_putstr_fd(cur_dir, 1);
 	ft_putstr_fd("\n", 1);
-	return (set_exit_status(minishell, 0)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+	return (set_exit_status(minishell, 0));
 }
 
-t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->args + 1 == myvar=stmh
+t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 {
 	char		*cur_dir;
 	t_bool		did_execution_succeed;
@@ -164,25 +143,17 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->ar
 	did_execution_succeed = false;
 	if (!command->command || !minishell)
 	{
-		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
+		return (set_exit_status(minishell, 1));
 	}
 	cur_dir = get_pwd(minishell);
 	if (!cur_dir)
-	{
-		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
-	}
-	//if (env_var_added(command, minishell) == true)
-	//	return (true);
-	if (ft_streq(command->command, "echo")) //echo nemtommi > file.txt so it should be forked
-	{
+		return (set_exit_status(minishell, 1));
+	if (env_var_added(command, minishell) == true)
+		return (true);
+	if (ft_streq(command->command, "echo"))
 		return (ft_echo(command, 1, minishell));
-	}
-	else if (ft_streq(command->command, "pwd")) //pwd > teso.txt so it should be forked
-	{
+	else if (ft_streq(command->command, "pwd"))
 		return (ft_pwd(cur_dir, minishell));
-	}
-	else //its not found probably, and its a builtin, prob should we treat it unlike executables from dev/
-	{
-		return (set_exit_status(minishell, 1)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
-	}
+	else
+		return (set_exit_status(minishell, 1));
 }
