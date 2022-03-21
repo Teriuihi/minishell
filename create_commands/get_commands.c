@@ -8,17 +8,42 @@
 /*   Created: 2022/02/09 19:14:49 by sappunn       #+#    #+#                 */
 /*   Updated: 2022/02/09 19:14:49 by sappunn       ########   odam.nl         */
 /*                                                                            */
-/* ************************************************************************** */
-
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include "../headers/arguments.h"
 
+/**
+ * Get the entry i positions ahead of the current one
+ *
+ * @param	entry	t_list entry to start from
+ * @param	i		Amount of positions to move forward
+ *
+ * @return	The t_list entry at the given position from the given start
+ */
 t_list	*get_arg_at_pos(t_list *entry, int i)
 {
 	while (entry && --i)
 		entry = entry->next;
 	return (entry);
+}
+
+/**
+ * Safely get pipe type from argument
+ *
+ * @param	arg	arg to get pipe type from
+ *
+ * @return	pipe_type of arg or NONE if arg is literal
+ */
+t_pipe_type	pipe_type_from_arg(t_arg *arg)
+{
+	t_pipe_type	pipe_type;
+
+	if (arg->literal)
+		return (NONE);
+	pipe_type = command_separator_type(arg->arg->s);
+	if (pipe_type == NONE)
+		return (NONE);
+	return (pipe_type);
 }
 
 /**
@@ -54,6 +79,15 @@ t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
 	return (cmd_data);
 }
 
+/**
+ * Stores the first len arguments from char args in the command
+ *
+ * @param	args	Args to store
+ * @param	len		Amount of arguments to store
+ * @param	command	The command to store them in
+ *
+ * @return	True on success false on failure
+ */
 t_bool	store_args(char **args, int len, t_command *command)
 {
 	int		i;
@@ -119,11 +153,7 @@ t_cmd_data	*create_command_data(char **args, int len)
 		return (err_ptr_return("Not enough memory.", NULL));
 	}
 	if (store_args(args, len, command) == false)
-	{
 		return (NULL);
-	}
-	//print_splitted(cmd_data->command->args);
-	//ft_printf("ARE TO NEWLY STORED ARGS\n");
 	command->args_len = len;
 	return (cmd_data);
 }
@@ -148,6 +178,15 @@ t_cmd_data	*create_new_cmd(t_list **head, char *arg)
 	return (store_command(cmd_data, head));
 }
 
+/**
+ * Append len given arguments to given command
+ *
+ * @param	cmd		Command to append arguments to
+ * @param	entry	Entry to start adding from
+ * @param	len		Amount of entries to add
+ *
+ * @return	true on success false on failure
+ */
 t_bool	append_arguments_to_command(t_command *cmd, t_list *entry, int len)
 {
 	char	**new_args;
@@ -192,6 +231,13 @@ t_bool	set_input(t_list **head, t_cmd_data *cmd_data)
 	return (true);
 }
 
+/**
+ * Get the string from a t_list entry which contains a t_arg
+ *
+ * @param	entry	Entry to get string from
+ *
+ * @return	String from entry
+ */
 char *str_from_arg(t_list *entry)
 {
 	t_arg	*arg;
@@ -228,7 +274,7 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 	*cmd_len = 0;
 	while (entry != NULL)
 	{
-		pipe_type = command_separator_type(str_from_arg(entry));
+		pipe_type = pipe_type_from_arg(entry->content);
 		if (pipe_type == NONE)
 			return (true);
 		if (pipe_type == OUTPUT_TO_COMMAND)
@@ -294,18 +340,6 @@ t_bool	output_pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_ty
 		return (pipe_command(head, args, cmd_len, pipe_type));
 }
 
-t_pipe_type	loop_arg(t_arg *arg)
-{
-	t_pipe_type	pipe_type;
-
-	if (arg->literal)
-		return (NONE);
-	pipe_type = command_separator_type(arg->arg->s);
-	if (pipe_type == NONE)
-		return (NONE);
-	return (pipe_type);
-}
-
 t_list	*get_command_start(t_list *cur, int cmd_len)
 {
 	while (cmd_len--)
@@ -333,13 +367,11 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
 	cur = *args;
 	while (cur)
 	{
-		pipe_type = loop_arg(cur->content); //TODO rename
-		//ft_printf("%d is pipetype atm in the loop\n", pipe_type);
+		pipe_type = pipe_type_from_arg(cur->content);
 		if (pipe_type == DELIMITER_INPUT
 			|| pipe_type == REDIRECT_INPUT)
 			{
 				cur = get_command_start(cur, cmd_len);
-				//ft_printf("%d is len in find commands in args first if statement \n", len);
 				success = pipe_command(head, &cur, &cmd_len, pipe_type);
 			}
 		else if (pipe_type)
@@ -374,7 +406,7 @@ t_list	**find_commands(t_list **args) //TODO REMINDER IF COMMAND IS NULL YOU MIG
 
 	if (args == NULL)
 		return (NULL);
-	head = ft_calloc(1, sizeof(t_list *)); //?
+	head = ft_calloc(1, sizeof(t_list *));
 	if (!head)
 		return (NULL);
 	if (find_commands_in_args(head, args) == false)
