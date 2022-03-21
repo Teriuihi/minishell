@@ -1,29 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   args.c                                             :+:    :+:            */
+/*   internal_parser.h                                  :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/01/26 14:36:43 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/01/26 14:36:43 by sappunn       ########   odam.nl         */
+/*   Created: 2022/02/28 18:23:43 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/02/28 18:23:43 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
-#include "../headers/structs.h"
+#ifndef INTERNAL_PARSER_H
+# define INTERNAL_PARSER_H
+# include "../string/string.h"
 
-/**
- * Converts a user input string to arguments
- *
- * @param	input	User input
- *
- * @return	Malloced string array
- */
+t_string	*append_content(char *input, int start, int pos, t_string *arg);
+t_bool		add_to_list(t_list **head, t_string *string, t_bool literal);
+void		free_t_arg(void *ptr);
 
-char	**get_args(char *input)
-{
-	if (input == NULL)
-		return (NULL);
-	return (ft_split(input, ' '));
-}
+#endif

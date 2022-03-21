@@ -1,29 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   args.c                                             :+:    :+:            */
+/*   parser.h                                           :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/01/26 14:36:43 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/01/26 14:36:43 by sappunn       ########   odam.nl         */
+/*   Created: 2022/03/04 20:24:34 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/03/04 20:24:34 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
-#include "../headers/structs.h"
+#ifndef PARSER_H
+# define PARSER_H
+# include "../libft/libft.h"
 
-/**
- * Converts a user input string to arguments
- *
- * @param	input	User input
- *
- * @return	Malloced string array
- */
+t_list	**parse(char *input);
 
-char	**get_args(char *input)
-{
-	if (input == NULL)
-		return (NULL);
-	return (ft_split(input, ' '));
-}
+#endif

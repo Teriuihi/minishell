@@ -1,29 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   args.c                                             :+:    :+:            */
+/*   arguments.h                                        :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/01/26 14:36:43 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/01/26 14:36:43 by sappunn       ########   odam.nl         */
+/*   Created: 2022/02/28 17:29:14 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/02/28 17:29:14 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
-#include "../headers/structs.h"
+#ifndef ARGUMENTS_H
+# define ARGUMENTS_H
+# include "bool.h"
+# include "../string/string.h"
 
-/**
- * Converts a user input string to arguments
- *
- * @param	input	User input
- *
- * @return	Malloced string array
- */
-
-char	**get_args(char *input)
+typedef struct s_arg
 {
-	if (input == NULL)
-		return (NULL);
-	return (ft_split(input, ' '));
-}
+	t_string	*arg;
+	t_bool		literal;
+}	t_arg;
+
+#endif

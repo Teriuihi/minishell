@@ -19,7 +19,7 @@
 # include "../libft/libft.h"
 # include "minishell.h"
 
-t_list			**find_commands(char **args);
+t_list			**find_commands(t_list **args);
 char			*search_in_path(char *command);
 size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 void			crtld_handler(int signum);

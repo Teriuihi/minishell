@@ -16,7 +16,9 @@
 #include "run_commands.h"
 #include "../create_commands/create_commands.h"
 #include "../buildins/buildins.h"
+#include "../parser/parser.h"
 #include <errno.h>
+
 /**
  * Copies cur_pid to old_pid
  *
@@ -31,7 +33,7 @@ void	copy_pid(const int *cur_pid, int *old_pid)
 
 t_cmd_data	*init_cmd(void)
 {
-	t_cmd_data *cmd_data;
+	t_cmd_data	*cmd_data;
 
 	//cmd_data->command->command needs malloc?
 	//cmd_data->command->args needs malloc?
@@ -136,31 +138,33 @@ static int interruptible_getc(void)
 void	start_program_loop(t_minishell *minishell)
 {
 	char		*input;
-	char		**args;
 	t_list		**head;
+	t_list		**parse_results;
 
 	rl_getc_function = interruptible_getc;
-	input = "hi";
-	args = NULL;
+	input = "";
 	while (input && g_signal.sigint != 1 && g_signal.veof != 1)
 	{
 		input = readline("some shell>");
+		//print_splitted(get_envp(minishell->env));
 		signal_check(input);
-		if (should_use(input) == true)
+		if (should_use(input))
 		{
 			add_history(input);
-			args = get_args(input); //TODO free
-			free(input);
-			input = NULL;
-			head = find_commands(args); //TODO free
-			if (head == NULL) //lets say that this is inside a child process, cant just exit the entire programme
+			parse_results = parse(input); //TODO free
+			if (parse_results == NULL)
+			{
+				ft_printf("Error\n");
+				exit(0);
+			}
+			head = find_commands(parse_results); //TODO free
+			if (head == NULL)
 			{
 				signal_check(NULL);
 				return ;
 			}
 			run_commands(head, minishell);
 			free_commands(head);
-			free_char_arr(args);
 		}
 	}
 	//if (g_signal.veof != 1) //not sure about this yet
@@ -178,9 +182,6 @@ void	start_program_loop(t_minishell *minishell)
 	//{
 	//	ft_printf("\n");
 	//}
-
-
-
 /*
 if (g_signal.sigint != 1)
 {
