@@ -13,7 +13,6 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include "../headers/arguments.h"
-#include "../string/string.h"
 
 t_list	*get_arg_at_pos(t_list *entry, int i)
 {
@@ -130,44 +129,6 @@ t_cmd_data	*create_command_data(char **args, int len)
 }
 
 /**
- * Loop through args until the end is reached or a command separator is found
- *
- * @param	args	Arguments to loop through
- *
- * @return	Amount of arguments until separator is found
- */
-int	len_till_seperator(char **args)
-{
-	int	i;
-
-	i = 0;
-	while (args[i] && !command_separator_type(args[i]))
-		i++;
-	return (i);
-}
-
-/**
- * Create a command from a list of arguments, length, and a pipe type
- *
- * @param	head		List containing all commands
- * @param	args		Arguments to create command from
- * @param	len			Amount of arguments to add to command
- * @param	pipe_type	Pipe type that command pipes to
- *
- * @return	True if command was created successfully
- */
-t_cmd_data	*create_cmd_from_args(t_list **head, char **args, int len)
-{
-	t_cmd_data	*cmd_data;
-
-	cmd_data = create_command_data(args, len);
-	//UNTIL HERE ALL GOOD
-	if (!cmd_data)
-		return (NULL);
-	return (store_command(cmd_data, head));
-}
-
-/**
  * Create a command from a list of arguments, length, and a pipe type
  *
  * @param	head		List containing all commands
@@ -231,60 +192,12 @@ t_bool	set_input(t_list **head, t_cmd_data *cmd_data)
 	return (true);
 }
 
-/**
- * Should be called when > or >> separator type is found
- * 	creates two commands, one to write/append to file and
- * 	one command that can be anything depending on what the user specified
- *
- * @param	head		List containing all commands
- * @param	args		All arguments given by user
- * @param	start_pos	Start pos of current command
- * @param	len			Length of current command
- *
- * @return	True if commands were created successfully
- */
-t_bool	output_file_command(t_list **head, char **args, int *start_pos,
-	int *len)
+char *str_from_arg(t_list *entry)
 {
-	t_pipe_type	pipe_type;
-	char		**new_args;
-	t_cmd_data	*cmd_data;
-	int			args_after;
+	t_arg	*arg;
 
-	pipe_type = command_separator_type(args[*start_pos]);
-	if (pipe_type) //command format is [>/>>] file cmd args
-	{
-		*len = len_till_seperator(args + (*start_pos) + 1);
-		cmd_data = create_cmd_from_args(head, args + (*start_pos) + 2, *len);
-		if (!cmd_data)
-			return (false);
-		cmd_data->output.type = pipe_type;
-		cmd_data->output.file = ft_strdup(args[*start_pos + 1]); //TODO free created cmd_data and return false
-		set_input(head, cmd_data); // TODO free output.file and cmd_data and return false
-		*start_pos += 1 + *len + 1;
-		*len = 0;
-		return (true);
-	}
-	else //command format is cmd args [>/>>] file [args]
-	{
-		args_after = len_till_seperator(args + (*start_pos) + (*len) + 1);
-		new_args = ft_calloc(args_after + (*len), sizeof(char *));
-		if (!new_args)
-			return (false);
-		ft_memcpy(new_args, args + (*start_pos), (*len) * sizeof(char *));
-		ft_memcpy(new_args + (*len), args + (*start_pos) + (*len)
-			+ 2, args_after * sizeof(char *));
-		cmd_data = create_cmd_from_args(head, new_args, args_after);
-		free(new_args);
-		if (cmd_data == NULL)
-			return (false);
-		cmd_data->output.type = command_separator_type(args[*start_pos + *len]);
-		cmd_data->output.file = ft_strdup(args[*start_pos + *len + 1]); //TODO free created cmd_data and return false
-		set_input(head, cmd_data); // TODO free output.file and cmd_data and return false
-		*start_pos += (*len) + args_after + 1;
-		*len = 0;
-		return (true);
-	}
+	arg = entry->content;
+	return (arg->arg->s);
 }
 
 /**
@@ -299,81 +212,56 @@ t_bool	output_file_command(t_list **head, char **args, int *start_pos,
  *
  * @return	non zero on error, 0 on success
  */
-t_bool	input_pipe_command(t_list **head, t_list **args, int *cmd_len)
+t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe_type)
 {
-	t_pipe_type	pipe_type;
 	t_cmd_data	*cmd_data;
 	t_list		*entry;
-	int			pos;
 
 	entry = *args;
 	cmd_data = create_new_cmd(head, ((t_arg *)entry->content)->arg->s);
 	if (cmd_data == NULL)
 		return (false);
-	if (append_arguments_to_command(cmd_data->command, entry->next, *cmd_len) == false)
+	if (append_arguments_to_command(cmd_data->command, entry->next, (*cmd_len - 1)) == false)
 		return (false);
-	pos = 0;
-	while (pos++ != *cmd_len)
-		entry = entry->next;
-	pipe_type = command_separator_type(((t_arg *)entry->content)->arg->s);
-	if (pipe_type == DELIMITER_INPUT || pipe_type == REDIRECT_INPUT)
-		cmd_data->input.type = command_separator_type(((t_arg *)entry->content)->arg->s);
-	else
-		cmd_data->output.type = command_separator_type(((t_arg *)entry->content)->arg->s);
-	(*cmd_len)++;
-	entry = entry->next;
-	if (pipe_type == DELIMITER_INPUT || pipe_type == REDIRECT_INPUT)
+	//Do the above only once
+	entry = get_arg_at_pos(entry, (*cmd_len) + 1);
+	*cmd_len = 0;
+	while (entry != NULL)
 	{
-		cmd_data->input.file = ft_strdup(((t_arg *) entry->content)->arg->s);
-		if (cmd_data->input.file == NULL)
-			return (false);
-	}
-	else
-	{
-		cmd_data->output.file = ft_strdup(((t_arg *) entry->content)->arg->s);
-		if (cmd_data->output.file == NULL)
-			return (false);
-	}
-	(*cmd_len)++;
-	entry = entry->next;
-	pipe_type = command_separator_type(((t_arg *)entry->content)->arg->s);
-	back: //TODO REMOVE GOTO
-	while (entry != NULL && !pipe_type)
-	{
-		entry = entry->next;
-		pipe_type = command_separator_type(((t_arg *)entry->content)->arg->s);
-	}
-	cmd_data->output.type = pipe_type;
-	if (pipe_type == OUTPUT_TO_COMMAND)
-	{
-		(*cmd_len)++;
-		return (true);
-	}
-	while (pipe_type == REDIRECT_INPUT || pipe_type == DELIMITER_INPUT)
-	{
-		(*cmd_len) += 2;
-		entry = entry->next;
-		cmd_data->output.file = ft_strdup(((t_arg *)entry->content)->arg->s);
+		pipe_type = command_separator_type(str_from_arg(entry));
+		if (pipe_type == NONE)
+			return (true);
+		if (pipe_type == OUTPUT_TO_COMMAND)
+		{
+			entry = entry->next;
+			*args = entry;
+			return (true);
+		}
 		entry = entry->next;
 		if (entry == NULL)
-			break ;
-		pipe_type = command_separator_type(((t_arg *)entry->content)->arg->s);
-		goto back; //TODO REMOVE GOTO
-	}
-	while (pipe_type == REDIRECT_OUTPUT || pipe_type == APPEND_OUTPUT)
-	{
-		(*cmd_len) += 2;
+			return (false);
+		if (pipe_type == DELIMITER_INPUT || pipe_type == REDIRECT_INPUT)
+		{
+			cmd_data->input.type = pipe_type;
+			if (cmd_data->input.file)
+				free(cmd_data->input.file);
+			cmd_data->input.file = ft_strdup(str_from_arg(entry));
+		}
+		else if (pipe_type == APPEND_OUTPUT || pipe_type == REDIRECT_OUTPUT)
+		{
+			cmd_data->output.type = pipe_type;
+			if (cmd_data->output.file)
+				free(cmd_data->output.file);
+			cmd_data->output.file = ft_strdup(str_from_arg(entry));
+		}
 		entry = entry->next;
-		cmd_data->output.file = ft_strdup(((t_arg *)entry->content)->arg->s);
-		entry = entry->next;
-		if (entry == NULL)
-			break ;
-		pipe_type = command_separator_type(((t_arg *)entry->content)->arg->s);
 	}
+	*args = entry;
+	return (true);
 }
 
 /**
- * Handles command creation for all pipe_type's not handled by input_pipe_command
+ * Handles command creation for all pipe_type's not handled by pipe_command
  *
  * @param	t_list		All data related to commands
  * @param	args		All arguments
@@ -383,14 +271,12 @@ t_bool	input_pipe_command(t_list **head, t_list **args, int *cmd_len)
  *
  * @return	non zero on error, 0 on success
  */
-t_bool	output_pipe_command(t_list **head, t_list **args, int *cmd_len)
+t_bool	output_pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe_type)
 {
-	t_pipe_type	pipe_type;
 	t_cmd_data	*cmd_data;
 	t_list		*entry;
 
 	entry = get_arg_at_pos(*args, *cmd_len);
-	pipe_type = command_separator_type(((t_arg *) entry->content)->arg->s);
 	if (pipe_type == NONE || pipe_type == OUTPUT_TO_COMMAND)
 	{
 		cmd_data = create_new_cmd(head, ((t_arg *) (*args)->content)->arg->s);
@@ -401,55 +287,11 @@ t_bool	output_pipe_command(t_list **head, t_list **args, int *cmd_len)
 				return (false);
 		cmd_data->output.type = pipe_type;
 		set_input(head, cmd_data); // TODO free cmd_data and return false
+		*args = entry->next;
 		return (true);
 	}
 	else
-		return (input_pipe_command(head, args, cmd_len));
-}
-
-/**
- * Set the output based on args (should start at end of prev command)
- *
- * @param	output	output to set
- * @param	args	arguments starting at end of last command
- *
- * @return	Amount of args to skip to get to next command
- * 			or -1 on error
- */
-int	set_output(t_redirect *output, char **args) {//TODO use t_bool
-	int			i;
-	t_pipe_type	pipe_type;
-
-	i = 0;
-	while (args[i])
-	{
-		pipe_type = command_separator_type(args[i]);
-		if (pipe_type == REDIRECT_OUTPUT || pipe_type == APPEND_OUTPUT)
-		{
-			ft_printf("CREATE FILE with next args %s\n", args[i + 1]);
-			i += 2;
-			if (args[i] && command_separator_type(args[i]))
-				continue ;
-			output->type = pipe_type;
-			output->file = ft_strdup(args[i - 1]);// TODO return false
-			ft_printf("OUTPUT FILE of %s is %s\n", output->file, args[i + 1]);
-			if (!output->file)
-				return (-1);
-			return (i);
-		}
-		else if (pipe_type == REDIRECT_INPUT || pipe_type == DELIMITER_INPUT)
-		{
-			output->type = NONE;
-			return (i);
-		}
-		else
-		{
-			output->type = pipe_type;
-			return (i + 1);
-		}
-	}
-	output->type = pipe_type;
-	return (i);
+		return (pipe_command(head, args, cmd_len, pipe_type));
 }
 
 t_pipe_type	loop_arg(t_arg *arg)
@@ -462,6 +304,13 @@ t_pipe_type	loop_arg(t_arg *arg)
 	if (pipe_type == NONE)
 		return (NONE);
 	return (pipe_type);
+}
+
+t_list	*get_command_start(t_list *cur, int cmd_len)
+{
+	while (cmd_len--)
+		cur = cur->prev;
+	return (cur);
 }
 
 /**
@@ -489,19 +338,25 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
 		if (pipe_type == DELIMITER_INPUT
 			|| pipe_type == REDIRECT_INPUT)
 			{
+				cur = get_command_start(cur, cmd_len);
 				//ft_printf("%d is len in find commands in args first if statement \n", len);
-				success = input_pipe_command(head, &cur, &cmd_len);
+				success = pipe_command(head, &cur, &cmd_len, pipe_type);
 			}
 		else if (pipe_type)
-			success = output_pipe_command(head, &cur, &cmd_len);
+		{
+			cur = get_command_start(cur, cmd_len);
+			success = output_pipe_command(head, &cur, &cmd_len, pipe_type);
+		}
 		else
 			cmd_len++;
 		if (success == false)
 			return (success);
+		if (!cur)
+			break;
 		cur = cur->next;
 	}
 	if (cmd_len != 0)
-		success = output_pipe_command(head, args, &cmd_len);
+		success = output_pipe_command(head, args, &cmd_len, pipe_type);
 	return (success);
 }
 

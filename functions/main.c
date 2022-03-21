@@ -66,25 +66,3 @@ int	main(void)
 	start_program_loop(&minishell);
 	return (0);
 }
-
-//#include "../parser/parser.h"
-//#include "../headers/arguments.h"
-//
-//int	main(void)
-//{
-//	t_list	**head;
-//	t_list	*entry;
-//	t_arg	*arg;
-//
-//	head = parse("echo \"My home is: $HOME and my PWD is: $PWD $PWD\" $PWDlol$HOME");
-////	head = parse("\"ABC\" \'T E S T\' \"D E F\" woot");
-//	if (head == NULL)
-//		return (-1);
-//	entry = *head;
-//	while (entry)
-//	{
-//		arg = entry->content;
-//		ft_printf("arg: %s literal: %i\n", arg->arg->s, arg->literal);
-//		entry = entry->next;
-//	}
-//}
