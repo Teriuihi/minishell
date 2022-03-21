@@ -8,6 +8,8 @@
 /*   Created: 2022/02/09 19:14:49 by sappunn       #+#    #+#                 */
 /*   Updated: 2022/02/09 19:14:49 by sappunn       ########   odam.nl         */
 /*                                                                            */
+/* ************************************************************************** */
+
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include "../headers/arguments.h"
@@ -138,9 +140,12 @@ t_cmd_data	*create_command_data(char **args, int len)
 	cmd_data->command = ft_calloc(1, sizeof(t_command));
 	if (!cmd_data->command)
 		return (err_ptr_return("Not enough memory.", NULL));
-	cmd_data->command->command = ft_strdup(*args);; //cant write here?
+	if (args == NULL)
+		cmd_data->command->command = NULL;
+	else
+		cmd_data->command->command = ft_strdup(*args);; //cant write here?
 	command = (cmd_data->command);
-	if (!command->command)
+	if (!command->command && args != NULL)
 	{
 		free(command);
 		return (err_ptr_return("Not enough memory.", NULL));
@@ -172,7 +177,10 @@ t_cmd_data	*create_new_cmd(t_list **head, char *arg)
 {
 	t_cmd_data	*cmd_data;
 
-	cmd_data = create_command_data(&arg, 1);
+	if (arg == NULL)
+		cmd_data = create_command_data(NULL, 0);
+	else
+		cmd_data = create_command_data(&arg, 1);
 	if (!cmd_data)
 		return (NULL);
 	return (store_command(cmd_data, head));
@@ -269,7 +277,6 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 		return (false);
 	if (append_arguments_to_command(cmd_data->command, entry->next, (*cmd_len - 1)) == false)
 		return (false);
-	//Do the above only once
 	entry = get_arg_at_pos(entry, (*cmd_len) + 1);
 	*cmd_len = 0;
 	while (entry != NULL)
@@ -325,7 +332,10 @@ t_bool	output_pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_ty
 	entry = get_arg_at_pos(*args, *cmd_len);
 	if (pipe_type == NONE || pipe_type == OUTPUT_TO_COMMAND)
 	{
-		cmd_data = create_new_cmd(head, ((t_arg *) (*args)->content)->arg->s);
+		if (*cmd_len == 0)
+			cmd_data = create_new_cmd(head, NULL);
+		else
+			cmd_data = create_new_cmd(head, ((t_arg *) (*args)->content)->arg->s);
 		if (!cmd_data)
 			return (false);
 		if (*cmd_len > 1)
@@ -399,8 +409,7 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
  *
  * @return	NULL on error, command data success
  */
-t_list	**find_commands(t_list **args) //TODO REMINDER IF COMMAND IS NULL YOU MIGHT NEED TO EXEC PIPE
-//TODO or command can be a < b mayb???
+t_list	**find_commands(t_list **args) //TODO if a command is NULL only do input/output then continue
 {
 	t_list	**head;
 
