@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   ft_destroy.c                                     :+:    :+:            */
+/*   ft_destroy.c                                       :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
@@ -23,12 +23,10 @@ void	free_key_value(t_entry *entry)
 	if (entry->key != NULL)
 	{
 		free(entry->key);
-		entry->key = NULL;
 	}
 	if (entry->val != NULL)
 	{
 		free(entry->val);
-		entry->val = NULL;
 	}
 }
 

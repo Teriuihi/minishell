@@ -10,24 +10,20 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "functions.h"
-#include "structs.h"
+#include "../headers/functions.h"
+#include "../headers/structs.h"
 #include "../libft/libft.h"
-
-/**
- * Manipulates env in the hashtable
-*
-*/
 
 extern char	**environ;
 
-void	ft_remove_exported_var(char *key, t_hash_table *h_table)
+t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
+								t_minishell *minishell)
 {
 	unsigned int	hashkey;
 
-	if (!key || !h_table)
+	if (!key || !h_table || !minishell)
 	{
-		return ;
+		return (set_exit_status(minishell, 1));
 	}
 	hashkey = hash(key, "", h_table->size);
 	while (h_table->entries[hashkey] != NULL)
@@ -36,25 +32,25 @@ void	ft_remove_exported_var(char *key, t_hash_table *h_table)
 				ft_strlen(key)) == 0)
 		{
 			free_key_value(h_table->entries[hashkey]);
-			return ;
+			return (set_exit_status(minishell, 0));
 		}
 		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
 	}
-	ft_printf("didnt find a var with this name\n");
+	return (set_exit_status(minishell, 0));
 }
 
-void	ft_set_env(char *key, char *val, t_hash_table *h_table)
+t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,
+								t_bool is_exported)
 {
 	t_bool			insert_succeeded;
 
-	if (!key || !val  || !h_table)
+	insert_succeeded = false;
+	if (!key || !h_table)
 	{
-		return ;
+		return (false);
 	}
-	insert_succeeded = succesful_insert(h_table, key, val);
-	//free(key);
-	
-	//free(val);
+	insert_succeeded = succesful_insert(h_table, key, val, is_exported);
+	return (insert_succeeded);
 }
 
 char	*ft_get_env_val(char *key, t_hash_table *h_table)
@@ -62,7 +58,6 @@ char	*ft_get_env_val(char *key, t_hash_table *h_table)
 	unsigned int	hashkey;
 	char			*env_val;
 
-	//if !key !table?
 	if (!key || !h_table)
 	{
 		return (NULL);
@@ -93,11 +88,12 @@ char	**get_envp(t_hash_table *h_table)
 	{
 		return (NULL);
 	}
-	envp = (char **)ft_calloc(h_table->size, sizeof(char *));
+	envp = (char **)ft_calloc(h_table->size + 1, sizeof(char *));
 	if (!envp)
 	{
 		return (NULL);
 	}
+	envp[h_table->size] = NULL;
 	i = 0;
 	env_i = 0;
 	while (i < h_table->size)
@@ -107,11 +103,10 @@ char	**get_envp(t_hash_table *h_table)
 		{
 			while (curr != NULL)
 			{
-				current_env = (char *)malloc((ft_strlen(curr->key) + ft_strlen(curr->val) + 2) * sizeof(char));
+				current_env = (char *)malloc((ft_strlen(curr->key)
+							+ ft_strlen(curr->val) + 2) * sizeof(char));
 				if (!current_env)
-				{
-					return (NULL);
-				}
+					exit(1);
 				current_env = ft_strjoin(curr->key, "=");
 				current_env = ft_strjoin(current_env, curr->val);
 				envp[env_i] = current_env;

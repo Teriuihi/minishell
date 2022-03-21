@@ -19,8 +19,10 @@
  * @return	0 if it's a command separator
  */
 
-#include "../headers/structs.h"
 #include <unistd.h>
+#include "../headers/structs.h"
+#include "../headers/minishell.h"
+#include "../headers/functions.h"
 
 t_pipe_type	command_separator_type(char *str)
 {
@@ -53,7 +55,8 @@ int	err_int_return(char *err, int status)
 	return (status);
 }
 
-void	*err_ptr_return(char *err, void *ptr) {
+void	*err_ptr_return(char *err, void *ptr)
+{
 	ft_putstr_fd(err, STDERR_FILENO);
 	ft_putstr_fd("\n", STDERR_FILENO);
 	return (ptr);
@@ -144,4 +147,18 @@ void	free_char_arr(char **args)
 		args++;
 	}
 	free(tmp);
+}
+
+
+t_bool	set_exit_status(t_minishell *minishell, int status)
+{
+	minishell->exit_status = status;
+	if (status == 0)
+	{
+		return (true);
+	}
+	else
+	{
+		return (false);
+	}
 }

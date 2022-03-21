@@ -13,6 +13,8 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include "../buildins/buildins.h"
+#include "../headers/minishell.h"
+#include "../headers/functions.h"
 
 /**
  * Takes an array of arrays (user input)
@@ -39,23 +41,22 @@ static int	split_len(char **splitted)
 
 static t_bool	export_found(t_command *command, t_minishell *minishell)
 {
-	char	**splitted_export;
+	char	**splitted;
 	int		i;
 
 	i = 0;
 	while (command->args[i])
 	{
-		if (ft_streq(command->args[i], "export")) //the next one should be the expression
+		if (ft_streq(command->args[i], "export"))
 		{
-			//check later for error/edge cases? ls | cat | export    ->missing second part?
-			splitted_export = ft_split(command->args[i + 1], '='); //what about more = eg: hello=there=johhny?
-			if (split_len(splitted_export) < 2) //if its not min 2
+			splitted = ft_split(command->args[i + 1], '=');
+			if (split_len(splitted) < 2)
 			{
-				free_splitted(splitted_export); //should free both not just ** itself
+				free_splitted(splitted);
 				return (false);
 			}
-			ft_set_env(splitted_export[0], splitted_export[1], minishell->env); //check if set fails for some reason?
-			free_splitted(splitted_export); //also incorrect, should create a free split functio
+			ft_set_env(splitted[0], splitted[1], minishell->env, true);
+			free_splitted(splitted);
 			return (true);
 		}
 		i++;
@@ -63,76 +64,96 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 	return (false);
 }
 
-//for now we take it for granted that at this point we might have a correct input, but we have to find another way to check it
-static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant we just assign a flag to the global struct which says, hey we have an equal sign found in is_built_in
+static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 {	
-	//command "export myvar=hello"
 	char	**splitted;
 
 	if (!command || !minishell)
 	{
+		minishell->exit_status = 2;
 		return (false);
 	}
 	if (export_found(command, minishell) == true)
-	{
+	{	
+		minishell->exit_status = 0;
 		return (true);
 	}
-	splitted = ft_split(command->command, '='); //what about more = eg: hello=there=johhny?
-	if (split_len(splitted) != 2) //should be only 2
+	splitted = ft_split(command->command, '=');
+	if (split_len(splitted) != 2)
 	{
 		free_splitted(splitted);
+		minishell->exit_status = 2;
 		return (false);
 	}
-	ft_set_env(splitted[0], splitted[1], minishell->current_env); //check if set fails for some reason?
-	return (true);
-}
-
-
-t_bool	child_execute_built_in_not_child(t_command *command, t_minishell *minishell)
-{	//cd, export, unset
-	char	*cur_dir;
-
-	ft_printf("wrong place is builtint not child\n");
-
-	cur_dir = get_pwd(minishell);
-	if (!command->command)
+	if (ft_set_env(splitted[0], splitted[1], minishell->env, false) == false)
+	{
+		minishell->exit_status = 1;
 		return (false);
-	else if (env_var_added(command, minishell) == true) //export? but also a=b should be here
-		return (true);
-	else if (ft_streq(command->command, "cd"))
-		return (cd(command, minishell));
-	else if (ft_streq(command->command, "env")) //next one should be the key
-		print_h_table(minishell->env);
-	else if (ft_streq(command->command, "unset")) //next one should be the key
-		ft_remove_exported_var(command->args[1], minishell->env);
+	}
 	else
-		return (false);
-	return (true);
+	{
+		minishell->exit_status = 0;
+		return (true);
+	}
 }
 
-t_bool	execute_builtin(t_command *command, t_minishell *minishell) //command->args + 1 == myvar=stmh
+t_bool	ft_env(t_hash_table *h_table, t_minishell *minishell)
+{
+	if (print_h_table(h_table) == false)
+	{
+		return (set_exit_status(minishell, 1));
+	}
+	else
+	{
+		return (set_exit_status(minishell, 0));
+	}
+}
+
+t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 {
 	char	*cur_dir;
-
+	
 	cur_dir = get_pwd(minishell);
-	if (!command->command)
-		return (false);
-	else if (ft_streq(command->command, "echo"))
-		ft_echo(command, 1);
-	else if (ft_streq(command->command, "cd"))
-		return (cd(command, minishell));
-	else if (ft_streq(command->command, "pwd"))
-	{
-		ft_putstr_fd(cur_dir, 1);
-		ft_putstr_fd("\n", 1);
-	}
-	else if (ft_streq(command->command, "env")) //next one should be the key
-	{
-		print_h_table(minishell->env);
-	}
+	if (!command->command || !minishell || !cur_dir)
+		exit(1);
 	else if (env_var_added(command, minishell) == true)
 		return (true);
+	else if (ft_streq(command->command, "cd"))
+		return (cd(command, minishell));
+	else if (ft_streq(command->command, "env"))
+		return (ft_env(minishell->env, minishell));
+	else if (ft_streq(command->command, "unset"))
+		return (ft_remove_exported_var(command->args[1], minishell->env,
+				minishell));
+	return (set_exit_status(minishell, 1));
+}
+
+t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
+{
+	ft_putstr_fd(cur_dir, 1);
+	ft_putstr_fd("\n", 1);
+	return (set_exit_status(minishell, 0));
+}
+
+t_bool	execute_builtin(t_command *command, t_minishell *minishell)
+{
+	char		*cur_dir;
+	t_bool		did_execution_succeed;
+
+	did_execution_succeed = false;
+	if (!command->command || !minishell)
+	{
+		return (set_exit_status(minishell, 1));
+	}
+	cur_dir = get_pwd(minishell);
+	if (!cur_dir)
+		return (set_exit_status(minishell, 1));
+	if (env_var_added(command, minishell) == true)
+		return (true);
+	if (ft_streq(command->command, "echo"))
+		return (ft_echo(command, 1, minishell));
+	else if (ft_streq(command->command, "pwd"))
+		return (ft_pwd(cur_dir, minishell));
 	else
-		return (false);
-	return (true);
+		return (set_exit_status(minishell, 1));
 }

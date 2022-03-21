@@ -12,7 +12,7 @@
 
 #include "../headers/structs.h"
 #include "../headers/functions.h"
-
+//
 extern char	**environ;
 /**
  * Creates a hashtable where we will store env and other variables
@@ -43,27 +43,26 @@ t_hash_table	*init_hash_table(int size)
 	return (hash_table);
 }
 
-t_entry	*create_hash_table_pair(char *key, char *val)
+t_entry	*create_hash_table_pair(char *key, char *val, t_bool is_exported)
 {
 	t_entry	*entry;
 
 	entry = (t_entry *)malloc(sizeof(t_entry));
 	if (!entry)
-		return (NULL);
-	entry->key = (char *)ft_calloc((ft_strlen(key) + 1), 1); //key is path
-	if (!entry->key)
-	{
-		free(entry);
-		entry = NULL;
-	}
+		exit(1);
+	entry->key = (char *)ft_calloc((ft_strlen(key) + 1), 1);
 	entry->val = (char *)ft_calloc((ft_strlen(val) + 1), 1);
+	if (entry->val == NULL || entry->key == NULL)
+		exit(1);
 	entry->key = ft_strncpy(entry->key, (char *)key, ft_strlen((char *)key));
-	entry->next = NULL;
 	entry->val = ft_strncpy(entry->val, (char *)val, ft_strlen((char *)val));
+	entry->is_exported = is_exported;
+	entry->next = NULL;
 	return (entry);
 }
 
-t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val)
+t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val,
+						t_bool is_exported)
 {
 	unsigned int	slot;
 	t_entry			*entry;
@@ -73,7 +72,7 @@ t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val)
 	entry = h_table->entries[slot];
 	if (entry == NULL)
 	{
-		h_table->entries[slot] = create_hash_table_pair(key, val);
+		h_table->entries[slot] = create_hash_table_pair(key, val, is_exported);
 		if (!h_table->entries[slot])
 			return (false);
 		return (true);
@@ -81,27 +80,17 @@ t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val)
 	while (entry != NULL)
 	{
 		if (ft_strncmp(entry->key, key, ft_strlen(entry->key)) == 0)
-			return (false);
+			return (true);
 		prev = entry;
 		entry = prev->next;
 	}
-	prev->next = create_hash_table_pair(key, val);
+	prev->next = create_hash_table_pair(key, val, is_exported);
 	if (!prev->next)
 		return (false);
 	return (true);
 }
 
-t_bool	all_args_inserted(t_hash_table *h_table, char *key, char *val)
-{
-	if (succesful_insert(h_table, key, val) == false
-		|| ft_strncmp("", key, 1) == 0)
-	{
-		return (false);
-	}
-	return (true);
-}
-
-t_hash_table	*duplicates_are_found_in_argv(void)
+t_hash_table	*create_env_h_table(void)
 {
 	t_hash_table	*h_table;
 	char			**environs;
@@ -111,24 +100,18 @@ t_hash_table	*duplicates_are_found_in_argv(void)
 	size = 0;
 	i = 0;
 	while (environ[size])
-	{
 		size++;
-	}
 	h_table = init_hash_table(size);
 	if (h_table == NULL)
-	{
-		return (NULL);
-	}
+		exit(1);
 	i = 0;
 	while (environ[i])
 	{
 		environs = ft_split(environ[i], '=');
-		if (!environs[0] || !environs[1])
-			return (h_table); //TODO might need to be NULL instead?
-		if (succesful_insert(h_table, environs[0], environs[1]) == false)
-		{
+		if (!environs)
 			return (NULL);
-		}
+		if (succesful_insert(h_table, environs[0], environs[1], true) == false)
+			return (NULL);
 		free(environs);
 		i++;
 	}

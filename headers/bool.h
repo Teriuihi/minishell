@@ -18,4 +18,5 @@ typedef enum s_bool
 	false,
 	true
 }	t_bool;
+
 #endif

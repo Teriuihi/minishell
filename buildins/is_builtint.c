@@ -14,90 +14,80 @@
 #include "../headers/functions.h"
 
 /**
- * Takes an array of arrays (user input)
- * Prints the arguments with a single whitespace char between.
- * Prints newline char if -n was not specified
- *
- * @param	args	the input given by the user
- *
- * @return	true if the input is a builtin command, false if not
+ * Checks whether assignment is in a correct form.
+ * @return	true if if export or correct variable assignment is present,
+ 			false otherwise
 */
-
-t_bool	env_variable_found(char *command) //check if its not =hellothere
+static t_bool	is_input_correct(char *command, int *count)
 {
 	int	i;
-	int	count;
 	int	equal_found;
 
 	i = 0;
-	count = 0;
 	equal_found = 0;
-	if (!command)
-	{
-		return (false);
-	}
-	//check for export?
-	if (ft_streq(command, "export"))
-	{
-		return (true);
-	}
 	while (command[i])
 	{
-		if (command[i] == '=') //if its two == next to eachother its incorrect input
+		if (command[i] == '=')
 		{
-			count++;
+			*count = *count + 1;
 			equal_found++;
 			if (i == 0)
-			{
 				return (false);
-			}
-			if (command[i + 1] == '=' && equal_found == 1) //check if one has been already found, if yes then this is false
-			{
+			if (command[i + 1] == '=' && equal_found == 1)
 				return (false);
-			}
 		}
 		i++;
-	}
-	if (count > 0)
-	{
-		return (true);
-	}
-	else
-	{
-		return (false);
-	}
+	}	
+	return (true);
 }
 
-t_bool	is_builtin(t_cmd_data *cmd_data)
+/**
+ * Checks whether export or an expression like "a=b" is present.
+ * @return	true if if export or correct variable assignment is present,
+ 			false otherwise
+*/
+t_bool	env_variable_found(char *command)
 {
-	t_command	*command;
-	int			i;
-	const char	*builtins[7] = {"echo",
-		"cd",
-		"pwd",
-		"export",
-		"unset",
-		"env",
-		"exit"};
+	int	count;
 
-	if (!cmd_data)
+	count = 0;
+	if (!command)
 		return (false);
-	command = cmd_data->command; // &cmd_data->command; was before
-	if (command == NULL || command->command == NULL)
-		return (0);
+	if (ft_streq(command, "export"))
+		return (true);
+	if (is_input_correct(command, &count) == false)
+		return (false);
+	if (count > 0)
+		return (true);
+	else
+		return (false);
+}
+
+/**
+ * Checks whether export or an expression like "a=b" is present.
+ * Checks whether any of the builtin commands are equal to the char *command.
+ *
+ * @param	command struct, uses the char *command from the struct
+ *
+ * @return	true if the input is a builtin command, false otherwise
+*/
+t_bool	is_builtin(t_command *command)
+{
+	int			i;
+	const char	*builtins[6] = {"echo", "cd", "pwd", "export", "unset", "env"};
+
+	if (!command)
+		return (false);
 	i = 0;
-	if (env_variable_found(command->command) == true) //what happens if its false but because of incorrect input? hello==myvar
+	if (env_variable_found(command->command) == true)
 	{
-		//if its true, can we not just add immediately to hashtable?
 		return (true);
 	}
-	while (i < 7)
+	while (i < 6)
 	{
 		if (ft_streq(command->command, builtins[i]))
-			return (1);
+			return (true);
 		i++;
 	}
-	if (cmd_data->output.type == REDIRECT_INPUT || cmd_data->output.type == DELIMITER_INPUT)
-		return (true);
 	return (false);
 }

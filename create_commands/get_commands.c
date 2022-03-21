@@ -62,10 +62,10 @@ t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
 	t_list	*new;
 	char	*entry;
 
-	new = ft_lstnew(cmd_data); //????? new->content = cmd_data
+	new = ft_lstnew(cmd_data);
 	if (new == NULL)
 	{
-		free(cmd_data->command->command); //??
+		free(cmd_data->command->command);
 		entry = *cmd_data->command->args;
 		while (*entry)
 		{
@@ -77,7 +77,7 @@ t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
 		free(cmd_data);
 		return (err_ptr_return("Not enough memory.", NULL));
 	}
-	ft_lstadd_back(head, new); //actually the head will not be a simple list but a cmd_data
+	ft_lstadd_back(head, new);
 	return (cmd_data);
 }
 
@@ -143,7 +143,7 @@ t_cmd_data	*create_command_data(char **args, int len)
 	if (args == NULL)
 		cmd_data->command->command = NULL;
 	else
-		cmd_data->command->command = ft_strdup(*args);; //cant write here?
+		cmd_data->command->command = ft_strdup(*args);
 	command = (cmd_data->command);
 	if (!command->command && args != NULL)
 	{
@@ -246,7 +246,7 @@ t_bool	set_input(t_list **head, t_cmd_data *cmd_data)
  *
  * @return	String from entry
  */
-char *str_from_arg(t_list *entry)
+char	*str_from_arg(t_list *entry)
 {
 	t_arg	*arg;
 
