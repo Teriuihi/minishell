@@ -43,16 +43,15 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table, t_minishell *min
 	return (set_exit_status(minishell, 0)); //All builtins return an exit status of 2 to indicate incorrect usage, generally invalid options or missing arguments.
 }
 
-t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table)
+t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table, t_bool is_exported)
 {
 	t_bool			insert_succeeded;
 
-	//ft_printf("%s %s is splitted0, splitted1\n", key, val);
 	if (!key || !val  || !h_table)
 	{
 		return (false);
 	}
-	insert_succeeded = succesful_insert(h_table, key, val);
+	insert_succeeded = succesful_insert(h_table, key, val, is_exported);
 	return (insert_succeeded);
 }
 
@@ -61,7 +60,6 @@ char	*ft_get_env_val(char *key, t_hash_table *h_table)
 	unsigned int	hashkey;
 	char			*env_val;
 
-	//if !key !table?
 	if (!key || !h_table)
 	{
 		return (NULL);

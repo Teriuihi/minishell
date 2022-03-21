@@ -22,7 +22,7 @@
 typedef struct	s_signal
 {
 	volatile sig_atomic_t	sigint;
-	volatile sig_atomic_t	sigquit;
+	volatile sig_atomic_t	veof;
 	t_bool					finished;
 	t_bool					interrupted;
 	pid_t					pid;

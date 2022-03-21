@@ -21,13 +21,13 @@ typedef struct entry_table
 t_hash_table	*get_hash_table(void);
 t_hash_table	*init_hash_table(int size);
 unsigned int	hash(const char *key, char *val, unsigned long int table_size);
-t_entry			*create_hash_table_pair(char *key, char *val);
-t_bool			succesful_insert(t_hash_table *h_table, char *key, char *val);
+t_entry			*create_hash_table_pair(char *key, char *val, t_bool is_exported);
+t_bool			succesful_insert(t_hash_table *h_table, char *key, char *val, t_bool is_exported);
 t_bool			all_args_inserted(t_hash_table *h_table, char *key, char *val);
-t_hash_table	*duplicates_are_found_in_argv(void);
+t_hash_table	*create_env_h_table(void);
 void			destroy_hash_table(t_hash_table *hash_table, int size);
 char			*ft_get_env_val(char *key, t_hash_table *h_table);
-t_bool			ft_set_env(char *key, char *val, t_hash_table *h_table);
+t_bool			ft_set_env(char *key, char *val, t_hash_table *h_table, t_bool is_exported);
 void			free_key_value(t_entry *entry);
 void	        destroy_entry(t_entry *entry);
 t_bool			print_h_table(t_hash_table *h_table);

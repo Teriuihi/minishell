@@ -36,7 +36,6 @@ t_bool	env_variable_found(char *command) //check if its not =hellothere
 	{
 		return (false);
 	}
-	//check for export?
 	if (ft_streq(command, "export"))
 	{
 		return (true);
@@ -72,7 +71,7 @@ t_bool	is_builtin(t_cmd_data *cmd_data)
 {
 	t_command	*command;
 	int			i;
-	const char	*builtins[7] = {"echo",
+	const char	*builtins[6] = {"echo",
 		"cd",
 		"pwd",
 		"export",
@@ -81,15 +80,15 @@ t_bool	is_builtin(t_cmd_data *cmd_data)
 
 
 	if (!cmd_data)
+	{
 		return (false);
-	
+	}
 	command = cmd_data->command; // &cmd_data->command; was before
 	if (command == NULL || command->command == NULL)
 		return (0);
 	i = 0;
 	if (env_variable_found(command->command) == true) //what happens if its false but because of incorrect input? hello==myvar
 	{
-		//if its true, can we not just add immediately to hashtable?
 		return (true);
 	}
 	while (i < 6)
@@ -100,7 +99,7 @@ t_bool	is_builtin(t_cmd_data *cmd_data)
 		}
 		i++;
 	}
-	if (cmd_data->output.type == REDIRECT_INPUT || cmd_data->output.type == DELIMITER_INPUT)
+	if (cmd_data->output.type == REDIRECT_INPUT || cmd_data->output.type == DELIMITER_INPUT) //prob we dont need this anymore
 		return (true);
 	return (false);
 }

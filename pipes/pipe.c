@@ -325,7 +325,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 
 	command = cmd_data->command;
 	control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell);
-	if (cmd_data->executable_found == false)
+	if (cmd_data->executable_found == false) //executable not found
 	{
 		ft_printf("executable not found\n");
 		exit(127);
@@ -338,7 +338,6 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 		exit(126);
 	}
 }
-//ft_printf("before control pipes with command %s, output %d, %d input\n", command->command, cmd_data->output.type, cmd_data->input.type);
 
 
 /**
@@ -355,7 +354,7 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 
 	if (old_pid[0] > -1)
 	{
-		close_pipes(&old_pid[1], &old_pid[0]);
+		close_pipes((int *)old_pid, (int *)(old_pid + 1));
 	}
 	waitpid(c_pid, &status, 0);
 	if (WIFEXITED(status)) //use ps to check if child process is still running?
@@ -370,6 +369,8 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 		}
 	}
 }
+
+
 /*
 
 	//ft_printf("%d is minishell->exit status now\n", minishell->exit_status);
@@ -442,13 +443,14 @@ t_bool	should_be_child(t_command *command) //what about env? it should not be ch
 	return (true);
 }
 
-
 static t_bool	search_executable_for_non_builtin(t_cmd_data *cmd_data, t_minishell *minishell)
 {
 	t_command *command;
 	
 	command = cmd_data->command;
-	if (ft_streq(command->command, "./minishell")) //get maybe also other executables?
+
+	//here maybe another function to check all executable file names ?
+	if (ft_streq(command->command, "./minishell"))
 	{
 		free(*command->args); //do we still have command args?
 		*command->args = ft_strdup(command->command);
@@ -458,7 +460,7 @@ static t_bool	search_executable_for_non_builtin(t_cmd_data *cmd_data, t_minishel
 	command->command = search_in_path(command->command); //this is where we could just pull from hashtable
 	if (command->command == NULL)
 	{
-		ft_printf("Command not found: %s\n", *command->args); //this might have to be called also as child process even if command not found
+		ft_printf("command not found: %s\n", *command->args); //this might have to be called also as child process even if command not found
 		return (false);
 	}
 	free(*command->args); //do we still have command args?
@@ -492,15 +494,14 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	{
 		cmd_data->executable_found = search_executable_for_non_builtin(cmd_data, minishell); //if this returns with false still have to execute and return w 127
 	}
-	if (should_be_child(command) == false) //is_built_in == true && 
+	if (should_be_child(command) == false) //for builtins which modify env is_built_in == true && 
 	{
 		if (execute_non_forked_builtin(command, minishell) == false)
-			ft_printf("Built in command execution failed, %d is minishell exit status\n", minishell->exit_status);
-		else
-			ft_printf("execute non forked builtin is true, %d is minishell exit status\n", minishell->exit_status);
+		{
+			ft_printf("command not found: %s\n", command->command);
+		}
 		return ;
 	}
-
 
 	g_signal.pid = fork(); //assign it to cmd_datas process?
 	if (g_signal.pid == 0)
@@ -518,9 +519,7 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	{
 		parent(g_signal.pid, old_pid, minishell);
 	}
-	//save the last executed commands exit status here or in parent?
 	//close pipes?
-
 }
 
 

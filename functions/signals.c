@@ -97,7 +97,7 @@ void	signal_check(char *input)
 	{
 		if (g_signal.sigint != 1)
 		{
-			g_signal.sigquit = 1;
+			g_signal.veof = 1;
 		}
 	}
 }
@@ -105,7 +105,7 @@ void	signal_check(char *input)
 void	init_signal(void) //should this be global?
 {
 	g_signal.sigint = 0;
-	g_signal.sigquit = 0;
+	g_signal.veof = 0;
 	g_signal.finished = false;
 	g_signal.pid = getpid();
 	g_signal.keep_running = 1;

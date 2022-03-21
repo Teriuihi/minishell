@@ -29,7 +29,6 @@ void	copy_pid(const int *cur_pid, int *old_pid)
 	old_pid[1] = cur_pid[1];
 }
 
-
 t_cmd_data	*init_cmd()
 {
 	t_cmd_data *cmd_data;
@@ -77,7 +76,9 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
 		if (cur_pid[0])
+		{
 			copy_pid(cur_pid, old_pid);
+		}
 		if (cmd_data->output.type) //non initialized yet, if it has to put smth out?
 		{
 			pipe(cur_pid); //now this gets two new fds
@@ -107,7 +108,6 @@ t_bool	should_use(char *input)
 	return ((*input) != '\0');
 }
 
-
 //static int interrupted = false;
 static int interruptible_getc(void)
 {	
@@ -127,7 +127,6 @@ static int interruptible_getc(void)
 	return (r == 1 ? c : EOF); //if we use signals this we always return EOF
 }
 
-
 /**
  * Starts (minishell) program loop,
  * 	reads from command line to receive commands
@@ -143,7 +142,7 @@ void	start_program_loop(t_minishell *minishell)
 	rl_getc_function = interruptible_getc;
 	input = "hi";
 	args = NULL;
-	while (input && g_signal.sigint != 1 && g_signal.sigquit != 1)
+	while (input && g_signal.sigint != 1 && g_signal.veof != 1)
 	{
 		input = readline("some shell>");
 		signal_check(input);
@@ -153,17 +152,17 @@ void	start_program_loop(t_minishell *minishell)
 			args = get_args(input); //TODO free
 			free(input);
 			head = find_commands(args); //TODO free
-			if (head == NULL)
+			if (head == NULL) //lets say that this is inside a child process, cant just exit the entire programme
 			{
-				ft_printf("Error\n");
-				exit(0);
+				signal_check(NULL);
+				return ;
 			}
 			run_commands(head, minishell);
 			free_commands(head);
 			free_char_arr(args);
 		}
 	}
-	if (g_signal.sigquit != 1) //not sure about this yet
+	if (g_signal.veof != 1) //not sure about this yet
 	{
 		ft_printf("\n");
 	}

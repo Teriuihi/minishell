@@ -23,13 +23,13 @@
 
 t_signal g_signal;
 
-t_hash_table	*get_hash_table(void)
+t_hash_table	*get_hash_table(void) //in the beginning all should be exported
 {
 	static t_hash_table	*table;
 
 	if (!table)
 	{
-		table = duplicates_are_found_in_argv();
+		table = create_env_h_table();
 		if (table == NULL)
 		{
 			ft_printf("Error\n");
@@ -43,10 +43,6 @@ void	set_data(t_minishell *minishell)
 {
 	minishell->current_env = get_hash_table();
     minishell->env = get_hash_table();
-	set_to_exported(minishell->current_env);
-	set_to_exported(minishell->env);
-    //TODO check failure
-	//set is_exported in env on to all, in current env as well
 }
 
 void	sigquit_handler(int this_signal)
@@ -108,14 +104,14 @@ int	main(void)
 
 	init(&minishell);
 	init_signal();
-	while (g_signal.sigquit != 1) //exit instead of sigquit, or find the main parent process
+	while (g_signal.veof != 1) //exit instead of sigquit, or find the main parent process
 	{
 		set_termios();
-		while (g_signal.sigint != 1 && g_signal.sigquit != 1)
+		while (g_signal.sigint != 1 && g_signal.veof != 1)
 		{
 			start_program_loop(&minishell);
 		}
-		if (g_signal.sigquit == 1)
+		if (g_signal.veof == 1)
 		{
 			ft_printf("\b\bexit\n"); //this prints twice if we call crtld in heredoc, why? 	//if it was cancelled in heredoc, this should not be printed
 		}

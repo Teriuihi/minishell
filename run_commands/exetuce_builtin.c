@@ -48,6 +48,7 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 	{
 		if (ft_streq(command->args[i], "export")) //the next one should be the expression
 		{
+
 			//check later for error/edge cases? ls | cat | export    ->missing second part?
 			splitted_export = ft_split(command->args[i + 1], '='); //what about more = eg: hello=there=johhny?
 			if (split_len(splitted_export) < 2) //if its not min 2
@@ -55,7 +56,7 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 				free_splitted(splitted_export); //should free both not just ** itself
 				return (false);
 			}
-			ft_set_env(splitted_export[0], splitted_export[1], minishell->env); //check if set fails for some reason?
+			ft_set_env(splitted_export[0], splitted_export[1], minishell->env, true); //check if set fails for some reason?
 			free_splitted(splitted_export); //also incorrect, should create a free split functio
 			return (true);
 		}
@@ -76,7 +77,7 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 		return (false);
 	}
 	if (export_found(command, minishell) == true)
-	{	//in this case we should add an: is_exported flag to true
+	{	
 		minishell->exit_status = 0;
 		return (true);
 	}
@@ -87,19 +88,13 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell) //cant w
 		minishell->exit_status = 2;
 		return (false);
 	}
-	//here we should check which one we have to add to
-	//ft_printf("%s %s is splitted0, splitted1 before entering to current env set\n", splitted[0], splitted[1]);
-	//print_h_table(minishell->current_env);
-	//ft_printf("is current env table before\n");
-	if (ft_set_env(splitted[0], splitted[1], minishell->current_env) == false) //check if set fails for some reason?
+	if (ft_set_env(splitted[0], splitted[1], minishell->current_env, false) == false) //check if set fails for some reason?
 	{
 		minishell->exit_status = 1;
 		return (false);
 	}
 	else
-	{
-		//print_h_table(minishell->current_env);
-		//ft_printf("is current env table after\n");
+	{;
 		minishell->exit_status = 0;
 		return (true);
 	}
@@ -116,7 +111,6 @@ t_bool	ft_env(t_hash_table *h_table, t_minishell *minishell)
 		return (set_exit_status(minishell, 0));
 	}
 }
-
 //command not found : 127 exit status
 t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell) //cd and unset, env ?, we do not need to call a child process for these?
 {	//cd, export, unset
@@ -135,9 +129,9 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell) //
 	}
 	else if (env_var_added(command, minishell) == true) //export? but also a=b should be here
 	{
-		did_execution_succeed = true;
+		return (true);
 	}
-	else if (ft_streq(command->command, "cd"))
+	else if (ft_streq(command->command, "cd")) //what happens if cd | cat ?
 	{
 		return (cd(command, minishell));
 	}
@@ -155,7 +149,6 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell) //
 
 //unset | 
 //cd | pwd
-
 t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
 {
 	ft_putstr_fd(cur_dir, 1);

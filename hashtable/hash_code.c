@@ -56,7 +56,8 @@ unsigned int	hash(const char *key, char *val, unsigned long int table_size)
 	return (value);
 }
 
-void	set_to_exported(t_hash_table *h_table)
+/*
+void	set_to_exported(t_hash_table *h_table) //prob not needed
 {
 	int		i;
 	t_entry *curr;
@@ -76,7 +77,7 @@ void	set_to_exported(t_hash_table *h_table)
 		i++;
 	}
 }
-
+*/
 
 
 t_bool	print_h_table(t_hash_table *h_table)
@@ -96,7 +97,7 @@ t_bool	print_h_table(t_hash_table *h_table)
 		//ft_printf("%s=%s of htable->entries[i]\n", curr->key, curr->val);
 		while (curr != NULL)
 		{
-			if (curr->key && curr->val)
+			if (curr->key && curr->val && curr->is_exported)
 			{
 				ft_printf("%s=%s\n", curr->key, curr->val);
 			}
