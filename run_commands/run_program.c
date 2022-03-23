@@ -69,7 +69,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	while (entry)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
-		tmp_print_command(cmd_data);
+		//tmp_print_command(cmd_data);
 		if (cur_pid[0])
 			copy_pid(cur_pid, old_pid);
 		if (cmd_data->output.type)
@@ -144,7 +144,7 @@ void	start_program_loop(t_minishell *minishell)
 			if (parse_results == NULL)
 			{
 				ft_printf("Error\n");
-				exit(0);
+				exit(1);
 			}
 			head = find_commands(parse_results); //TODO free
 			if (head == NULL)

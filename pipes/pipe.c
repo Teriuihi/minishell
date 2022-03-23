@@ -332,24 +332,9 @@ t_bool	should_be_child(t_command *command)
 	return (true);
 }
 
-static t_bool	search_executable(t_cmd_data *cmd_data,
-				t_minishell *minishell)
+static t_bool	assign_path_to_command(char *executable, t_bool should_path_extend, t_command *command)
 {
-	t_command	*command;
-	char		*executable;
-
-	command = cmd_data->command;
-	executable = search_folder(command->command);
-	if (executable != NULL)
-	{
-		free(*command->args);
-		*command->args = ft_strdup(command->command);
-		command->command = ft_strdup(executable);
-		free(executable);
-		return (true);
-	}
-	executable = search_in_path(command->command);
-	if (executable != NULL)
+	if (should_path_extend == true)
 	{
 		free(*command->args);
 		*command->args = ft_strdup(command->command);
@@ -359,10 +344,44 @@ static t_bool	search_executable(t_cmd_data *cmd_data,
 	}
 	else
 	{
+		free(*command->args);
+		*command->args = ft_strdup(command->command);
+		return (true);		
+	}
+}
+
+static t_bool	search_executable(t_cmd_data *cmd_data,
+				t_minishell *minishell)
+{
+	t_command	*command;
+	char		*executable;
+
+	command = cmd_data->command;
+	executable = NULL;
+	if (command->command != NULL)
+	{
+		if (command->command[0] == '/')
+		{
+			return (assign_path_to_command(executable, false, command));
+		}
+	}
+	executable = search_folder(command->command);
+	if (executable != NULL)
+	{
+		return (assign_path_to_command(executable, true, command));
+	}
+	executable = search_in_path(command->command);
+	if (executable != NULL)
+	{
+		return (assign_path_to_command(executable, true, command));
+	}
+	else
+	{
 		ft_printf("command not found: %s\n", *command->args);
 		return (false);
 	}
 }
+
 
 /**
  * Execute a command
