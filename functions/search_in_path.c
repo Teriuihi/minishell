@@ -49,45 +49,47 @@ char	*search_in_path(char *command)
 	return (NULL);
 }
 
-/*
-void	search_folder(char *command)
-{
-	int				entries;
-	char			*tmp;
-	char			*buf;
 
-	struct dirent	*file;
+char	*search_folder(char *command)
+{
+	char			*cwd_path;
+	char			*directroy_path;
+	char			*executable_path;
 	DIR				*directory;
-	char			**split_path;
+	struct dirent	*file;
 	struct stat		sb;
 
-	entries = 0;
-	directory = NULL;
-	tmp = NULL;
-	tmp = getcwd(tmp, 0);
-	if (tmp == NULL)
-	{
-		ft_printf("couldnt use getcwd\n");
-	}
-	directory = opendir(tmp);
+	cwd_path = NULL;
+	cwd_path = getcwd(cwd_path, 0);
+	if (cwd_path == NULL)
+		exit(1);
+	directory = opendir(cwd_path);
+	directroy_path = ft_strjoin(cwd_path, "/");
+	if (!directroy_path)
+		exit(1);
 	while ((file = readdir(directory)))
 	{
-		if (file->d_name[0] == '.') //what happens if its not hidden?
-			continue ;
-		entries++;
-		char buffer[1024];
-		tmp = ft_strjoin(ft_strjoin(tmp, "/"), file->d_name);
-		ft_printf("%s is joined path\n", tmp);
-		if (stat(command, &sb) == -1)
+		executable_path = ft_strjoin(directroy_path, file->d_name);
+		if (!executable_path)
+			exit(1);
+		if (stat(executable_path, &sb) == -1)
 		{
-			ft_printf("STAT IS ERROR\n");
+			ft_printf("STAT HAS ERROR\n");
 		}
-		ft_printf("%d is entries\n", entries);
-		if (S_ISDIR(sb.st_mode))
-			ft_printf("DIR\n");
-		else
-			ft_printf("FILE\n");
-		ft_printf("%s is filename\n", file->d_name);
+		if (!S_ISDIR(sb.st_mode)) //if its not a directory
+		{
+			if (ft_streq(command, ft_strjoin("./", file->d_name))) //check if the given command is also ./ + commandname (eg: ./a.out)
+			{
+				//TODO FREE
+				closedir(directory); //close dir before returning
+				return (executable_path); //return the entire executable path
+			}
+		}
 	}
+	free(cwd_path);
+	free(directroy_path);
+	free(executable_path);
+	closedir(directory);
+	return (NULL);
 }
-*/
+

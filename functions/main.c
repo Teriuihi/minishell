@@ -84,6 +84,8 @@ int	main(void)
 	while (g_signal.veof != 1)
 	{
 		set_termios();
+		//search_folder("command\n");
+		//exit(1);
 		while (g_signal.sigint != 1 && g_signal.veof != 1)
 		{
 			start_program_loop(&minishell);
