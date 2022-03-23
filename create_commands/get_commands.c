@@ -298,7 +298,7 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 		}
 		entry = entry->next;
 	}
-	*args = entry;
+	*args = entry->prev;
 	return (true);
 }
 
@@ -387,7 +387,10 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
 		cur = cur->next;
 	}
 	if (cmd_len != 0 && cur != NULL)
+	{
+		cur = get_command_start(cur, cmd_len - 1);
 		success = output_pipe_command(head, &cur, &cmd_len, pipe_type);
+	}
 	return (success);
 }
 
