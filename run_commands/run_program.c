@@ -69,11 +69,11 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	while (entry)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
-		//tmp_print_command(cmd_data);
-		if (cur_pid[0])
+		tmp_print_command(cmd_data);
+		if (cur_pid[0] > -1)
 			copy_pid(cur_pid, old_pid);
 		if (cmd_data->output.type)
-			pipe(cur_pid); //now this gets two new fds
+			pipe(cur_pid);
 		exec_command(cmd_data, old_pid, cur_pid,
 			is_builtin(cmd_data->command), minishell);
 		entry = entry->next;

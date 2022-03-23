@@ -275,7 +275,6 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 			return (true);
 		if (pipe_type == OUTPUT_TO_COMMAND)
 		{
-			entry = entry->next;
 			*args = entry;
 			return (true);
 		}
@@ -298,7 +297,10 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 		}
 		entry = entry->next;
 	}
-	*args = entry->prev;
+	if (entry != NULL)
+		*args = entry->prev;
+	else
+		*args = entry;
 	return (true);
 }
 

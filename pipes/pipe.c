@@ -63,10 +63,8 @@ void	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2],
 						t_minishell *minishell)
 {
 	char		*input;
-	t_command	*command;
 
 	(void)minishell;
-	command = cmd_data->command;
 	if (old_pid[0])
 	{
 		dup2(old_pid[0], STDIN_FILENO);
@@ -406,31 +404,22 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	}
 	check_input_pipes(cmd_data, old_pid, cur_pid, minishell);
 	if (is_built_in == false)
-	{
 		cmd_data->executable_found = search_executable(cmd_data, minishell);
-	}
 	if (should_be_child(command) == false)
 	{
 		if (execute_non_forked_builtin(command, minishell) == false)
-		{
 			ft_printf("command not found: %s\n", command->command);
-		}
 		return ;
 	}
+	ft_printf("old: %i - %i new: %i - %i\n", old_pid[0], old_pid[1], cur_pid[0], cur_pid[1]);
 	g_signal.pid = fork();
 	if (g_signal.pid == 0)
 	{
 		if (is_built_in == true)
-		{
 			child_execute_built_in(cmd_data, old_pid, cur_pid, minishell);
-		}
 		else
-		{
 			child_execute_non_builtin(cmd_data, old_pid, cur_pid, minishell);
-		}
 	}
 	else
-	{
 		parent(g_signal.pid, old_pid, minishell);
-	}
 }
