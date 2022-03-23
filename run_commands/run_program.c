@@ -14,7 +14,6 @@
 #include <readline/history.h>
 #include <readline/readline.h>
 #include "run_commands.h"
-#include "../create_commands/create_commands.h"
 #include "../buildins/buildins.h"
 #include "../parser/parser.h"
 #include <errno.h>
@@ -31,30 +30,6 @@ void	copy_pid(const int *cur_pid, int *old_pid)
 	old_pid[1] = cur_pid[1];
 }
 
-t_cmd_data	*init_cmd(void)
-{
-	t_cmd_data	*cmd_data;
-
-	//cmd_data->command->command needs malloc?
-	//cmd_data->command->args needs malloc?
-	cmd_data = (t_cmd_data *)malloc(sizeof(t_cmd_data));
-	if (!cmd_data)
-		return (NULL);
-	cmd_data->command = (t_command *)malloc(sizeof(t_command));
-	if (!cmd_data->command)
-		return (NULL);
-	cmd_data->command = NULL;
-	//cmd_data->input = malloc(sizeof(t_redirect));
-	//if (!cmd_data->input)
-	//	return (NULL);
-	//cmd_data->output = malloc(sizeof(t_redirect));
-	//if (!cmd_data->output)
-	//	return (NULL);
-	cmd_data->input.type = NONE; // did we actually set space for these?
-	cmd_data->output.type = NONE;
-	return (cmd_data);
-}
-
 /**
  * Run all commands in given list
  *
@@ -68,7 +43,6 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	t_cmd_data	*cmd_data;
 	t_list		*entry;
 
-	cmd_data = init_cmd();
 	entry = *head;
 	cur_pid[0] = -1;
 	old_pid[0] = -1;
@@ -76,15 +50,11 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	old_pid[1] = -1;
 	while (entry)
 	{
-		cmd_data = (t_cmd_data *)entry->content; //if this is null?
+		cmd_data = (t_cmd_data *)entry->content;
 		if (cur_pid[0])
-		{
 			copy_pid(cur_pid, old_pid);
-		}
-		if (cmd_data->output.type) //non initialized yet, if it has to put smth out?
-		{
+		if (cmd_data->output.type)
 			pipe(cur_pid); //now this gets two new fds
-		}
 		exec_command(cmd_data, old_pid, cur_pid,
 			is_builtin(cmd_data->command), minishell);
 		entry = entry->next;
