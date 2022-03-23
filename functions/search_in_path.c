@@ -50,7 +50,7 @@ char	*search_in_path(char *command)
 }
 
 
-char	*search_folder(char *command)
+char	*search_folder(char *command, t_minishell *minishell)
 {
 	char			*cwd_path;
 	char			*directroy_path;
@@ -60,7 +60,7 @@ char	*search_folder(char *command)
 	struct stat		sb;
 
 	cwd_path = NULL;
-	cwd_path = getcwd(cwd_path, 0);
+	cwd_path = get_pwd(minishell);
 	if (cwd_path == NULL)
 		exit(1);
 	directory = opendir(cwd_path);
@@ -86,7 +86,6 @@ char	*search_folder(char *command)
 			}
 		}
 	}
-	free(cwd_path);
 	free(directroy_path);
 	free(executable_path);
 	closedir(directory);

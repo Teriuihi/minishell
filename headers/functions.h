@@ -45,6 +45,6 @@ t_bool			ft_remove_exported_var(char *key, t_hash_table *h_table,
 void			signal_check(char *input);
 t_bool			set_exit_status(t_minishell *minishell, int status);
 void			check_status(void);
-char			*search_folder(char *command);
+char			*search_folder(char *command, t_minishell *minishell);
 
 #endif

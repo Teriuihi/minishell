@@ -38,7 +38,7 @@ char	*get_path_from_arg(char	*dir_arg, t_minishell *minishell)
 			ft_printf("Out of memory\n");
 			return (NULL);
 		}
-		dir = ft_strjoin(minishell->cur_wd, tmp);
+		dir = ft_strjoin(get_pwd(minishell), tmp);
 		free(tmp);
 		if (!dir)
 			return (NULL);
