@@ -132,12 +132,11 @@ void	redirect_file(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	int		fd;
 	int		len;
 
-	(void)cur_pid;
 	path = get_pwd(minishell);
 	if (path == NULL)
 		err_exit("out of memory", 0);
 	chdir(path);
-	if (old_pid[0])
+	if (old_pid[0] > -1)
 	{
 		close(old_pid[0]);
 		close(old_pid[1]);
@@ -184,25 +183,17 @@ void	check_input_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 							t_minishell *minishell)
 {
 	if (cmd_data->input.type == REDIRECT_INPUT)
-	{
 		redirect_file(cmd_data, old_pid, cur_pid, minishell);
-	}
-	if (cmd_data->input.type == DELIMITER_INPUT)
-	{
+	else if (cmd_data->input.type == DELIMITER_INPUT)
 		read_input_write(cmd_data, old_pid, cur_pid, minishell);
-	}
 }
 
 void	close_pipes(int *pid1, int *pid2)
 {
 	if (pid1 != NULL)
-	{
 		close(*pid1);
-	}
 	if (pid2 != NULL)
-	{
 		close(*pid2);
-	}
 }
 
 void	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
@@ -264,6 +255,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 {
 	t_command	*command;
 
+	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
 	command = cmd_data->command;
 	control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell);
 	if (cmd_data->executable_found == false)
