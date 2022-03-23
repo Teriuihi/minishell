@@ -321,6 +321,10 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
  */
 t_bool	should_be_child(t_command *command)
 {
+	if (command->command == NULL)
+	{
+		return (false);
+	}
 	if (env_variable_found(command->command) == true)
 		return (false);
 	if (ft_streq(command->command, "cd"))
@@ -339,16 +343,15 @@ static t_bool	search_executable(t_cmd_data *cmd_data,
 	char		*executable;
 
 	command = cmd_data->command;
-	executable = search_folder(command->command);
-	command->command = search_in_path(command->command);
-
-	if (executable != NULL)
+	command->command = search_folder(command->command);
+	if (command->command != NULL)
 	{
 		free(*command->args);
 		*command->args = ft_strdup(command->command);
 		return (true);
 	}
-	else if (command->command != NULL)
+	command->command = search_in_path(command->command);
+	if (command->command != NULL)
 	{
 		free(*command->args);
 		*command->args = ft_strdup(command->command);
@@ -387,6 +390,7 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	{
 		cmd_data->executable_found = search_executable(cmd_data, minishell);
 	}
+	ft_printf("%s is command before should should be child check\n", command->command);
 	if (should_be_child(command) == false)
 	{
 		if (execute_non_forked_builtin(command, minishell) == false)
