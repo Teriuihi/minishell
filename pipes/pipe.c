@@ -336,23 +336,29 @@ static t_bool	search_executable(t_cmd_data *cmd_data,
 				t_minishell *minishell)
 {
 	t_command	*command;
+	char		*executable;
 
 	command = cmd_data->command;
-	if (ft_streq(command->command, "./minishell"))
+	executable = search_folder(command->command);
+	command->command = search_in_path(command->command);
+
+	if (executable != NULL)
 	{
 		free(*command->args);
 		*command->args = ft_strdup(command->command);
 		return (true);
 	}
-	command->command = search_in_path(command->command);
-	if (command->command == NULL)
+	else if (command->command != NULL)
+	{
+		free(*command->args);
+		*command->args = ft_strdup(command->command);
+		return (true);
+	}
+	else
 	{
 		ft_printf("command not found: %s\n", *command->args);
 		return (false);
 	}
-	free(*command->args);
-	*command->args = ft_strdup(command->command);
-	return (true);
 }
 
 /**
@@ -377,7 +383,7 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 		return ;
 	}
 	check_input_pipes(cmd_data, old_pid, cur_pid, minishell);
-	if (is_built_in == false || ft_streq(command->command, "./minishell"))
+	if (is_built_in == false)
 	{
 		cmd_data->executable_found = search_executable(cmd_data, minishell);
 	}
