@@ -24,8 +24,16 @@
  */
 t_list	*get_arg_at_pos(t_list *entry, int i)
 {
-	while (entry && --i)
-		entry = entry->next;
+	if (i < 0)
+	{
+		while (entry && i++)
+			entry = entry->prev;
+	}
+	else
+	{
+		while (entry && i--)
+			entry = entry->next;
+	}
 	return (entry);
 }
 
@@ -220,25 +228,6 @@ t_bool	append_arguments_to_command(t_command *cmd, t_list *entry, int len)
 	return (true);
 }
 
-t_bool	set_input(t_list **head, t_cmd_data *cmd_data)
-{
-	t_list		*prev_list_entry;
-	t_cmd_data	*prev_cmd_data;
-
-	prev_list_entry = ft_lstlast(*head)->prev;
-	if (!prev_list_entry)
-		return (true);
-	prev_cmd_data = prev_list_entry->content;
-	cmd_data->input.type = prev_cmd_data->output.type;
-	if (prev_cmd_data->output.file)
-	{
-		cmd_data->input.file = ft_strdup(prev_cmd_data->output.file);
-		if (cmd_data->input.file == NULL)
-			return (false);
-	}
-	return (true);
-}
-
 /**
  * Get the string from a t_list entry which contains a t_arg
  *
@@ -277,7 +266,7 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 		return (false);
 	if (append_arguments_to_command(cmd_data->command, entry->next, (*cmd_len - 1)) == false)
 		return (false);
-	entry = get_arg_at_pos(entry, (*cmd_len) + 1);
+	entry = get_arg_at_pos(entry, *cmd_len);
 	*cmd_len = 0;
 	while (entry != NULL)
 	{
@@ -324,30 +313,28 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
  *
  * @return	non zero on error, 0 on success
  */
-t_bool	output_pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe_type)
+t_bool	output_pipe_command(t_list **head, t_list **args, int *cmd_len,
+						t_pipe_type pipe_type)
 {
 	t_cmd_data	*cmd_data;
 	t_list		*entry;
 
-	entry = get_arg_at_pos(*args, *cmd_len);
-	if (pipe_type == NONE || pipe_type == OUTPUT_TO_COMMAND)
-	{
-		if (*cmd_len == 0)
-			cmd_data = create_new_cmd(head, NULL);
-		else
-			cmd_data = create_new_cmd(head, ((t_arg *) (*args)->content)->arg->s);
-		if (!cmd_data)
-			return (false);
-		if (*cmd_len > 1)
-			if (append_arguments_to_command(cmd_data->command, (*args)->next, *cmd_len - 1) == false)
-				return (false);
-		cmd_data->output.type = pipe_type;
-		set_input(head, cmd_data); // TODO free cmd_data and return false
-		*args = entry->next;
-		return (true);
-	}
+	entry = get_arg_at_pos(*args, -(*cmd_len - 1));
+	if (*cmd_len == 0)
+		cmd_data = create_new_cmd(head, NULL);
 	else
-		return (pipe_command(head, args, cmd_len, pipe_type));
+		cmd_data = create_new_cmd(head, ((t_arg *)entry->content)->arg->s);
+	if (!cmd_data)
+		return (false);
+	if (*cmd_len > 1)
+		if (append_arguments_to_command(cmd_data->command, entry->next,
+				*cmd_len - 1) == false)
+			return (false);
+	cmd_data->output.type = pipe_type;
+	entry = get_arg_at_pos(*args, *cmd_len);
+	*cmd_len = 0;
+	*args = entry;
+	return (true);
 }
 
 t_list	*get_command_start(t_list *cur, int cmd_len)
@@ -375,11 +362,13 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
 	success = true;
 	cmd_len = 0;
 	cur = *args;
-	while (cur)
+	while (true)
 	{
 		pipe_type = pipe_type_from_arg(cur->content);
 		if (pipe_type == DELIMITER_INPUT
-			|| pipe_type == REDIRECT_INPUT)
+			|| pipe_type == REDIRECT_INPUT
+			|| pipe_type == REDIRECT_OUTPUT
+			|| pipe_type == APPEND_OUTPUT)
 			{
 				cur = get_command_start(cur, cmd_len);
 				success = pipe_command(head, &cur, &cmd_len, pipe_type);
@@ -393,12 +382,12 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
 			cmd_len++;
 		if (success == false)
 			return (success);
-		if (!cur)
-			break;
+		if (cur == NULL || cur->next == NULL)
+			break ; //TODO in > < >> << command check if there is a next if we end on |
 		cur = cur->next;
 	}
-	if (cmd_len != 0)
-		success = output_pipe_command(head, args, &cmd_len, pipe_type);
+	if (cmd_len != 0 && cur != NULL)
+		success = output_pipe_command(head, &cur, &cmd_len, pipe_type);
 	return (success);
 }
 
