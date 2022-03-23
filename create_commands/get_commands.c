@@ -319,7 +319,7 @@ t_bool	output_pipe_command(t_list **head, t_list **args, int *cmd_len,
 	t_cmd_data	*cmd_data;
 	t_list		*entry;
 
-	entry = get_arg_at_pos(*args, -(*cmd_len - 1));
+	entry = *args;
 	if (*cmd_len == 0)
 		cmd_data = create_new_cmd(head, NULL);
 	else
