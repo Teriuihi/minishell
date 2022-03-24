@@ -58,7 +58,9 @@ t_bool	set_pwd(char *path, t_minishell *minishell)
 	if (!path || !*path)
 		return (false);
 	if (pwd_path == NULL || *path == '/')
+	{
 		return (update_pwd(path, minishell));
+	}
 	tmp = ft_calloc(ft_strlen(path) + ft_strlen(pwd_path) + 1, sizeof(char));
 	if (!tmp)
 		return (false);
