@@ -116,8 +116,7 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 	cur_dir = get_pwd(minishell);
 	if (!command->command || !minishell || !cur_dir)
 		exit(1);
-	else if (env_var_added(command, minishell) == true)
-		return (true);
+	
 	else if (ft_streq(command->command, "cd"))
 		return (cd(command, minishell));
 	else if (ft_streq(command->command, "env"))
@@ -125,6 +124,8 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 	else if (ft_streq(command->command, "unset"))
 		return (ft_remove_exported_var(command->args[1], minishell->env,
 				minishell));
+	else if (env_var_added(command, minishell) == true)
+		return (true);
 	return (set_exit_status(minishell, 1));
 }
 
