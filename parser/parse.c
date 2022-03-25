@@ -62,8 +62,7 @@ t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg, t_
 
 	while (input[*pos])
 	{
-		if (ft_iswhite_space(input[*pos]) || input[*pos] == '$'
-			|| input[*pos] == '"' || input[*pos] == '\'')
+		if (!ft_isalnum(input[*pos]) && *pos != '_')
 		{
 			result = get_string_from_var(*pos, start, input, minishell);
 			if (result == NULL)
