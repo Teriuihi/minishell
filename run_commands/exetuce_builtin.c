@@ -45,12 +45,15 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 	int		i;
 
 	i = 0;
+	if (!command->args || !command->args[i] || command->args_len <= 1)
+		return (false);
 	while (command->args[i])
 	{
 		if (ft_streq(command->args[i], "export"))
 		{
 			splitted = ft_split(command->args[i + 1], '=');
-			if (split_len(splitted) < 2)
+			//print_splitted(splitted);
+			if (split_len(splitted) < 1)
 			{
 				free_splitted(splitted);
 				return (false);
@@ -73,6 +76,8 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 		minishell->exit_status = 2;
 		return (false);
 	}
+	//check if variable name was found in hashtable
+		//if yes, assign the new val into it
 	if (export_found(command, minishell) == true)
 	{	
 		minishell->exit_status = 0;
@@ -83,6 +88,15 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 	{
 		free_splitted(splitted);
 		minishell->exit_status = 2;
+		return (false);
+	}
+	if (ft_get_env_val(splitted[0], minishell->env) != NULL)
+	{
+		if (succesful_insert(minishell->env, splitted[0], splitted[1], true) == true)
+		{
+			ft_printf("managed to add\n");
+			return (true);
+		}
 		return (false);
 	}
 	if (ft_set_env(splitted[0], splitted[1], minishell->env, false) == false)
