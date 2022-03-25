@@ -80,7 +80,13 @@ t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val,
 	while (entry != NULL)
 	{
 		if (ft_strncmp(entry->key, key, ft_strlen(entry->key)) == 0)
+		{
+			destroy_entry(entry);
+			h_table->entries[slot] = create_hash_table_pair(key, val, is_exported);
+			if (!h_table->entries[slot])
+				return (false);
 			return (true);
+		}	
 		prev = entry;
 		entry = prev->next;
 	}

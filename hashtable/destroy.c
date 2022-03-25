@@ -28,6 +28,7 @@ void	free_key_value(t_entry *entry)
 	{
 		free(entry->val);
 	}
+	entry = NULL;
 }
 
 void	destroy_entry(t_entry *entry)

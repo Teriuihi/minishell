@@ -403,7 +403,7 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			ft_printf("command not found: %s\n", command->command);
 		return ;
 	}
-	ft_printf("old: %i - %i new: %i - %i\n", old_pid[0], old_pid[1], cur_pid[0], cur_pid[1]);
+	//ft_printf("old: %i - %i new: %i - %i\n", old_pid[0], old_pid[1], cur_pid[0], cur_pid[1]);
 	g_signal.pid = fork();
 	if (g_signal.pid == 0)
 	{
