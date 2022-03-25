@@ -146,7 +146,9 @@ t_list	**parse(char *input, t_minishell *minishell)
 	t_string	*string;
 	t_list		**head;
 	t_bool		literal;
+	t_bool		has_data;
 
+	has_data = false;
 	literal = false;
 	head = ft_calloc(1, sizeof(t_list *));
 	pos = 0;
@@ -159,9 +161,10 @@ t_list	**parse(char *input, t_minishell *minishell)
 		if (input[pos] == '"' || input[pos] == '\'')
 		{
 			if (pos != 0 && pos != start)
-				string = append_content(input, start, pos - 1, string);
+				string = append_content(input, start, pos, string);
 			pos++;
 			string = parse_quotation(input, &pos, input[pos - 1], string, minishell);
+			has_data = true;
 			start = pos;
 			literal = true;
 		}
@@ -169,20 +172,19 @@ t_list	**parse(char *input, t_minishell *minishell)
 		{
 			if (pos == 0 || pos == start)
 			{
-				if (string->len != 0)
-				{
-					string = append_content(input, start, pos, string);
-					string = safe_add_to_list(head, string, literal);
-					if (string == NULL)
-						return (NULL);
-					literal = false;
-				}
+				string = append_content(input, start, pos, string);
+				string = safe_add_to_list(head, string, literal);
+				has_data = false;
+				if (string == NULL)
+					return (NULL);
+				literal = false;
 				pos++;
 				start = pos;
 				continue ;
 			}
 			string = append_content(input, start, pos, string);
 			string = safe_add_to_list(head, string, literal);
+			has_data = false;
 			if (string == NULL)
 				return (NULL);
 			literal = false;
@@ -192,18 +194,22 @@ t_list	**parse(char *input, t_minishell *minishell)
 		else if (input[pos] == '$')
 		{
 			if (pos != 0 && pos != start)
-				string = append_content(input, start, pos - 1, string);
+				string = append_content(input, start, pos, string);
 			if (string == NULL)
 				return (NULL);
 			string = parse_env_variable(input, ++pos, &pos, string, minishell);
 			if (string == NULL)
 				return (NULL);
 			start = pos;
+			has_data = true;
 		}
 		else
+		{
 			pos++;
+			has_data = true;
+		}
 	}
-	if (pos != start || string->len != 0)
+	if (has_data)
 	{
 		string = append_content(input, start, pos, string);
 		if (safe_add_to_list(head, string, literal) == NULL)

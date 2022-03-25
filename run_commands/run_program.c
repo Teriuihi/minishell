@@ -39,7 +39,7 @@ void	tmp_print_command(t_cmd_data *cmd_data)
 	ft_printf("\033[1;32mCommand %i: \033[1;31m%s\n", count, cmd_data->command->command);
 	ft_printf("\033[1;32mArgs: \033[1;31m%i\n", cmd_data->command->args_len);
 	while (i < cmd_data->command->args_len)
-		ft_printf("  %s\n", cmd_data->command->args[i++]);
+		ft_printf("  [%s]\n", cmd_data->command->args[i++]);
 	ft_printf("\033[1;32mInput type: \033[1;31m%i\033[0m - \033[1;32mInput file: \033[1;31m%s\n",
 		cmd_data->input.type, cmd_data->input.file);
 	ft_printf("\033[1;32mOutput type: \033[1;31m%i\033[0m - \033[1;32mOutput file: \033[1;31m%s\n",
