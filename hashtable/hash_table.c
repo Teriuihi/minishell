@@ -14,6 +14,9 @@
 #include "../headers/functions.h"
 //
 extern char	**environ;
+
+//export TERM=linux has to be added still
+
 /**
  * Creates a hashtable where we will store env and other variables
 */
@@ -81,6 +84,18 @@ t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val,
 	{
 		if (ft_strncmp(entry->key, key, ft_strlen(entry->key)) == 0)
 		{
+			//check if there is an entry but without val?
+			if (entry->val == NULL)
+			{
+				ft_printf("at the right place\n");
+				entry->val = (char *)ft_calloc((ft_strlen(val) + 1), 1);
+				entry->val = ft_strncpy(entry->val, (char *)val, ft_strlen((char *)val));
+				if (!entry->val)
+				{	
+					exit(1);
+				}
+				return (true);
+			}
 			destroy_entry(entry);
 			h_table->entries[slot] = create_hash_table_pair(key, val, is_exported);
 			if (!h_table->entries[slot])
@@ -121,5 +136,7 @@ t_hash_table	*create_env_h_table(void)
 		free(environs);
 		i++;
 	}
+	if (ft_set_env("TERM", "linux", h_table, true) == false) //export TERM=linux has to be added still for clear, sometimes it doesnt work otherwise
+		exit(1);
 	return (h_table);
 }

@@ -254,6 +254,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 								const int *cur_pid, t_minishell *minishell)
 {
 	t_command	*command;
+	struct stat	sb;
 
 	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
 	command = cmd_data->command;
@@ -263,10 +264,18 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 		ft_printf("command not found\n");
 		exit(127);
 	}
+	/*
+	//do stat before execve?
+	if (stat(command->command, &sb == -1))
+	{
+		//correct error cmd?
+		exit(2);
+	}
+	*/
 	if (execve(command->command, command->args,
 			get_envp(minishell->env)) < 0)
 	{
-		ft_printf("%s: command not found\n", command->command);
+		ft_printf("%s: command not found IN EXECVE\n", command->command);
 		close(old_pid[0]);
 		exit(126);
 	}
