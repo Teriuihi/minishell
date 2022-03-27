@@ -31,8 +31,13 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 		if (ft_strncmp(key, h_table->entries[hashkey]->key,
 				ft_strlen(key)) == 0)
 		{
+			//make the next val of this be the head
 			free_key_value(h_table->entries[hashkey]);
-			return (set_exit_status(minishell, 0));
+			//dont delete entry, just free its key and val
+			minishell->exit_status = 0;
+			return (false);
+			//return (set_exit_status(minishell, 0));
+			//when I return this, its evald to true, shouldnt
 		}
 		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
 	}
@@ -80,23 +85,25 @@ t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,
 
 char	*ft_get_env_val(char *key, t_hash_table *h_table)
 {
-	unsigned int	hashkey;
+	unsigned int	slot;
 	char			*env_val;
 
 	if (!key || !h_table)
 	{
 		return (NULL);
 	}
-	hashkey = hash(key, "", h_table->size);
-	while (h_table->entries[hashkey] != NULL)
+	slot = hash(key, "", h_table->size);
+	while (h_table->entries[slot] != NULL)
 	{
-		if (ft_strncmp(key, h_table->entries[hashkey]->key,
+		//ft_printf("comparing |%s| to |%s| \n", key, h_table->entries[slot]->key);
+		if (ft_strncmp(key, h_table->entries[slot]->key,
 				ft_strlen(key)) == 0)
 		{
-			env_val = ft_strdup(h_table->entries[hashkey]->val);
+		//	ft_printf("WE FOUND THE PATH. %s is gnna be the val\n", h_table->entries[slot]->val);
+			env_val = ft_strdup(h_table->entries[slot]->val);
 			return (env_val);
 		}
-		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
+		h_table->entries[slot] = h_table->entries[slot]->next;
 	}
 	return (NULL);
 }
@@ -132,8 +139,10 @@ char	**get_envp(t_hash_table *h_table)
 							+ ft_strlen(curr->val) + 2) * sizeof(char));
 				if (!current_env)
 					exit(1);
-				current_env = ft_strjoin(curr->key, "=");
-				current_env = ft_strjoin(current_env, curr->val);
+				if (curr->key)
+					current_env = ft_strjoin(curr->key, "=");
+				if (curr->val)
+					current_env = ft_strjoin(current_env, curr->val);
 				envp[env_i] = current_env;
 				env_i++;
 				curr = curr->next;

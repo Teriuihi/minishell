@@ -375,7 +375,7 @@ static t_bool	search_executable(t_cmd_data *cmd_data,
 	{
 		return (assign_path_to_command(executable, true, command));
 	}
-	executable = search_in_path(command->command);
+	executable = search_in_path(command->command, minishell);
 	if (executable != NULL)
 	{
 		return (assign_path_to_command(executable, true, command));

@@ -31,6 +31,7 @@ typedef struct s_signal
 	struct termios			new_termios;
 	volatile sig_atomic_t	sigint;
 	volatile sig_atomic_t	veof;
+	volatile sig_atomic_t	sigquit;
 }				t_signal;
 
 typedef struct s_minishell

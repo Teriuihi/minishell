@@ -106,13 +106,25 @@ static int interruptible_getc(void)
 	char	c;
 
 	if (g_signal.interrupted == true)
+	{
 		return EOF;
+	}
 	r = read(0, &c, 1); // read from stdin, will return -1 when interrupted by a signal
 	if (r == -1 && errno == EINTR) //then this is sigint (crtl c here)
 	{
+		//ft_printf("%d is errno KKKK\n", errno);
+		//if (errno == 4 && g_signal.sigint != 1)
+		//{
+		//	g_signal.sigquit == 1;
+		//	ft_printf("%d is sigquit\n", g_signal.sigquit);
+		//}
 		if (errno == EINTR && g_signal.sigint != 1) //we have to check which signal was which it interrupted
 		{
+			//ft_printf("sigquit is right place\n");
+			//write(1, "right place for sigquit\n", 25);
+			//ft_printf("we are interrupted, %d is errno, %d is r, %d sigquit\n", errno, r, g_signal.sigquit);
 			g_signal.interrupted = true;
+			//return (1);
 		}
 	}
 	return (r == 1 ? c : EOF); //if we use signals this we always return EOF
@@ -134,9 +146,19 @@ void	start_program_loop(t_minishell *minishell)
 	input = "";
 	while (input && g_signal.sigint != 1 && g_signal.veof != 1)
 	{
+		//while we have the sigquit flag on?
 		input = readline("some shell>");
 		//print_splitted(get_envp(minishell->env));
 		signal_check(input);
+		/*
+		while (g_signal.sigquit == 1)
+		{
+			input = readline("some shell>");
+			ft_printf("INSIDE \b\b\b\b\b\b\b\b\b\b\b");
+			signal_check(input);
+			sleep(15);
+		}
+		*/
 		if (should_use(input))
 		{
 			add_history(input);

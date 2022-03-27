@@ -54,10 +54,17 @@ void	set_termios(void)
 	g_signal.new_termios.c_lflag |= (ICANON | ISIG | ECHO);
 	g_signal.new_termios.c_cc[VINTR] = 3;
 	g_signal.new_termios.c_cc[VEOF] = 4;
+	//g_signal.new_termios.c_lflag &= ~ISIG;
+	//g_signal.new_termios.c_cc[VQUIT] = 34;
+
 	g_signal.old_termios.c_lflag |= (ICANON | ISIG | ECHO);
 	g_signal.old_termios.c_cc[VINTR] = 3;
 	g_signal.old_termios.c_cc[VEOF] = 4;
+	//g_signal.old_termios.c_cc[VQUIT] = 2;
+
 	signal(SIGINT, sigquit_handler);
+	//signal(SIGQUIT, SIG_IGN);
+
 }
 
 void	init(t_minishell *minishell)
@@ -88,7 +95,7 @@ int	main(void)
 		{
 			start_program_loop(&minishell);
 		}
-		check_status();
+		check_status(&minishell);
 	}
 	return (0);
 }

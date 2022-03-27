@@ -20,7 +20,7 @@
 # include "minishell.h"
 
 t_list			**find_commands(t_list **args);
-char			*search_in_path(char *command);
+char			*search_in_path(char *command, t_minishell *minishell);
 size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 void			crtld_handler(int signum);
 void			sigquit_handler(int signum);
@@ -44,7 +44,7 @@ t_bool			ft_remove_exported_var(char *key, t_hash_table *h_table,
 					t_minishell *minishell);
 void			signal_check(char *input);
 t_bool			set_exit_status(t_minishell *minishell, int status);
-void			check_status(void);
+void			check_status(t_minishell *minishell);
 char			*search_folder(char *command, t_minishell *minishell);
 
 #endif

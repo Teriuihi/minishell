@@ -25,7 +25,7 @@ extern char		**environ;
 *
 * @return void
 */
-char	*search_in_path(char *command)
+char	*search_in_path(char *command, t_minishell *minishell)
 {
 	int			i;
 	char		*tmp;
@@ -33,7 +33,16 @@ char	*search_in_path(char *command)
 	char		**split_path;
 	struct stat	sb;
 
-	path = get_path();
+	path = ft_get_env_val("PATH", minishell->env);
+	//ft_printf("%s is path\n");
+	if (path == NULL)
+	{
+		ft_printf("PATH IS NOT FOUND ANYMORE\n");
+	}
+	//we should pull the path from the table at this point
+	//path = get_path();
+	//if (path == NULL)
+	//	return (NULL);
 	split_path = ft_split(path, ':');
 	i = 1;
 	while (split_path[i])

@@ -69,9 +69,10 @@ t_bool	print_h_table(t_hash_table *h_table)
 	while (i < h_table->size)
 	{
 		curr = h_table->entries[i];
+		//ft_printf("%s= in entry table\n", curr->key);
 		while (curr != NULL)
 		{
-			if (curr->key && curr->val && curr->is_exported)
+			if (curr->key && curr->is_exported)
 			{
 				ft_printf("%s=%s\n", curr->key, curr->val);
 			}

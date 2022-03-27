@@ -14,6 +14,7 @@
 #include "../headers/functions.h"
 #include "../headers/structs.h"
 #include "../headers/minishell.h"
+#include <errno.h>
 
 /**
  * checks whether input is NULL (VEOF) or sigint flag is on
@@ -22,6 +23,85 @@
  *
  * @return	void
  */
+/*
+void	signal_check(char *input)
+{
+	if (input == 0)
+	{
+		if (g_signal.sigint == 0 && g_signal.veof == 0 && g_signal.sigquit == 0)
+		{
+			if (errno == 2)
+			{
+				g_signal.sigquit = 0;
+				g_signal.veof = 1;
+				ft_printf("%d is sigveof, %d is errno\n", g_signal.veof, errno);
+			}
+			else if (errno == 4)
+			{
+				g_signal.veof = 0;
+				g_signal.sigquit = 1;
+				g_signal.interrupted = false;
+				//ft_printf("\b\b\b\b\b\b\b\b\b\b\b");
+				ft_printf("%d is sigquit, %d is errno\n", g_signal.sigquit, errno);
+			}
+			//ft_printf("%d is sigquit, %d sigint, %d sigveof, %d is errno\n", g_signal.sigquit, g_signal.sigint, g_signal.veof, errno);
+		}
+	}
+}
+
+
+void	check_status(t_minishell *minishell)
+{
+	if (g_signal.veof == 1)
+	{
+		g_signal.shell_level -= 1;
+		ft_printf("\b\bexit\n");
+	}
+	if (g_signal.sigint == 1)
+	{
+		g_signal.sigint = 0;
+		minishell->exit_status = 128 + 2;
+		ft_printf("\n");
+	}
+	if (g_signal.sigquit == 1)
+	{
+		g_signal.sigquit = 0;
+		minishell->exit_status = 128 + 3;
+		ft_printf("\n");
+	}
+}
+
+void	sigquit_handler(int this_signal)
+{
+	if (this_signal == SIGINT)
+	{
+		ft_printf("SIGINT RECEIVED\n");
+		g_signal.sigint = 1;
+		//g_signal.exit_status = 128 + 2;
+	}
+	if (this_signal == SIGQUIT)
+	{
+		ft_printf("SIGQUIT RECEIVED\n");
+		g_signal.sigquit = 1;
+		g_signal.exit_status = 128 + 3;
+		//g_signal.exit_status = 128 + 2;
+	}
+	//REGISTER ONE FOR -/ handler when initing termios
+}
+
+void	init_signal(void)
+{
+	g_signal.shell_level = 2;
+	g_signal.minishell_exec_found = 0;
+	g_signal.sigint = 0;
+	g_signal.veof = 0;
+	g_signal.exit_status = 0;
+	g_signal.finished = false;
+	g_signal.pid = getpid();
+}
+*/
+
+
 void	signal_check(char *input)
 {
 	if (input == 0 || g_signal.sigint == 1)
@@ -33,7 +113,7 @@ void	signal_check(char *input)
 	}
 }
 
-void	check_status(void)
+void	check_status(t_minishell *minishell)
 {
 	if (g_signal.veof == 1)
 	{
@@ -42,6 +122,7 @@ void	check_status(void)
 	}
 	if (g_signal.sigint == 1)
 	{
+		minishell->exit_status = 128 + 2;
 		g_signal.sigint = 0;
 		ft_printf("\n");
 	}

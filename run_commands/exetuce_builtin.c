@@ -94,7 +94,7 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 	{
 		if (succesful_insert(minishell->env, splitted[0], splitted[1], true) == true)
 		{
-			ft_printf("managed to add\n");
+			//ft_printf("managed to add\n");
 			return (true);
 		}
 		return (false);
