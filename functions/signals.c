@@ -38,6 +38,7 @@ void	check_status(void)
 	if (g_signal.veof == 1)
 	{
 		ft_printf("\b\bexit\n");
+		g_signal.shell_level -= 1;
 	}
 	if (g_signal.sigint == 1)
 	{
@@ -56,9 +57,10 @@ void	sigquit_handler(int this_signal)
 
 void	init_signal(void)
 {
+	g_signal.shell_level = 2;
+	g_signal.minishell_exec_found = 0;
 	g_signal.sigint = 0;
 	g_signal.veof = 0;
 	g_signal.finished = false;
 	g_signal.pid = getpid();
-	g_signal.keep_running = 1;
 }

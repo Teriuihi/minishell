@@ -80,6 +80,13 @@ char	*search_folder(char *command, t_minishell *minishell)
 		{
 			if (ft_streq(command, ft_strjoin("./", file->d_name))) //check if the given command is also ./ + commandname (eg: ./a.out)
 			{
+				//if name if ./minishell , increase level
+				//change the val of $SHLVL
+				if (ft_streq("minishell", file->d_name))
+				{
+					g_signal.shell_level += 1;
+					g_signal.minishell_exec_found = 1;
+				}
 				//TODO FREE
 				closedir(directory); //close dir before returning
 				return (executable_path); //return the entire executable path

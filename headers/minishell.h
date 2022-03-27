@@ -24,7 +24,8 @@ typedef struct s_signal
 	t_bool					interrupted;
 	pid_t					pid;
 	pid_t					exit_status;
-	int						keep_running;
+	int						shell_level;
+	int						minishell_exec_found;
 	int						terminal_descriptor;
 	struct termios			old_termios;
 	struct termios			new_termios;

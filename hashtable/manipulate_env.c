@@ -39,6 +39,31 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 	return (set_exit_status(minishell, 0));
 }
 
+/*
+void	ft_change_env_val(char *key, t_hash_table *h_table)
+{
+	unsigned int	hashkey;
+	char			*env_val;
+	
+
+	if (!kesy || !h_table)
+	{
+		return (NULL);
+	}
+	hashkey = hash(key, "", h_table->size);
+	while (h_table->entries[hashkey] != NULL)
+	{
+		if (ft_strncmp(key, h_table->entries[hashkey]->key,
+				ft_strlen(key)) == 0)
+		{
+
+			env_val = ft_strdup(h_table->entries[hashkey]->val);
+			return (env_val);
+		}
+		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
+	}
+}
+*/
 t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,
 								t_bool is_exported)
 {
