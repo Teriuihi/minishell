@@ -132,6 +132,41 @@ t_string	*safe_add_to_list(t_list **head, t_string *string, t_bool literal)
 	return (init_string(NULL));
 }
 
+t_bool	is_pipe(char c)
+{
+	return (c == '|' || c == '<' || c == '>');
+}
+
+void	skip_space(char *input, int *pos)
+{
+	while (*pos && ft_iswhite_space(input[*pos]))
+		(*pos)++;
+}
+
+t_bool	pipe_in_string_skip(char *input, int start, int *pos, t_string **string)
+{
+	int	len;
+
+	if (ft_strlen(input + *pos) < 2)
+		return (false); //Parsing error since it has to be at least 2 chars (ex: <a)
+	if (!ft_strncmp(input + *pos, "<<", 2) || !ft_strncmp(input + *pos, ">>", 2))
+	{
+		if (!input[*pos + 2] || is_pipe(input[*pos + 2]))
+			return (false); //Parsing error since it has to be at least 3 chars (ex: >>a) and there can't be another pipe after
+		len = 2;
+	}
+	else
+	{
+		if (is_pipe(input[*pos + 1]))
+			return (false); //Parsing error since there can't be a pipe after
+		len = 1;
+	}
+	*pos += len;
+	*string = append_content(input, start, *pos, *string);
+	skip_space(input, pos);
+	return (true);
+}
+
 /**
  * Parse user input
  *
@@ -168,27 +203,31 @@ t_list	**parse(char *input, t_minishell *minishell)
 			start = pos;
 			literal = true;
 		}
-		else if (ft_iswhite_space(input[pos]))
+		else if (ft_iswhite_space(input[pos]) || is_pipe(input[pos]))
 		{
-			if (pos == 0 || pos == start)
+			if (has_data)
 			{
 				string = append_content(input, start, pos, string);
 				string = safe_add_to_list(head, string, literal);
-				has_data = false;
 				if (string == NULL)
 					return (NULL);
-				literal = false;
-				pos++;
-				start = pos;
-				continue ;
 			}
-			string = append_content(input, start, pos, string);
-			string = safe_add_to_list(head, string, literal);
+			skip_space(input, &pos);
+			if (is_pipe(input[pos]))
+			{
+				pipe_in_string_skip(input, pos, &pos, &string);
+				string = safe_add_to_list(head, string, literal);
+				if (string == NULL)
+					return (NULL);
+			}
 			has_data = false;
-			if (string == NULL)
-				return (NULL);
 			literal = false;
-			pos++;
+			skip_space(input, &pos);
+			if (is_pipe(input[pos]))
+			{
+				//TODO ERROR cus there can't be a pipe right after another pipe
+			}
+			skip_space(input, &pos);
 			start = pos;
 		}
 		else if (input[pos] == '$')
