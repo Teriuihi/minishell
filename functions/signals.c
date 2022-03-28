@@ -148,7 +148,9 @@ void	check_status(t_minishell *minishell)
 		//rl_on_new_line();
 		//clear_history();
 		//rl_replace_line();
+		
 		//rl_forced_update_display();
+		//
 		g_signal.exit_status = 128 + 2;
 		g_signal.sigint = 0;
 		ft_printf("\n");
