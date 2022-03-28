@@ -255,6 +255,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 {
 	t_command	*command;
 	struct stat	sb;
+	t_bool		success;
 
 	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
 	command = cmd_data->command;
@@ -274,7 +275,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	*/
 	if (g_signal.minishell_exec_found)
 	{
-		char *increased_level = ft_itoa(ft_atoi(getenv("SHLVL")) + 1);
+		char *increased_level = ft_itoa(ft_atoi(getenv("SHLVL"), &success) + 1);
 		ft_set_env("SHLVL", increased_level, minishell->env, true);
 		g_signal.minishell_exec_found = 0;
 	}

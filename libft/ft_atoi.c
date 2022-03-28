@@ -3,42 +3,89 @@
 /*                                                        ::::::::            */
 /*   ft_atoi.c                                          :+:    :+:            */
 /*                                                     +:+                    */
-/*   By: bmajor <marvin@codam.nl>                     +#+                     */
+/*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2020/10/31 07:25:29 by bmajor        #+#    #+#                 */
-/*   Updated: 2020/11/03 19:54:18 by bmajor        ########   odam.nl         */
+/*   Created: 2021/12/10 21:30:48 by sappunn       #+#    #+#                 */
+/*   Updated: 2021/12/10 21:30:48 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static int	ft_isspace(int c)
+/**
+ * Checks if a character is a whitespace
+ *
+ * @param	c	Character to check
+ *
+ * @return	1 if the character is whitespace, 0 if it's not
+ */
+static int	ft_isspace(char c)
 {
-	return (c == ' ' || c == '\t' || c == '\n' || c == '\v' ||
-			c == '\f' || c == '\r');
+	return (c == '\t'
+		|| c == '\n'
+		|| c == '\v'
+		|| c == '\f'
+		|| c == '\r'
+		|| c == ' ');
 }
 
-int			ft_atoi(const char *str)
+/**
+ * Converts a string that starts with a digit to an int
+ *
+ * @param 	str	Char array to convert
+ *
+ * @return 		Converted integer
+ */
+static int	convert(const char *str, t_bool *success)
 {
-	int	i;
-	int	neg;
-	int	result;
+	int	res;
+	int	tmp;
 
-	i = 0;
-	result = 0;
-	neg = 1;
-	while (str[i] != '\0' && ft_isspace(str[i]))
-		i++;
-	if (str[i] != '\0' && (str[i] == '-' || str[i] == '+'))
+	if (!ft_isdigit(*str))
+		return (0);
+	while (*str == '0' && *(str + 1) != 0)
+		str++;
+	res = (*str - '0') * -1;
+	str++;
+	while (ft_isdigit(*str))
 	{
-		if (str[i] == '-')
-			neg = -neg;
-		i++;
+		tmp = res;
+		res *= 10;
+		res -= (*str - '0');
+		if ((res / 10) != tmp)
+			return (0);
+		str++;
 	}
-	while (str[i] != '\0' && ft_isdigit(str[i]))
+	if (*str == 0)
+		*success = true;
+	return (res);
+}
+
+/**
+ * Converts a string to an int
+ *
+ * @param	str	String to convert
+ *
+ * @return	The converted integer or 0 on failure
+ * 	(keep in mind 0 could be the converted integer)
+ */
+int	ft_atoi(const char *str, t_bool *success)
+{
+	int	negative;
+	int	res;
+
+	*success = false;
+	negative = -1;
+	while (ft_isspace(*str))
+		str++;
+	if (*str == '+' || *str == '-')
 	{
-		result = result * 10 + (str[i] - '0');
-		i++;
+		if (*str == '-')
+			negative = 1;
+		str++;
 	}
-	return (result * neg);
+	res = convert(str, success);
+	if (res == -2147483648 && negative == -1)
+		*success = false;
+	return (res * negative);
 }
