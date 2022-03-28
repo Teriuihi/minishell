@@ -34,7 +34,6 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 	//echo can have multiple inputs with -n. eg :-n -n -nnnn
 	args = command->args;
 	i = 1;
-	j = 1;
 	c = '\0';
 	if (!args || args[0] == NULL || args[1] == NULL)
 		return (set_exit_status(minishell, 2));
