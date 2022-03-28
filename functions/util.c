@@ -152,7 +152,7 @@ void	free_char_arr(char **args)
 
 t_bool	set_exit_status(t_minishell *minishell, int status)
 {
-	minishell->exit_status = status;
+	g_signal.exit_status = status;
 	if (status == 0)
 	{
 		return (true);

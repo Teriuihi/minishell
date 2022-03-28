@@ -16,6 +16,7 @@
 #include "../hashtable/hashtable.h"
 #include "../headers/minishell.h"
 
+
 /** TODO FINISH COMMENTS
  * Does not need a null check for value cus NULL is valid
  * @param pos
@@ -36,7 +37,7 @@ t_string	*get_string_from_var(int pos, int start, char *input, t_minishell *mini
 		return (NULL);
 	ft_strlcpy(key, input + start, pos - start + 1);
 	if (ft_strlen(key) == 1 && *key == '?')
-		value = ft_itoa(minishell->exit_status); //TODO NULL check?
+		value = ft_itoa(g_signal.exit_status); //TODO NULL check?
 	else
 		value = ft_get_env_val(key, table);
 	free(key);

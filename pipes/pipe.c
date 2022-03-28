@@ -72,12 +72,12 @@ void	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2],
 		close(old_pid[1]);
 	}
 	input = readline("heredoc> ");
-	signal_check(input);
+	signal_check(input, NULL, minishell);
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
 		ft_putstr_fd(ft_strjoin(input, "\n"), cur_pid[1]);
 		input = readline("heredoc> ");
-		signal_check(input);
+		signal_check(input, NULL, minishell);
 	}
 	close(cur_pid[1]);
 }
@@ -174,7 +174,7 @@ void	child_execute_built_in(t_cmd_data *cmd_data, const int *old_pid,
 	if (execute_builtin(command, minishell) == false)
 	{
 		ft_printf("Unable to execute command: %s\n", command->command);
-		exit(minishell->exit_status);
+		exit(g_signal.exit_status);
 	}
 	exit(0);
 }
@@ -306,14 +306,17 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 	waitpid(c_pid, &status, 0);
 	if (WIFEXITED(status))
 	{
-		if (g_signal.sigint == 1) //what if sigquit is == 1?
+		if (g_signal.sigint == 1 && g_signal.sigquit == 0) //what if sigquit is == 1?
 		{
-			minishell->exit_status = 128 + 2;
+			g_signal.exit_status = 128 + 2;
 		}
+		//else if (g_signal.sigquit == 1)
+		//{
+		//	ft_printf("QUIT registered\n");
+		//	g_signal.exit_status = 128 + 3;
+		//}
 		else
-		{
-			minishell->exit_status = WEXITSTATUS(status);
-		}
+			g_signal.exit_status = WEXITSTATUS(status);
 	}
 }
 
@@ -405,7 +408,8 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	command = cmd_data->command;
 	if (ft_streq(command->command, "exit"))
 	{
-		signal_check(NULL);
+		//signal_check(NULL, NULL, minishell);
+		exit(0);
 		return ;
 	}
 	check_input_pipes(cmd_data, old_pid, cur_pid, minishell);
@@ -428,4 +432,5 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	}
 	else
 		parent(g_signal.pid, old_pid, minishell);
+
 }
