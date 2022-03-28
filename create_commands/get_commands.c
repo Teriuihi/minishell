@@ -220,7 +220,7 @@ t_bool	append_arguments_to_command(t_command *cmd, t_list *entry, int len)
 	while (pos != len)
 	{
 		cmd->args[pos] = ft_strdup(((t_arg *)entry->content)->arg->s);
-		if (cmd->args[pos] == NULL) //TODO does args_len need to be updated to ensure proper freeing?
+		if (cmd->args[pos] == NULL)
 			return (false);
 		pos++;
 		entry = entry->next;
