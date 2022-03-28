@@ -1,23 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   ft_isdigit.c                                       :+:    :+:            */
+/*   ft_isalpha.c                                       :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2021/12/10 18:10:27 by sappunn       #+#    #+#                 */
-/*   Updated: 2021/12/10 18:10:27 by sappunn       ########   odam.nl         */
+/*   Created: 2021/12/10 18:10:23 by sappunn       #+#    #+#                 */
+/*   Updated: 2021/12/10 18:10:23 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 /**
- * Check if a given character is a digit
+ * Check if a given character is in the alphabet
  *
  * @param	c	character to check
  *
- * @return 1 if the character is a digit, 0 if not
+ * @return	1 if the character is in the alphabet, 0 if not
  */
-int	ft_isdigit(int c)
+int	ft_isalpha(int c)
 {
-	return (c >= '0' && c <= '9');
+	return ((c >= 'a' && c <= 'z')
+		|| (c >= 'A' && c <= 'Z'));
 }

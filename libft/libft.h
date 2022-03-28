@@ -25,7 +25,7 @@ int		ft_putstr_fd(char *s, int fd);
 int		ft_putnbr_fd(long n, int fd);
 size_t	ft_strlen(const char *c);
 char	*ft_itoa(long n);
-int     ft_atoi(const char *str);
+int		ft_atoi(const char *str);
 int		ft_printf(const char *str, ...);
 char	*ft_strtrim(char const *s1, char const *set);
 char	*ft_strrchr(const char *s, int c);
@@ -38,7 +38,9 @@ char	*ft_strdup(const char *s1);
 char	*ft_strjoin(char const *s1, char const *s2);
 void	ft_bzero(void *s, size_t n);
 int		ft_streq(const char *s1, const char *s2);
-int     ft_isdigit(int c);
+int		ft_isalpha(int c);
+int		ft_isdigit(int c);
+int		ft_isalnum(int c);
 
 typedef struct s_list
 {

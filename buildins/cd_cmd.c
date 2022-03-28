@@ -58,7 +58,19 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	void	*tmp;
 	char	*dir;
 	t_bool	result;
+	char	**args;
 
+	if (command->args_len == 1)
+	{
+		args = ft_calloc(3, sizeof(char *));
+		if (!args)
+			return (set_exit_status(minishell, 1));
+		args[0] = command->args[0];
+		args[1] = ft_get_env_val("HOME", minishell->env); //TODO error checking
+		free(command->args);
+		command->args = args;
+		command->args_len = 2;
+	}
 	if (command->args_len != 2 || command->args[1] == NULL)
 		return (set_exit_status(minishell, 1));
 	dir = get_path_from_arg(command->args[1], minishell);
