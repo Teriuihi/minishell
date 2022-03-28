@@ -38,19 +38,6 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 	c = '\0';
 	if (!args || args[0] == NULL || args[1] == NULL)
 		return (set_exit_status(minishell, 2));
-
-	//if args[1] == ~
-		//print $home
-	
-	//if (ft_strncmp(args[1], "~", 1) //what is there is another char after?
-	//{
-		//check next char, if it
-	//	if (ft_strlen(args[1]) > 1)
-	//	{
-
-	//	}
-
-	//}
 	if (ft_strncmp(args[i], "-n", 3) == 0)
 	{	
 		while (i < command->args_len - 1 && (ft_strncmp(args[i], "-n", 1) == 0)) 
@@ -76,3 +63,17 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 	write(fd, &c, 1);
 	return (set_exit_status(minishell, 0));
 }
+
+/*
+if args[1] == ~
+	print $home
+	
+	if (ft_strncmp(args[1], "~", 1) //what is there is another char after?
+	{
+	check next char, if it
+	if (ft_strlen(args[1]) > 1)
+	{
+
+	}
+}
+*/

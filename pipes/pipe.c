@@ -261,7 +261,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell);
 	if (cmd_data->executable_found == false)
 	{
-		ft_printf("command not found\n");
+		ft_printf("some shell: %s: No such file or directory\n", command->command);
 		exit(127);
 	}
 	/*
@@ -306,7 +306,7 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 	waitpid(c_pid, &status, 0);
 	if (WIFEXITED(status))
 	{
-		if (g_signal.sigint == 1)
+		if (g_signal.sigint == 1) //what if sigquit is == 1?
 		{
 			minishell->exit_status = 128 + 2;
 		}
@@ -382,7 +382,6 @@ static t_bool	search_executable(t_cmd_data *cmd_data,
 	}
 	else
 	{
-		ft_printf("command not found: %s\n", *command->args);
 		return (false);
 	}
 }

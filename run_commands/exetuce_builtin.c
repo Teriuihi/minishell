@@ -73,41 +73,33 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 
 	if (!command || !minishell)
 	{
-		minishell->exit_status = 2;
-		return (false);
+		return (set_exit_status(minishell, 2));
 	}
-	//check if variable name was found in hashtable
-		//if yes, assign the new val into it
 	if (export_found(command, minishell) == true)
 	{	
-		minishell->exit_status = 0;
-		return (true);
+		return (set_exit_status(minishell, 0));
 	}
 	splitted = ft_split(command->command, '=');
 	if (split_len(splitted) != 2)
 	{
 		free_splitted(splitted);
-		minishell->exit_status = 2;
-		return (false);
+		return (set_exit_status(minishell, 2));
 	}
 	if (ft_get_env_val(splitted[0], minishell->env) != NULL)
 	{
 		if (succesful_insert(minishell->env, splitted[0], splitted[1], true) == true)
 		{
-			//ft_printf("managed to add\n");
-			return (true);
+			return (set_exit_status(minishell, 0));
 		}
-		return (false);
+		return (set_exit_status(minishell, 1));
 	}
 	if (ft_set_env(splitted[0], splitted[1], minishell->env, false) == false)
 	{
-		minishell->exit_status = 1;
-		return (false);
+		return (set_exit_status(minishell, 1));
 	}
 	else
 	{
-		minishell->exit_status = 0;
-		return (true);
+		return (set_exit_status(minishell, 0));
 	}
 }
 

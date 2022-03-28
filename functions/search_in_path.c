@@ -34,15 +34,8 @@ char	*search_in_path(char *command, t_minishell *minishell)
 	struct stat	sb;
 
 	path = ft_get_env_val("PATH", minishell->env);
-	//ft_printf("%s is path\n");
 	if (path == NULL)
-	{
-		ft_printf("PATH IS NOT FOUND ANYMORE\n");
-	}
-	//we should pull the path from the table at this point
-	//path = get_path();
-	//if (path == NULL)
-	//	return (NULL);
+		return (NULL);
 	split_path = ft_split(path, ':');
 	i = 1;
 	while (split_path[i])
@@ -89,8 +82,6 @@ char	*search_folder(char *command, t_minishell *minishell)
 		{
 			if (ft_streq(command, ft_strjoin("./", file->d_name))) //check if the given command is also ./ + commandname (eg: ./a.out)
 			{
-				//if name if ./minishell , increase level
-				//change the val of $SHLVL
 				if (ft_streq("minishell", file->d_name))
 				{
 					g_signal.shell_level += 1;

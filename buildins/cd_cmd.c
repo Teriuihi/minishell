@@ -60,12 +60,7 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	t_bool	result;
 
 	if (command->args_len != 2 || command->args[1] == NULL)
-	{
-		//ft_printf("%d is command args len\n", command->args_len);
-		//ft_printf("Invalid command, not enough args\n");
 		return (set_exit_status(minishell, 1));
-	}
-	//if there are more args
 	dir = get_path_from_arg(command->args[1], minishell);
 	if (dir == NULL)
 		return (set_exit_status(minishell, 1));
