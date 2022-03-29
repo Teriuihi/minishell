@@ -46,5 +46,6 @@ void			signal_check(char *input, t_bool *b, t_minishell *minishell);
 t_bool			set_exit_status(t_minishell *minishell, int status);
 void			check_status(t_minishell *minishell);
 char			*search_folder(char *command, t_minishell *minishell);
+int 			interruptible_getc(void);
 
 #endif

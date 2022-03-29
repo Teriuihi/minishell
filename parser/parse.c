@@ -37,7 +37,10 @@ t_string	*get_string_from_var(int pos, int start, char *input, t_minishell *mini
 		return (NULL);
 	ft_strlcpy(key, input + start, pos - start + 1);
 	if (ft_strlen(key) == 1 && *key == '?')
+	{
 		value = ft_itoa(g_signal.exit_status); //TODO NULL check?
+		ft_printf("%s is the exit value which we get here\n", value);
+	}
 	else
 		value = ft_get_env_val(key, table);
 	free(key);

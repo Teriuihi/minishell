@@ -15,6 +15,8 @@
 #include "../buildins/buildins.h"
 #include "../hashtable/hashtable.h"
 #include "../headers/minishell.h"
+#include <readline/history.h>
+#include <readline/readline.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <termios.h> 
@@ -107,6 +109,7 @@ void	init(t_minishell *minishell)
 	minishell->cur_wd = cur_dir;
 	minishell->env = get_hash_table();
 	set_pwd(ft_strdup(cur_dir), minishell);
+	rl_getc_function = interruptible_getc;
 }
 
 int	main(void)

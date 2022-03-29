@@ -20,11 +20,9 @@
 
 typedef struct s_signal
 {
-	t_bool					finished;
 	t_bool					interrupted;
 	pid_t					pid;
 	int						exit_status;
-	int	bullshit;
 	int						shell_level;
 	int						minishell_exec_found;
 	int						terminal_descriptor;
@@ -43,4 +41,5 @@ typedef struct s_minishell
 }				t_minishell;
 
 extern t_signal	g_signal;
+
 #endif

@@ -409,7 +409,7 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	command = cmd_data->command;
 	if (ft_streq(command->command, "exit"))
 	{
-		//signal_check(NULL, NULL, minishell);
+		//signal_check(NULL, NULL, minishell); //this wont change shit
 		exit(0);
 		return ;
 	}

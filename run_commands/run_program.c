@@ -69,7 +69,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	while (entry)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
-		tmp_print_command(cmd_data);
+		//tmp_print_command(cmd_data);
 		if (cur_pid[0] > -1)
 			copy_pid(cur_pid, old_pid);
 		if (cmd_data->output.type)
@@ -90,59 +90,36 @@ void	run_commands(t_list **head, t_minishell *minishell)
  */
 t_bool	should_use(char *input, t_bool *hi)
 {
-	//ft_printf("%d is HI in should use, %d is sigquit\n", *hi, g_signal.sigquit);
-	if (input == NULL || *hi == false)// || ft_streq(input, "SIGQUITKKK"))
-	{
+	if (input == NULL || *hi == false)
 		return (false);
-	}
 	while (*input && ft_iswhite_space(*input))
 		input++;
 	return ((*input) != '\0');
 }
 
-//static int interrupted = false;
-static int interruptible_getc(void)
-{	
-	int		r;
-	char	c;
 
-	if (g_signal.interrupted == true)
-	{
-		return EOF;
-	}
-	r = read(0, &c, 1);
-	//crtl \ -> errno = 4, -1 r
-	//crtl D -> errno = 2, 1 r
-	if (r == -1 && errno == EINTR) //then this is sigint (crtl c here)
-	{
-		//ft_printf("%d is errno KKKK\n", errno);
-		if (errno == 4 && g_signal.sigint != 1 && r == -1) //then this should be 
-		{
-			//ft_printf("setting sigquit\n", g_signal.sigquit);
-			g_signal.sigquit = 1;
-			//g_signal.interrupted = true;
-		}
-		//ft_printf("%d is errno KKKK\n", errno);
-		//if (errno == 4 && g_signal.sigint != 1)
-		//{
-		//	g_signal.sigquit == 1;
-		//	ft_printf("%d is sigquit\n", g_signal.sigquit);
-		//}
-		else if (errno == EINTR && g_signal.sigint != 1) //we have to check which signal was which it interrupted
-		{
-			//ft_printf("we are interrupted, %d is errno, %d is r, %d sigquit\n", errno, r, g_signal.sigquit);
+char	*prompt(t_bool *display_prompt)
+{
+	char *input;
 
-			//ft_printf("sigquit is right place\n");
-			//write(1, "right place for sigquit\n", 25);
-			//ft_printf("we are interrupted, %d is errno, %d is r, %d sigquit\n", errno, r, g_signal.sigquit);
-			//ft_printf("GONNA SET INTERRUPTED\n");
-			g_signal.interrupted = true;
-			//return (1);
-		}
+	if (*display_prompt == false)
+	{
+		input = readline("");
+		*display_prompt = true;
+		g_signal.sigquit = 0; //not sure if needed
 	}
-	//r == 1 ? printf("%c to return\n", c) : printf("EOF to return\n");
-	return (r == 1 ? c : EOF); //if we use signals this we always return EOF
+	else
+	{
+		if (g_signal.sigquit == 1 && g_signal.exit_status != 0) //cuz it was registered in this process
+		{
+			ft_printf("Quit: 3\n");
+			g_signal.sigquit = 0;
+		}
+		input = readline("some shell>");
+	}
+	return (input);
 }
+
 
 /**
  * Starts (minishell) program loop,
@@ -156,39 +133,18 @@ void	start_program_loop(t_minishell *minishell)
 	t_list		**head;
 	t_list		**parse_results;
 	t_bool		display_prompt;
-	int			i;
 
-	rl_getc_function = interruptible_getc;
-	input = "";
 	display_prompt = true;
-	i = 0;
-	while (g_signal.sigint != 1 && g_signal.veof != 1)
+	while (g_signal.sigint != 1 && g_signal.veof != 1) //input
 	{
-		if (display_prompt == false)
-		{
-			input = readline("");
-			display_prompt = true;
-			g_signal.sigquit = 0;
-		}
-		else
-		{
-			if (g_signal.sigquit == 1)
-			{
-				ft_printf("Quit: 3\n");
-				//ft_printf("%d IS BULLSHIT\n", g_signal.bullshit);
-				g_signal.sigquit = 0;
-			}
-			input = readline("some shell>");
-		}
+		input = prompt(&display_prompt);
 		signal_check(input, &display_prompt, minishell);
-		if (should_use(input, &display_prompt))
+		if (should_use(input, &display_prompt) == true)
 		{
 			add_history(input);
 			parse_results = parse(input, minishell); //TODO free
 			if (parse_results == NULL)
-			{
 				exit(1);
-			}
 			head = find_commands(parse_results); //TODO free
 			if (head == NULL)
 			{
@@ -200,10 +156,10 @@ void	start_program_loop(t_minishell *minishell)
 		}
 	}
 	if (input != NULL)
-	{
 		free(input);
-	}
 }
+
+
 
 //was above the input != NULL
 //if (g_signal.veof != 1) //not sure about this yet

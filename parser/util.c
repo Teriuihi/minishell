@@ -14,6 +14,9 @@
 #include "../string/string.h"
 #include "../headers/arguments.h"
 #include "../libft/libft.h"
+#include "../headers/minishell.h"
+#include <errno.h>
+#include <stdio.h>
 
 t_bool	add_to_list(t_list **head, t_string *string, t_bool literal)
 {

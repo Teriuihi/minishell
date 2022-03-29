@@ -105,33 +105,20 @@ void	init_signal(void)
 
 void	signal_check(char *input, t_bool *display_prompt, t_minishell *minishell)
 {
-	//if its sigquit, set exit code and redisplay the prompt
 	if (g_signal.sigquit == 1)
 	{
-		if (display_prompt != NULL)
-			*display_prompt = false;
-		if (g_signal.pid > 0)
-		{
-			g_signal.exit_status = 128 + 3;
-		}
-		//if (input)
-		//{
-		//	free(input);
-			//input = NULL;
-		//}
-		//ft_printf("GONNA RETURN FROM SIGQUIT 1\n");
+		*display_prompt = false;
 		g_signal.sigquit = 0;
 		return ;
 	}
-	if (input == 0 || g_signal.sigint == 1)
+	else if (input == 0 || g_signal.sigint == 1)
 	{
 		if (g_signal.sigint != 1)
 		{
 			g_signal.veof = 1;
 		}
 	}
-	if (display_prompt != NULL)
-		*display_prompt = true;
+	*display_prompt = true;
 }
 
 void	check_status(t_minishell *minishell)
@@ -143,15 +130,7 @@ void	check_status(t_minishell *minishell)
 	}
 	if (g_signal.sigint == 1)
 	{
-		//ft_printf("sigint registered\n");
-		//rl_redisplay();
-		//rl_on_new_line();
-		//clear_history();
-		//rl_replace_line();
-		
-		//rl_forced_update_display();
-		//
-		g_signal.exit_status = 128 + 2;
+		//g_signal.exit_status = 128 + 2;
 		g_signal.sigint = 0;
 		ft_printf("\n");
 	}
@@ -162,12 +141,14 @@ void	sigquit_handler(int this_signal)
 	if (this_signal == SIGINT)
 	{
 		g_signal.sigint = 1;
+		g_signal.exit_status = 128 + 2;
+		//ft_printf("Exit status changed to %d\n", g_signal.exit_status);
 	}
 	if (this_signal == SIGQUIT)
 	{
 		g_signal.sigquit = 1;
-		//g_signal.bullshit++;
 		g_signal.exit_status = 128 + 3;
+		//ft_printf("Exit status changed to %d\n", g_signal.exit_status);
 	}
 }
 
@@ -178,7 +159,5 @@ void	init_signal(void)
 	g_signal.minishell_exec_found = 0;
 	g_signal.sigint = 0;
 	g_signal.veof = 0;
-	g_signal.bullshit = 0;
-	g_signal.finished = false;
 	g_signal.pid = getpid();
 }
