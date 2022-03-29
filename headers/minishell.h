@@ -21,6 +21,7 @@
 typedef struct s_signal
 {
 	t_bool					interrupted;
+	t_bool					print_basic_error;
 	pid_t					pid;
 	int						exit_status;
 	int						shell_level;

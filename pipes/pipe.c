@@ -275,9 +275,9 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	*/
 	if (g_signal.minishell_exec_found)
 	{
+		g_signal.minishell_exec_found = 0;
 		char *increased_level = ft_itoa(ft_atoi(getenv("SHLVL"), &success) + 1);
 		ft_set_env("SHLVL", increased_level, minishell->env, true);
-		g_signal.minishell_exec_found = 0;
 	}
 	if (execve(command->command, command->args,
 			get_envp(minishell->env)) < 0)
@@ -409,17 +409,17 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	command = cmd_data->command;
 	if (ft_streq(command->command, "exit"))
 	{
-		//signal_check(NULL, NULL, minishell); //this wont change shit
 		exit(0);
-		return ;
 	}
 	check_input_pipes(cmd_data, old_pid, cur_pid, minishell);
 	if (is_built_in == false)
 		cmd_data->executable_found = search_executable(cmd_data, minishell);
 	if (should_be_child(command) == false)
 	{
-		if (execute_non_forked_builtin(command, minishell) == false)
+		if (execute_non_forked_builtin(command, minishell) == false && g_signal.print_basic_error == true)
 			ft_printf("command not found: %s\n", command->command);
+		if (g_signal.print_basic_error == true)
+			g_signal.print_basic_error = false;
 		return ;
 	}
 	//ft_printf("old: %i - %i new: %i - %i\n", old_pid[0], old_pid[1], cur_pid[0], cur_pid[1]);

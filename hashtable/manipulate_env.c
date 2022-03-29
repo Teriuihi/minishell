@@ -23,7 +23,7 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 
 	if (!key || !h_table || !minishell)
 	{
-		return (set_exit_status(minishell, 1));
+		return (set_exit_status(minishell, 1, NULL));
 	}
 	hashkey = hash(key, "", h_table->size);
 	while (h_table->entries[hashkey] != NULL)
@@ -34,11 +34,11 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 			free(h_table->entries[hashkey]->val);
 			free(h_table->entries[hashkey]->key);
 			//h_table->entries[hashkey]->val = ft_strdup("\n");
-			return (set_exit_status(minishell, 0));
+			return (set_exit_status(minishell, 0, NULL));
 		}
 		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
 	}
-	return (set_exit_status(minishell, 0));
+	return (set_exit_status(minishell, 0, NULL));
 }
 
 t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,

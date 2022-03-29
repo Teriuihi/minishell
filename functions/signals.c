@@ -159,5 +159,6 @@ void	init_signal(void)
 	g_signal.minishell_exec_found = 0;
 	g_signal.sigint = 0;
 	g_signal.veof = 0;
+	g_signal.print_basic_error = true;
 	g_signal.pid = getpid();
 }

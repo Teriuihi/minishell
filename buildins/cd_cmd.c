@@ -34,10 +34,7 @@ char	*get_path_from_arg(char	*dir_arg, t_minishell *minishell)
 	{
 		tmp = ft_strjoin("/", dir_arg);
 		if (!tmp)
-		{
-			ft_printf("Out of memory\n");
 			return (NULL);
-		}
 		dir = ft_strjoin(get_pwd(minishell), tmp);
 		free(tmp);
 		if (!dir)
@@ -64,30 +61,57 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	{
 		args = ft_calloc(3, sizeof(char *));
 		if (!args)
-			return (set_exit_status(minishell, 1));
+			return (set_exit_status(minishell, 1, NULL));
 		args[0] = command->args[0];
 		args[1] = ft_get_env_val("HOME", minishell->env); //TODO error checking
 		free(command->args);
 		command->args = args;
 		command->args_len = 2;
 	}
-	if (command->args_len != 2 || command->args[1] == NULL)
-		return (set_exit_status(minishell, 1));
+	if (command->args_len != 2)
+	{
+		char *message = ft_strjoin("some shell: cd: ", ft_strjoin(command->args[1], ": No such file or directory\n"));
+		if (!message)
+			return (set_exit_status(minishell, 1, NULL));
+		return (set_exit_status(minishell, 1, message));
+	}
+	if (command->args[1] == NULL)
+		return (set_exit_status(minishell, 1, NULL));
+	if (ft_streq(command->args[1], "~") == true) //what happens if its ~k
+	{
+		//for now just call it from HOME, but even if home is unset should work
+		//dir == $HOME val from home
+		;
+	}
+	if (ft_streq(command->args[1], "-") == true) //what happens if its ~k
+	{
+		//dir == $OLDPWD val, but even if OLDPWD unset it should work
+		//print the OLDPWD after
+		;
+	}
 	dir = get_path_from_arg(command->args[1], minishell);
 	if (dir == NULL)
-		return (set_exit_status(minishell, 1));
+		return (set_exit_status(minishell, 1, NULL));
 	tmp = opendir(dir);
+	if (!tmp)
+	{
+		char *message = ft_strjoin("some shell: cd: ", ft_strjoin(command->args[1], ": No such file or directory\n"));
+		if (!message)
+			return (set_exit_status(minishell, 1, NULL));
+		return (set_exit_status(minishell, 1, message));
+	}
 	result = tmp != NULL;
 	free(tmp);
-	ft_set_env("OLDPWD", get_pwd(minishell), get_hash_table(), true);
+	ft_set_env("OLDPWD", get_pwd(minishell), get_hash_table(), true); //TODO error checking
 	if (result == false)
-		return (set_exit_status(minishell, 1));
-	chdir(dir);
+		return (set_exit_status(minishell, 1, NULL));
+	if (chdir(dir) == -1) //what if chdir fails? this is technically a sys call
+		return (set_exit_status(minishell, 1, NULL));
 	if (dir != command->args[1])
 		free(dir);
 	result = set_pwd(getcwd(NULL, 0), minishell);
 	if (result == true)
-		return (set_exit_status(minishell, 0));
+		return (set_exit_status(minishell, 0, NULL));
 	else
-		return (set_exit_status(minishell, 1));
+		return (set_exit_status(minishell, 1, NULL));
 }
