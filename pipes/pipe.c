@@ -144,7 +144,14 @@ void	redirect_file(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	pipe(old_pid);
 	fd = open(cmd_data->input.file, O_RDONLY);
 	if (fd < 0)
-		err_exit("no such file or directory", 0);
+	{
+		char *message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->input.file, ": No such file or directory\n"));
+		if (!message)
+			return ;
+		ft_printf(2, message);
+		exit(1);
+		return ;
+	}
 	len = 1000;
 	while (len == 1000)
 	{
@@ -179,13 +186,39 @@ void	child_execute_built_in(t_cmd_data *cmd_data, const int *old_pid,
 	exit(0);
 }
 
-void	check_input_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
+t_bool	check_input_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 							t_minishell *minishell)
 {
+	//hey, is the file existing which should be going hand in hand w this function
+
+	int fd;
+	char *message;
+
 	if (cmd_data->input.type == REDIRECT_INPUT)
-		redirect_file(cmd_data, old_pid, cur_pid, minishell);
+	{
+		fd = open(cmd_data->input.file, O_RDONLY);
+		if (fd < 0)
+		{
+			message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->input.file, ": No such file or directory"));
+			if (!message)
+			{
+				return (set_exit_status(minishell, 1, message));
+			}
+			//free(message);
+			return (set_exit_status(minishell, 1, message));
+		}
+		else
+		{
+			close(fd);
+			redirect_file(cmd_data, old_pid, cur_pid, minishell);
+			return (set_exit_status(minishell, 0, NULL));
+		}
+	}
 	else if (cmd_data->input.type == DELIMITER_INPUT)
+	{
 		read_input_write(cmd_data, old_pid, cur_pid, minishell);
+	}
+	return (true);
 }
 
 void	close_pipes(int *pid1, int *pid2)
@@ -418,7 +451,10 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 		else
 			return ;
 	}
-	check_input_pipes(cmd_data, old_pid, cur_pid, minishell);
+	if (check_input_pipes(cmd_data, old_pid, cur_pid, minishell) == false)
+	{
+		return ;
+	}
 	if (is_built_in == false)
 		cmd_data->executable_found = search_executable(cmd_data, minishell);
 	if (should_be_child(command) == false)
