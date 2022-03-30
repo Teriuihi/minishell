@@ -62,6 +62,14 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 		args = ft_calloc(3, sizeof(char *));
 		if (!args)
 			return (set_exit_status(minishell, 1, NULL));
+		//check if HOME is not unset
+		if (ft_get_env_val("HOME", minishell->env) == NULL)
+		{
+			char *message = ft_strjoin("some shell: cd: ", "HOME not set\n");
+			if (!message)
+				return (set_exit_status(minishell, 1, NULL));
+			return (set_exit_status(minishell, 1, message));
+		}
 		args[0] = command->args[0];
 		args[1] = ft_strdup(minishell->home); //TODO error checking
 		free(command->args);
@@ -76,7 +84,12 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 		return (set_exit_status(minishell, 1, message));
 	}
 	if (command->args[1] == NULL)
-		return (set_exit_status(minishell, 1, NULL));
+	{
+		char *message = ft_strjoin("some shell: cd: ", "HOME not set\n");
+		if (!message)
+			return (set_exit_status(minishell, 1, NULL));
+		return (set_exit_status(minishell, 1, message));
+	}
 	dir = get_path_from_arg(command->args[1], minishell);
 	if (dir == NULL)
 		return (set_exit_status(minishell, 1, NULL));
