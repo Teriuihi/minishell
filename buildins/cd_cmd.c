@@ -77,18 +77,6 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	}
 	if (command->args[1] == NULL)
 		return (set_exit_status(minishell, 1, NULL));
-	if (ft_streq(command->args[1], "~") == true) //what happens if its ~k
-	{
-		//for now just call it from HOME, but even if home is unset should work
-		//dir == $HOME val from home
-		;
-	}
-	if (ft_streq(command->args[1], "-") == true) //what happens if its ~k
-	{
-		//dir == $OLDPWD val, but even if OLDPWD unset it should work
-		//print the OLDPWD after
-		;
-	}
 	dir = get_path_from_arg(command->args[1], minishell);
 	if (dir == NULL)
 		return (set_exit_status(minishell, 1, NULL));

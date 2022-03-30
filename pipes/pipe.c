@@ -421,7 +421,6 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	check_input_pipes(cmd_data, old_pid, cur_pid, minishell);
 	if (is_built_in == false)
 		cmd_data->executable_found = search_executable(cmd_data, minishell);
-	ft_printf(2, "%d\n", cmd_data->executable_found);
 	if (should_be_child(command) == false)
 	{
 		if (execute_non_forked_builtin(command, minishell) == false && g_signal.print_basic_error == true)

@@ -20,23 +20,27 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 								t_minishell *minishell)
 {
 	unsigned int	hashkey;
+	t_entry			*current;
+
 
 	if (!key || !h_table || !minishell)
 	{
 		return (set_exit_status(minishell, 1, NULL));
 	}
 	hashkey = hash(key, "", h_table->size);
-	while (h_table->entries[hashkey] != NULL)
+	current = h_table->entries[hashkey];
+	while (current != NULL)
 	{
-		if (ft_strncmp(key, h_table->entries[hashkey]->key,
+		if (ft_strncmp(key, current->key,
 				ft_strlen(key)) == 0)
 		{
-			free(h_table->entries[hashkey]->val);
-			free(h_table->entries[hashkey]->key);
+			free(current->val);
+			free(current->key);
+			current = NULL;
 			//h_table->entries[hashkey]->val = ft_strdup("\n");
 			return (set_exit_status(minishell, 0, NULL));
 		}
-		h_table->entries[hashkey] = h_table->entries[hashkey]->next;
+		current = current->next;
 	}
 	return (set_exit_status(minishell, 0, NULL));
 }
