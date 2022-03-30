@@ -44,6 +44,8 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 		write(fd, "\n", 1);
 		return (set_exit_status(minishell, 0, NULL));
 	}
+
+	//what happens if its only echo -n
 	if (ft_strncmp(args[i], "-n", 3) == 0)
 	{	
 		while (i < command->args_len - 1 && (ft_strncmp(args[i], "-n", 1) == 0)) 

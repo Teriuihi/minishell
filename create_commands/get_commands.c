@@ -446,7 +446,7 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
 		while (tmp != NULL)
 		{
 			t_arg	*arg = tmp->content;
-			ft_printf("%s - %i\n", arg->arg->s, arg->literal);
+			//ft_printf("%s - %i\n", arg->arg->s, arg->literal);
 			tmp = tmp->next;
 		}
 	}
