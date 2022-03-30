@@ -307,6 +307,10 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 	waitpid(c_pid, &status, 0);
 	if (WIFEXITED(status))
 	{
+		/*
+		if WIFSIGNALED(status)
+			g_signal_exit_status = WTERMSIG(status) + 128;
+		*/
 		if (g_signal.sigint == 1 && g_signal.sigquit == 0) //what if sigquit is == 1?
 		{
 			g_signal.exit_status = 128 + 2;
@@ -330,7 +334,7 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
  */
 t_bool	should_be_child(t_command *command)
 {
-	if (env_variable_found(command->command) == true)
+	if (env_variable_found(command) == true)
 		return (false);
 	if (ft_streq(command->command, "cd"))
 		return (false);

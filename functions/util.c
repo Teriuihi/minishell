@@ -172,6 +172,7 @@ t_bool	set_exit_status(t_minishell *minishell, int status, char *message)
 	}
 }
 
+!c
 
 
 int interruptible_getc(void)

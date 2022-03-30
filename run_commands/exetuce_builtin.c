@@ -46,23 +46,37 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 
 	i = 0;
 	if (!command->args || !command->args[i] || command->args_len <= 1)
-		return (false);
-	while (command->args[i])
 	{
-		if (ft_streq(command->args[i], "export"))
+		return (false);
+	}
+	command->export_found = false;
+	while (command->args[i] != NULL) //maybe check if more args not just the first one?
+	{
+		if (ft_streq(command->args[i], "export")) //the problem is that its export and it enters and stops here, not gonna go further
 		{
-			splitted = ft_split(command->args[i + 1], '=');
-			//ft_printf("|BEFORE PRINTING|\n");
-			print_splitted(splitted);
-			//ft_printf("|AFTER PRINTING|\n");
-			if (split_len(splitted) < 1)
+			while (i + 1 < command->args_len)
 			{
-				//ft_printf("ENTERED HERE\n");
+				splitted = ft_split(command->args[i + 1], '=');
+				if (split_len(splitted) < 1)
+				{
+					free_splitted(splitted);
+					return (false);
+				}
+				/* EDGE CASE TO FIX W STIJN
+				if (command->args[i][0] = '$') //check if i can expand?
+				{
+					char *message = ft_strjoin("some shell: export: ", ft_strjoin(command->args[1], ": No such file or directory\n"));
+					if (!message)
+						return (set_exit_status(minishell, 1, NULL));
+					return (set_exit_status(minishell, 1, message));
+					//ft_printf("export: `=tkt'c");
+				}
+				//what happens if there are more args and all of them should be set?
+				*/
+				ft_set_env(splitted[0], splitted[1], minishell->env, true);
 				free_splitted(splitted);
-				return (false);
+				i++;
 			}
-			ft_set_env(splitted[0], splitted[1], minishell->env, true);
-			free_splitted(splitted);
 			return (true);
 		}
 		i++;
@@ -74,14 +88,15 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 {	
 	char	**splitted;
 
-	if (!command || !minishell)
+	if (!command || !minishell) //prob not necessary
 	{
 		return (set_exit_status(minishell, 2, NULL));
 	}
-	if (export_found(command, minishell) == true)
-	{	
-		return (set_exit_status(minishell, 0, NULL));
+	if (command->export_found == true)
+	{
+		return (export_found(command, minishell));
 	}
+	//else its a normal one
 	splitted = ft_split(command->command, '=');
 	if (split_len(splitted) != 2)
 	{

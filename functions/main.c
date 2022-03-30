@@ -91,7 +91,7 @@ void	init_termios(void)
 	{
 		exit(1);
 	}
-	
+
 	tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.new_termios);
 	//tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.new_termios);
 

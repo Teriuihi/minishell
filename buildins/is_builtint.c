@@ -46,15 +46,20 @@ static t_bool	is_input_correct(char *command, int *count)
  * @return	true if if export or correct variable assignment is present,
  			false otherwise
 */
-t_bool	env_variable_found(char *command)
+t_bool	env_variable_found(t_command *command_t)
 {
-	int	count;
+	int		count;
+	char	*command;
 
+	command = command_t->command;
 	count = 0;
 	if (!command)
 		return (false);
 	if (ft_streq(command, "export"))
+	{
+		command_t->export_found = true;
 		return (true);
+	}
 	if (is_input_correct(command, &count) == false)
 		return (false);
 	if (count > 0)
@@ -79,7 +84,7 @@ t_bool	is_builtin(t_command *command)
 	if (!command)
 		return (false);
 	i = 0;
-	if (env_variable_found(command->command) == true)
+	if (env_variable_found(command) == true)
 	{
 		return (true);
 	}

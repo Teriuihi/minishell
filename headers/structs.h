@@ -31,6 +31,7 @@ typedef struct s_command
 	char		*command;
 	char		**args;
 	int			args_len;
+	t_bool		export_found;
 }	t_command;
 
 typedef struct s_redirect
