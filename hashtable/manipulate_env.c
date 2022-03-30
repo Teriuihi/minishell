@@ -55,25 +55,28 @@ t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,
 	return (insert_succeeded);
 }
 
+//CHECK THIS BECAUSE IT RETURNS INCORRECTLY
 char	*ft_get_env_val(char *key, t_hash_table *h_table)
 {
 	unsigned int	slot;
 	char			*env_val;
+	t_entry			*current;
 
 	if (!key || !h_table)
 	{
 		return (NULL);
 	}
 	slot = hash(key, "", h_table->size);
-	while (h_table->entries[slot] != NULL)
+	current = h_table->entries[slot];
+	while (current != NULL)
 	{
-		if (ft_strncmp(key, h_table->entries[slot]->key,
+		if (ft_strncmp(key, current->key,
 				ft_strlen(key)) == 0)
 		{
-			env_val = ft_strdup(h_table->entries[slot]->val);
+			env_val = ft_strdup(current->val);
 			return (env_val);
 		}
-		h_table->entries[slot] = h_table->entries[slot]->next;
+		current = current->next;
 	}
 	return (NULL);
 }
