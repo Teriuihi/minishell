@@ -69,7 +69,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	while (entry)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
-		//tmp_print_command(cmd_data);
+		tmp_print_command(cmd_data);
 		if (cur_pid[0] > -1)
 			copy_pid(cur_pid, old_pid);
 		if (cmd_data->output.type)
@@ -96,7 +96,6 @@ t_bool	should_use(char *input, t_bool *hi)
 		input++;
 	return ((*input) != '\0');
 }
-
 
 char	*prompt(t_bool *display_prompt)
 {

@@ -65,21 +65,21 @@ void	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2],
 	char		*input;
 
 	(void)minishell;
-	if (old_pid[0])
+	if (old_pid[0] != -1)
 	{
-		dup2(old_pid[0], STDIN_FILENO);
 		close(old_pid[0]);
 		close(old_pid[1]);
 	}
+	pipe(old_pid);
 	input = readline("heredoc> ");
 	signal_check(input, NULL, minishell);
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
-		ft_putstr_fd(ft_strjoin(input, "\n"), cur_pid[1]);
+		ft_putstr_fd(ft_strjoin(input, "\n"), old_pid[1]);
 		input = readline("heredoc> ");
 		signal_check(input, NULL, minishell);
 	}
-	close(cur_pid[1]);
+	close(old_pid[1]);
 }
 
 /**
@@ -413,11 +413,15 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	command = cmd_data->command;
 	if (ft_streq(command->command, "exit"))
 	{
-		exit(0);
+		if (cmd_data->input.type == NONE)
+			exit(0);
+		else
+			return ;
 	}
 	check_input_pipes(cmd_data, old_pid, cur_pid, minishell);
 	if (is_built_in == false)
 		cmd_data->executable_found = search_executable(cmd_data, minishell);
+	ft_printf(2, "%d\n", cmd_data->executable_found);
 	if (should_be_child(command) == false)
 	{
 		if (execute_non_forked_builtin(command, minishell) == false && g_signal.print_basic_error == true)
@@ -437,5 +441,4 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	}
 	else
 		parent(g_signal.pid, old_pid, minishell);
-
 }

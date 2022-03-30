@@ -423,6 +423,20 @@ t_list	*get_command_start(t_list *cur, int cmd_len)
 	return (cur);
 }
 
+void	update_last_command_input(t_list **head)
+{
+	t_list		*entry;
+	t_cmd_data	*cmd_data;
+
+	if (head == NULL || *head == NULL)
+		return ;
+	entry = ft_lstlast(*head);
+	cmd_data = entry->content;
+	if (cmd_data->input.type != NONE || entry->prev == NULL)
+		return ;
+	cmd_data->input.type = OUTPUT_TO_COMMAND;
+}
+
 /**
  * Starts looping through all arguments to find the commands
  *
@@ -446,7 +460,7 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
 		while (tmp != NULL)
 		{
 			t_arg	*arg = tmp->content;
-//			ft_printf(2, "%s - %i\n", arg->arg->s, arg->literal);
+			ft_printf(2, "%s - %i\n", arg->arg->s, arg->literal);
 			tmp = tmp->next;
 		}
 	}
@@ -468,6 +482,7 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
 		}
 		else
 			cmd_len++;
+		update_last_command_input(head);
 		if (success == false)
 			return (success);
 		if (cur == NULL || cur->next == NULL)
@@ -478,6 +493,7 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
 	{
 		cur = get_command_start(cur, cmd_len - 1);
 		success = output_pipe_command(head, &cur, &cmd_len, pipe_type);
+		update_last_command_input(head);
 	}
 	return (success);
 }

@@ -118,7 +118,8 @@ void	signal_check(char *input, t_bool *display_prompt, t_minishell *minishell)
 			g_signal.veof = 1;
 		}
 	}
-	*display_prompt = true;
+	if (display_prompt != NULL)
+		*display_prompt = true;
 }
 
 void	check_status(t_minishell *minishell)
