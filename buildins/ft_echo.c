@@ -35,8 +35,15 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 	args = command->args;
 	i = 1;
 	c = '\0';
-	if (!args || args[0] == NULL || args[1] == NULL)
+	if (!args || args[0] == NULL)
+	{
 		return (set_exit_status(minishell, 2, NULL));
+	}
+	if (command->args_len == 1 && ft_streq(args[0], "echo"))
+	{
+		write(fd, "\n", 1);
+		return (set_exit_status(minishell, 0, NULL));
+	}
 	if (ft_strncmp(args[i], "-n", 3) == 0)
 	{	
 		while (i < command->args_len - 1 && (ft_strncmp(args[i], "-n", 1) == 0)) 
