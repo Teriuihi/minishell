@@ -13,6 +13,7 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include "../headers/arguments.h"
+#include <fcntl.h>
 
 /**
  * Get the entry i positions ahead of the current one
@@ -265,7 +266,11 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 {
 	t_cmd_data	*cmd_data;
 	t_list		*entry;
+	int			fd;
+	char		*message;
+	t_bool		success;
 
+	success = true;
 	entry = *args;
 	if (*cmd_len == 0)
 	{
@@ -280,7 +285,7 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 			if (pipe_type == OUTPUT_TO_COMMAND)
 			{
 				*args = entry;
-				return (true);
+				return (success);
 			}
 			entry = entry->next;
 			if (entry == NULL)
@@ -289,7 +294,10 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 			{
 				cmd_data->input.type = pipe_type;
 				if (cmd_data->input.file)
+				{
+					close(open(cmd_data->input.file, O_CREAT, 0777));
 					free(cmd_data->input.file);
+				}
 				cmd_data->input.file = ft_strdup(str_from_arg(entry));
 				if (cmd_data->input.file == NULL)
 					return (false); //TODO free?
@@ -298,7 +306,10 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 			{
 				cmd_data->output.type = pipe_type;
 				if (cmd_data->output.file)
+				{
+					close(open(cmd_data->output.file, O_CREAT, 0777));
 					free(cmd_data->output.file);
+				}
 				cmd_data->output.file = ft_strdup(str_from_arg(entry));
 				if (cmd_data->output.file == NULL)
 					return (false); //TODO free?
@@ -307,14 +318,12 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 		}
 		if (entry == NULL)
 		{
-			if (cmd_data->output.file != NULL)
-			{
-				//TODO create file
-			}
+			if (cmd_data->output.file)
+				close(open(cmd_data->output.file, O_CREAT, 0777));
 			//TODO remove command properly
 			*head = NULL;
 			*args = entry;
-			return (true);
+			return (success);
 		}
 		cmd_data->command->command = ft_strdup(((t_arg *)entry->content)->arg->s);
 		if (cmd_data->command->command == NULL)
@@ -353,24 +362,45 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 		if (pipe_type == OUTPUT_TO_COMMAND)
 		{
 			*args = entry;
-			return (true);
+			return (success);
 		}
 		entry = entry->next;
 		if (entry == NULL)
 			return (false);
-		if (pipe_type == DELIMITER_INPUT || pipe_type == REDIRECT_INPUT)
+		if ((pipe_type == DELIMITER_INPUT || pipe_type == REDIRECT_INPUT) && success == true)
 		{
 			cmd_data->input.type = pipe_type;
 			if (cmd_data->input.file)
 				free(cmd_data->input.file);
 			cmd_data->input.file = ft_strdup(str_from_arg(entry));
+			if (cmd_data->input.file == NULL)
+			{
+				//TODO error return
+				success = false;
+			}
+			fd = open(cmd_data->output.file, O_RDONLY, 0);
+			if (fd < 0)
+			{
+				message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->output.file, ": No such file or directory\n"));
+				if (!message)
+					message = "some shell: out of memory";
+				err_int_return(message, 1);
+				success = false;
+			}
+			close(fd);
 		}
-		else if (pipe_type == APPEND_OUTPUT || pipe_type == REDIRECT_OUTPUT)
+		else if ((pipe_type == APPEND_OUTPUT || pipe_type == REDIRECT_OUTPUT) && success == true)
 		{
 			cmd_data->output.type = pipe_type;
 			if (cmd_data->output.file)
 				free(cmd_data->output.file);
 			cmd_data->output.file = ft_strdup(str_from_arg(entry));
+			if (cmd_data->output.file == NULL)
+			{
+				success = false;
+				//TODO error return
+			}
+			close(open(cmd_data->output.file, O_CREAT, 0777));
 		}
 		entry = entry->next;
 	}
@@ -378,7 +408,7 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 		*args = entry->prev;
 	else
 		*args = entry;
-	return (true);
+	return (success);
 }
 
 /**
@@ -484,7 +514,10 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
 			cmd_len++;
 		update_last_command_input(head);
 		if (success == false)
-			return (success);
+		{
+			ft_lstremove_last(head);
+			success = true;
+		}
 		if (cur == NULL || cur->next == NULL)
 			break ; //TODO in > < >> << command check if there is a next if we end on |
 		cur = cur->next;

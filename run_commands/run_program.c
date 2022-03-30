@@ -144,6 +144,7 @@ void	start_program_loop(t_minishell *minishell)
 			parse_results = parse(input, minishell); //TODO free
 			if (parse_results == NULL)
 				exit(1);
+			chdir(minishell->cur_wd);
 			head = find_commands(parse_results); //TODO free
 			if (head == NULL)
 			{
