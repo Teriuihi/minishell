@@ -22,7 +22,7 @@ t_bool	cd(t_command *command, t_minishell *minishell);
 t_bool	execute_builtin(t_command *command, t_minishell *minishell);
 t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell);
 t_bool	is_builtin(t_command *command);
-t_bool	env_variable_found(char *command);
+t_bool	env_variable_found(t_command *command);
 t_bool	ft_pwd(char *cur_dir, t_minishell *minishell);
 
 #endif
