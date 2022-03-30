@@ -33,7 +33,7 @@ void	print_splitted(char **args)
 	}
 	while (args[i])
 	{
-		ft_printf("%s\n", args[i]);
+		ft_printf(1, "%s\n", args[i]);
 		i++;
 	}
 }

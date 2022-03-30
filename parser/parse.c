@@ -70,6 +70,8 @@ t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg, t_
 		{
 			if (*pos == start && input[*pos] == '?')
 				(*pos)++;
+			else if (*pos == start)
+				return (append_char(arg, "$"));
 			result = get_string_from_var(*pos, start, input, minishell);
 			if (result == NULL)
 				return (NULL);

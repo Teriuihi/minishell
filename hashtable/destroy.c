@@ -28,9 +28,9 @@ void	free_key_value(t_entry *entry)
 	{
 		free(entry->val);
 	}
-	ft_printf("%p is entry next\n", entry->next);
+	ft_printf(2, "%p is entry next\n", entry->next);
 	entry = entry->next;
-	ft_printf("%p is entry now\n", entry);
+	ft_printf(2, "%p is entry now\n", entry);
 
 }
 

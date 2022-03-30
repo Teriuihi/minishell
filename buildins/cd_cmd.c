@@ -63,7 +63,7 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 		if (!args)
 			return (set_exit_status(minishell, 1, NULL));
 		args[0] = command->args[0];
-		args[1] = ft_get_env_val("HOME", minishell->env); //TODO error checking
+		args[1] = ft_strdup(minishell->home); //TODO error checking
 		free(command->args);
 		command->args = args;
 		command->args_len = 2;

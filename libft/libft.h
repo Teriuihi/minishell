@@ -27,7 +27,7 @@ int		ft_putnbr_fd(long n, int fd);
 size_t	ft_strlen(const char *c);
 char	*ft_itoa(long n);
 int		ft_atoi(const char *str, t_bool *success);
-int		ft_printf(const char *str, ...);
+int		ft_printf(int fd, const char *str, ...);
 char	*ft_strtrim(char const *s1, char const *set);
 char	*ft_strrchr(const char *s, int c);
 char	*ft_strncpy(char *dest, char *src, int n);

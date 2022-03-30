@@ -173,7 +173,7 @@ void	child_execute_built_in(t_cmd_data *cmd_data, const int *old_pid,
 	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
 	if (execute_builtin(command, minishell) == false)
 	{
-		ft_printf("Unable to execute command: %s\n", command->command);
+		ft_printf(2, "Unable to execute command: %s\n", command->command);
 		exit(g_signal.exit_status);
 	}
 	exit(0);
@@ -262,7 +262,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell);
 	if (cmd_data->executable_found == false)
 	{
-		ft_printf("some shell: %s: No such file or directory\n", command->command);
+		ft_printf(2, "some shell: %s: No such file or directory\n", command->command);
 		exit(127);
 	}
 	/*
@@ -282,7 +282,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	if (execve(command->command, command->args,
 			get_envp(minishell->env)) < 0)
 	{
-		ft_printf("%s: command not found IN EXECVE\n", command->command);
+		ft_printf(2, "%s: command not found IN EXECVE\n", command->command);
 		close(old_pid[0]);
 		exit(126);
 	}
@@ -421,7 +421,7 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	if (should_be_child(command) == false)
 	{
 		if (execute_non_forked_builtin(command, minishell) == false && g_signal.print_basic_error == true)
-			ft_printf("command not found: %s\n", command->command);
+			ft_printf(2, "command not found: %s\n", command->command);
 		if (g_signal.print_basic_error == true)
 			g_signal.print_basic_error = false;
 		return ;

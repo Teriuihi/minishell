@@ -125,14 +125,14 @@ void	check_status(t_minishell *minishell)
 {
 	if (g_signal.veof == 1)
 	{
-		ft_printf("\b\bexit\n");
+		ft_printf(1, "\b\bexit\n");
 		g_signal.shell_level -= 1;
 	}
 	if (g_signal.sigint == 1)
 	{
 		//g_signal.exit_status = 128 + 2;
 		g_signal.sigint = 0;
-		ft_printf("\n");
+		ft_printf(1, "\n");
 	}
 }
 

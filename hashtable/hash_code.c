@@ -73,7 +73,7 @@ t_bool	print_h_table(t_hash_table *h_table)
 		{
 			if (curr->key && curr->val && curr->is_exported)
 			{
-				ft_printf("%s=%s\n", curr->key, curr->val);
+				ft_printf(2, "%s=%s\n", curr->key, curr->val);
 			}
 			curr = curr->next;
 		}

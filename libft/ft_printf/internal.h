@@ -13,10 +13,10 @@
 #ifndef INTERNAL_H
 # define INTERNAL_H
 
-int		print_string(char *str);
-int		print_char(int c);
-int		print_long(long i);
-int		print_str_free(char *str);
+int		print_string(int fd, char *str);
+int		print_char(int fd, int c);
+int		print_long(int fd, long i);
+int		print_str_free(int fd, char *str);
 char	*get_hex_upper(long nbr);
 char	*get_hex_lower(long nbr);
 char	*get_pointer(unsigned long nbr);

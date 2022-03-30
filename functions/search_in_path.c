@@ -76,7 +76,7 @@ char	*search_folder(char *command, t_minishell *minishell)
 			exit(1);
 		if (stat(executable_path, &sb) == -1)
 		{
-			ft_printf("STAT HAS ERROR\n");
+			ft_printf(2, "STAT HAS ERROR\n");
 		}
 		if (!S_ISDIR(sb.st_mode)) //if its not a directory
 		{

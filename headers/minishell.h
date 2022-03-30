@@ -37,6 +37,7 @@ typedef struct s_signal
 typedef struct s_minishell
 {
 	char			*cur_wd;
+	char			*home;
 	pid_t			current_pid;
 	t_hash_table	*env;	
 }				t_minishell;

@@ -103,11 +103,12 @@ void	init(t_minishell *minishell)
 
 	cur_dir = getcwd(NULL, 0);
 	if (cur_dir == NULL)
-	{
 		exit(1);
-	}
 	minishell->cur_wd = cur_dir;
 	minishell->env = get_hash_table();
+	minishell->home = ft_get_env_val("HOME", minishell->env);
+	if (minishell->home == NULL)
+		exit(1);
 	set_pwd(ft_strdup(cur_dir), minishell);
 	rl_getc_function = interruptible_getc;
 }

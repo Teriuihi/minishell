@@ -159,7 +159,10 @@ t_bool	set_exit_status(t_minishell *minishell, int status, char *message)
 	{
 		g_signal.print_basic_error = false;
 		//if status != 0 then send it to err
-		ft_printf("%s\n", message); //if error then to stderr
+		if (status != 0)
+			ft_printf(2, "%s\n", message); //if error then to stderr
+		else
+			ft_printf(1, "%s\n", message);
 		free(message);
 	}
 	if (status == 0)
