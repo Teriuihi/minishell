@@ -16,7 +16,6 @@
 #include "../hashtable/hashtable.h"
 #include "../headers/minishell.h"
 
-
 /** TODO FINISH COMMENTS
  * Does not need a null check for value cus NULL is valid
  * @param pos
@@ -31,6 +30,8 @@ t_string	*get_string_from_var(int pos, int start, char *input, t_minishell *mini
 	t_hash_table	*table;
 	t_string		*result;
 
+	if (pos == start)
+		return (init_string(NULL));
 	table = get_hash_table();
 	key = ft_calloc(pos - start + 1, sizeof(char));
 	if (key == NULL)
@@ -68,6 +69,8 @@ t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg, t_
 	{
 		if (!ft_isalnum(input[*pos]) && *pos != '_')
 		{
+			if (*pos == start && input[*pos] == '?')
+				(*pos)++;
 			result = get_string_from_var(*pos, start, input, minishell);
 			if (result == NULL)
 				return (NULL);
