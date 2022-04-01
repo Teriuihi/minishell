@@ -64,6 +64,7 @@ void	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2],
 {
 	char		*input;
 
+	g_signal.heredoc = true;
 	(void)minishell;
 	if (old_pid[0] != -1)
 	{
@@ -80,6 +81,7 @@ void	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2],
 		signal_check(input, NULL, minishell);
 	}
 	close(old_pid[1]);
+	g_signal.heredoc = false;
 }
 
 /**

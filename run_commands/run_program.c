@@ -48,6 +48,29 @@ void	tmp_print_command(t_cmd_data *cmd_data)
 	count++;
 }
 
+void	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2], t_minishell *minishell)
+{
+	char		*input;
+
+	g_signal.heredoc = true;
+	(void)minishell;
+	if (old_pid[0] != -1)
+	{
+		close(old_pid[0]);
+		close(old_pid[1]);
+	}
+	input = readline("heredoc> ");
+	signal_check(input, NULL, minishell);
+	while (input != NULL && !ft_streq(input, cmd_data->input.file))
+	{
+		free(input);
+		input = readline("heredoc> ");
+		signal_check(input, NULL, minishell);
+	}
+	free(input);
+	g_signal.heredoc = false;
+}
+
 /**
  * Run all commands in given list
  *
@@ -70,6 +93,13 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
 		tmp_print_command(cmd_data);
+		if (cmd_data->command->command == NULL)
+		{
+			if (cmd_data->input.type == DELIMITER_INPUT)
+				heredoc_no_output(cmd_data, old_pid, minishell);
+			entry = entry->next;
+			continue ;
+		}
 		if (cur_pid[0] > -1)
 			copy_pid(cur_pid, old_pid);
 		if (cmd_data->output.type)

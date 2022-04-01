@@ -195,10 +195,12 @@ t_list	**parse(char *input, t_minishell *minishell)
 	literal = false;
 	head = ft_calloc(1, sizeof(t_list *));
 	pos = 0;
-	start = 0;
 	string = init_string(NULL);
 	if (string == NULL)
 		return (NULL);
+	while (ft_iswhite_space(input[pos]))
+		pos++;
+	start = pos;
 	while (input[pos])
 	{
 		if (input[pos] == '"' || input[pos] == '\'')

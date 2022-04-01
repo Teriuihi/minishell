@@ -332,8 +332,6 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 		}
 		if (entry == NULL)
 		{
-			//TODO remove command properly
-			*head = NULL;
 			*args = entry;
 			return (success);
 		}

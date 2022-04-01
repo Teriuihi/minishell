@@ -113,6 +113,12 @@ void	signal_check(char *input, t_bool *display_prompt, t_minishell *minishell)
 	}
 	else if (input == 0 || g_signal.sigint == 1)
 	{
+		if (g_signal.heredoc)
+		{
+			g_signal.heredoc = false;
+			ft_printf(1, "\b\b");
+			return ;
+		}
 		if (g_signal.sigint != 1)
 		{
 			g_signal.veof = 1;
@@ -162,4 +168,5 @@ void	init_signal(void)
 	g_signal.veof = 0;
 	g_signal.print_basic_error = true;
 	g_signal.pid = getpid();
+	g_signal.heredoc = false;
 }

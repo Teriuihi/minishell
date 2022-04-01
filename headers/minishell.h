@@ -32,6 +32,7 @@ typedef struct s_signal
 	volatile sig_atomic_t	sigint;
 	volatile sig_atomic_t	veof;
 	volatile sig_atomic_t	sigquit;
+	t_bool					heredoc;
 }				t_signal;
 
 typedef struct s_minishell
