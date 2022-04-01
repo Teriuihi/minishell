@@ -16,145 +16,12 @@
 #include "../hashtable/hashtable.h"
 #include "../headers/minishell.h"
 
-/**
- * Gets the value of a variable
- *
- * @param	end		End of key
- * @param	start	Start of key
- * @param	input	String containing key
- *
- * @return	They key's value or null if the key doesn't exist
- * 	set's success to false on failure
- */
-t_string	*get_string_from_var(int end, int start, char *input,
-									t_bool *success)
-{
-	char			*key;
-	char			*value;
-	t_hash_table	*table;
-	t_string		*result;
-
-	*success = false;
-	if (end == start)
-		return (init_string(NULL));
-	table = get_hash_table();
-	key = ft_calloc(end - start + 1, sizeof(char));
-	if (key == NULL)
-		return (NULL);
-	ft_strlcpy(key, input + start, end - start + 1);
-	if (ft_strlen(key) == 1 && *key == '?')
-	{
-		value = ft_itoa(g_signal.exit_status);
-		if (value == NULL)
-			return (NULL);
-	}
-	else
-		value = ft_get_env_val(key, table); //TODO add boolean flag?
-	free(key);
-	result = init_string(value);
-	free(value);
-	*success = true;
-	return (result);
-}
-
-/**
- * Called when finding a $ indicating a variable should be parsed
- * Parse the variable and swap it with its value
- *
- * @param	input	Input from user
- * @param	start	Start pos (location of $)
- * @param	pos		Current pos while iterating over input
- * @param	arg		String containing the current argument that we're appending too
- *
- * @return	String we appended too (could have a different address now)
- */
-t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg)
-{
-	t_string	*result;
-	t_bool		success;
-
-	while (input[*pos])
-	{
-		if (!ft_isalnum(input[*pos]) && *pos != '_')
-		{
-			if (*pos == start && input[*pos] == '?')
-				(*pos)++;
-			else if (*pos == start)
-				return (append_char(arg, "$"));
-			result = get_string_from_var(*pos, start, input, &success);
-			if (result == NULL)
-				return (NULL);
-			return (join_strings(arg, result));
-		}
-		(*pos)++;
-	}
-	if (start == *pos)
-		return (append_char(arg, "$"));
-	result = get_string_from_var(*pos, start, input, &success);
-	if (result == NULL)
-		return (NULL);
-	return (join_strings(arg, result));
-}
-
-/** TODO handle " in ' and vice versa
- * Parse string between quotes
- *
- * @param	input	Input to append from
- * @param	start	Start pos in input
- * @param	quote	Quotation character that ends this quote
- * @param	arg		Current argument we're appending to
- *
- * @return	String we appended too (could have a different address now)
- */
-t_string	*parse_quotation(char *input, int *start, char quote, t_string *arg)
-{
-	int		pos;
-
-	pos = *start;
-	while (input[pos])
-	{
-		if (quote == '"' && input[pos] == '$')
-		{
-			arg = append_content(input, *start, pos, arg);
-			if (arg == NULL)
-				return (NULL);
-			arg = parse_env_variable(input, ++pos, &pos, arg);
-			if (arg == NULL)
-				return (NULL);
-			*start = pos;
-		}
-		else if (input[pos] == quote)
-		{
-			if (pos != *start)
-				arg = append_content(input, *start, pos, arg);
-			if (arg == NULL)
-				return (NULL);
-			*start = pos + 1;
-			return (arg);
-		}
-		else
-			pos++;
-	}
-	return (arg); //todo add quote at the beginning
-}
-
-t_string	*safe_add_to_list(t_list **head, t_string *string, t_bool literal)
-{
-	if (add_to_list(head, string, literal) == false)
-	{
-		free_string(string);
-		ft_lstclear(head, free_t_arg);
-		return (NULL);
-	}
-	return (init_string(NULL));
-}
-
-t_bool	is_pipe(char c)
+static t_bool	is_pipe(char c)
 {
 	return (c == '|' || c == '<' || c == '>');
 }
 
-void	skip_space(char *input, int *pos)
+static void	skip_space(char *input, int *pos)
 {
 	while (*pos && ft_iswhite_space(input[*pos]))
 		(*pos)++;
@@ -165,17 +32,17 @@ t_bool	pipe_in_string_skip(char *input, int start, int *pos, t_string **string)
 	int	len;
 
 	if (ft_strlen(input + *pos) < 2)
-		return (false); //Parsing error since it has to be at least 2 chars (ex: <a)
+		return (false); //TODO Parsing error since it has to be at least 2 chars (ex: <a)
 	if (!ft_strncmp(input + *pos, "<<", 2) || !ft_strncmp(input + *pos, ">>", 2))
 	{
 		if (!input[*pos + 2] || is_pipe(input[*pos + 2]))
-			return (false); //Parsing error since it has to be at least 3 chars (ex: >>a) and there can't be another pipe after
+			return (false); //TODO Parsing error since it has to be at least 3 chars (ex: >>a) and there can't be another pipe after
 		len = 2;
 	}
 	else
 	{
 		if (is_pipe(input[*pos + 1]))
-			return (false); //Parsing error since there can't be a pipe after
+			return (false); //TODO Parsing error since there can't be a pipe after
 		len = 1;
 	}
 	*pos += len;
@@ -234,7 +101,10 @@ t_list	**parse(char *input, t_minishell *minishell)
 			skip_space(input, &pos);
 			if (is_pipe(input[pos]))
 			{
-				pipe_in_string_skip(input, pos, &pos, &string);
+				if (pipe_in_string_skip(input, pos, &pos, &string) == false)
+				{
+					//TODO parsing error
+				}
 				string = safe_add_to_list(head, string, literal);
 				if (string == NULL)
 					return (NULL);
