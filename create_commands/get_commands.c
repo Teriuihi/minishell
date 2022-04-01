@@ -290,29 +290,43 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 			entry = entry->next;
 			if (entry == NULL)
 				return (false);
-			if (pipe_type == DELIMITER_INPUT || pipe_type == REDIRECT_INPUT)
+			if ((pipe_type == DELIMITER_INPUT || pipe_type == REDIRECT_INPUT) && success == true)
 			{
 				cmd_data->input.type = pipe_type;
 				if (cmd_data->input.file)
-				{
-					close(open(cmd_data->input.file, O_CREAT, 0777));
 					free(cmd_data->input.file);
-				}
 				cmd_data->input.file = ft_strdup(str_from_arg(entry));
 				if (cmd_data->input.file == NULL)
-					return (false); //TODO free?
+				{
+					//TODO error return
+					success = false;
+				}
+				if (pipe_type == REDIRECT_INPUT)
+				{
+					fd = open(cmd_data->output.file, O_RDONLY, 0);
+					if (fd < 0)
+					{
+						message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->output.file, ": No such file or directory\n"));
+						if (!message)
+							message = "some shell: out of memory";
+						err_int_return(message, 1);
+						success = false;
+					}
+					close(fd);
+				}
 			}
-			else if (pipe_type == APPEND_OUTPUT || pipe_type == REDIRECT_OUTPUT)
+			else if ((pipe_type == APPEND_OUTPUT || pipe_type == REDIRECT_OUTPUT) && success == true)
 			{
 				cmd_data->output.type = pipe_type;
 				if (cmd_data->output.file)
-				{
-					close(open(cmd_data->output.file, O_CREAT, 0777));
 					free(cmd_data->output.file);
-				}
 				cmd_data->output.file = ft_strdup(str_from_arg(entry));
 				if (cmd_data->output.file == NULL)
-					return (false); //TODO free?
+				{
+					success = false;
+					//TODO error return
+				}
+				close(open(cmd_data->output.file, O_CREAT, 0777));
 			}
 			entry = entry->next;
 		}
@@ -378,16 +392,19 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 				//TODO error return
 				success = false;
 			}
-			fd = open(cmd_data->output.file, O_RDONLY, 0);
-			if (fd < 0)
+			if (pipe_type == REDIRECT_INPUT)
 			{
-				message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->output.file, ": No such file or directory\n"));
-				if (!message)
-					message = "some shell: out of memory";
-				err_int_return(message, 1);
-				success = false;
+				fd = open(cmd_data->output.file, O_RDONLY, 0);
+				if (fd < 0)
+				{
+					message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->output.file, ": No such file or directory\n"));
+					if (!message)
+						message = "some shell: out of memory";
+					err_int_return(message, 1);
+					success = false;
+				}
+				close(fd);
 			}
-			close(fd);
 		}
 		else if ((pipe_type == APPEND_OUTPUT || pipe_type == REDIRECT_OUTPUT) && success == true)
 		{
