@@ -332,8 +332,6 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 		}
 		if (entry == NULL)
 		{
-			if (cmd_data->output.file)
-				close(open(cmd_data->output.file, O_CREAT, 0777));
 			//TODO remove command properly
 			*head = NULL;
 			*args = entry;
@@ -492,7 +490,7 @@ void	update_last_command_input(t_list **head)
  *
  * @return	non zero on error, 0 on success
  */
-t_bool	find_commands_in_args(t_list **head, t_list **args)
+t_bool	find_commands_in_args(t_list **head, t_list **args, t_minishell *minishell)
 {
 	t_pipe_type	pipe_type;
 	t_bool		success;
@@ -520,7 +518,7 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
 			|| pipe_type == APPEND_OUTPUT)
 			{
 				cur = get_command_start(cur, cmd_len);
- 				success = pipe_command(head, &cur, &cmd_len, pipe_type);
+ 				success = pipe_command(head, &cur, &cmd_len, pipe_type, minishell);
 			}
 		else if (pipe_type)
 		{
@@ -555,7 +553,7 @@ t_bool	find_commands_in_args(t_list **head, t_list **args)
  *
  * @return	NULL on error, command data success
  */
-t_list	**find_commands(t_list **args) //TODO if a command is NULL only do input/output then continue
+t_list	**find_commands(t_list **args, t_minishell *minishell) //TODO if a command is NULL only do input/output then continue
 {
 	t_list	**head;
 
@@ -564,7 +562,7 @@ t_list	**find_commands(t_list **args) //TODO if a command is NULL only do input/
 	head = ft_calloc(1, sizeof(t_list *));
 	if (!head)
 		return (NULL);
-	if (find_commands_in_args(head, args) == false)
+	if (find_commands_in_args(head, args, minishell) == false)
 	{
 		free_commands(head);
 		return (NULL);

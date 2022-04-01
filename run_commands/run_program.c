@@ -145,7 +145,7 @@ void	start_program_loop(t_minishell *minishell)
 			if (parse_results == NULL)
 				exit(1);
 			chdir(minishell->cur_wd);
-			head = find_commands(parse_results); //TODO free
+			head = find_commands(parse_results, minishell); //TODO free
 			if (head == NULL)
 			{
 				signal_check(NULL, NULL, minishell);
