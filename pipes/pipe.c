@@ -73,12 +73,12 @@ void	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2],
 	}
 	pipe(old_pid);
 	input = readline("heredoc> ");
-	signal_check(input, NULL, minishell);
+	signal_check(input, minishell);
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
 		ft_putstr_fd(ft_strjoin(input, "\n"), old_pid[1]);
 		input = readline("heredoc> ");
-		signal_check(input, NULL, minishell);
+		signal_check(input, minishell);
 	}
 	close(old_pid[1]);
 	g_signal.heredoc = false;
@@ -152,7 +152,6 @@ void	redirect_file(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			return ;
 		ft_printf(2, message);
 		exit(1);
-		return ;
 	}
 	len = 1000;
 	while (len == 1000)
@@ -429,7 +428,6 @@ static t_bool	search_executable(t_cmd_data *cmd_data,
 	}
 }
 
-
 /**
  * Execute a command
  *
@@ -467,7 +465,6 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			g_signal.print_basic_error = false;
 		return ;
 	}
-	//ft_printf("old: %i - %i new: %i - %i\n", old_pid[0], old_pid[1], cur_pid[0], cur_pid[1]);
 	g_signal.pid = fork();
 	if (g_signal.pid == 0)
 	{

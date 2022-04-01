@@ -18,96 +18,11 @@
 #include <readline/readline.h>
 #include <errno.h>
 
-/**
- * checks whether input is NULL (VEOF) or sigint flag is on
- *
- * @param	input string, NULL if VEOF has been reached
- *
- * @return	void
- */
-/*
-void	signal_check(char *input)
-{
-	if (input == 0)
-	{
-		if (g_signal.sigint == 0 && g_signal.veof == 0 && g_signal.sigquit == 0)
-		{
-			if (errno == 2)
-			{
-				g_signal.sigquit = 0;
-				g_signal.veof = 1;
-				ft_printf("%d is sigveof, %d is errno\n", g_signal.veof, errno);
-			}
-			else if (errno == 4)
-			{
-				g_signal.veof = 0;
-				g_signal.sigquit = 1;
-				g_signal.interrupted = false;
-				//ft_printf("\b\b\b\b\b\b\b\b\b\b\b");
-				ft_printf("%d is sigquit, %d is errno\n", g_signal.sigquit, errno);
-			}
-			//ft_printf("%d is sigquit, %d sigint, %d sigveof, %d is errno\n", g_signal.sigquit, g_signal.sigint, g_signal.veof, errno);
-		}
-	}
-}
-
-
-void	check_status(t_minishell *minishell)
-{
-	if (g_signal.veof == 1)
-	{
-		g_signal.shell_level -= 1;
-		ft_printf("\b\bexit\n");
-	}
-	if (g_signal.sigint == 1)
-	{
-		g_signal.sigint = 0;
-		minishell->exit_status = 128 + 2;
-		ft_printf("\n");
-	}
-	if (g_signal.sigquit == 1)
-	{
-		g_signal.sigquit = 0;
-		minishell->exit_status = 128 + 3;
-		ft_printf("\n");
-	}
-}
-
-void	sigquit_handler(int this_signal)
-{
-	if (this_signal == SIGINT)
-	{
-		ft_printf("SIGINT RECEIVED\n");
-		g_signal.sigint = 1;
-		//g_signal.exit_status = 128 + 2;
-	}
-	if (this_signal == SIGQUIT)
-	{
-		ft_printf("SIGQUIT RECEIVED\n");
-		g_signal.sigquit = 1;
-		g_signal.exit_status = 128 + 3;
-		//g_signal.exit_status = 128 + 2;
-	}
-	//REGISTER ONE FOR -/ handler when initing termios
-}
-
-void	init_signal(void)
-{
-	g_signal.shell_level = 2;
-	g_signal.minishell_exec_found = 0;
-	g_signal.sigint = 0;
-	g_signal.veof = 0;
-	g_signal.exit_status = 0;
-	g_signal.finished = false;
-	g_signal.pid = getpid();
-}
-*/
-
-void	signal_check(char *input, t_bool *display_prompt, t_minishell *minishell)
+void	signal_check(char *input, t_minishell *minishell)
 {
 	if (g_signal.sigquit == 1)
 	{
-		*display_prompt = false;
+//		*display_prompt = false;
 		g_signal.sigquit = 0;
 		return ;
 	}
@@ -124,8 +39,8 @@ void	signal_check(char *input, t_bool *display_prompt, t_minishell *minishell)
 			g_signal.veof = 1;
 		}
 	}
-	if (display_prompt != NULL)
-		*display_prompt = true;
+//	if (display_prompt != NULL)
+//		*display_prompt = true;
 }
 
 void	check_status(t_minishell *minishell)
@@ -135,9 +50,9 @@ void	check_status(t_minishell *minishell)
 		ft_printf(1, "\b\bexit\n");
 		g_signal.shell_level -= 1;
 	}
-	if (g_signal.sigint == 1)
+	if (g_signal.sigint == 1 && g_signal.command == false)
 	{
-		//g_signal.exit_status = 128 + 2;
+		g_signal.exit_status = 128 + 2;
 		g_signal.sigint = 0;
 		ft_printf(1, "\n");
 	}
@@ -151,7 +66,7 @@ void	sigquit_handler(int this_signal)
 		g_signal.exit_status = 128 + 2;
 		//ft_printf("Exit status changed to %d\n", g_signal.exit_status);
 	}
-	if (this_signal == SIGQUIT)
+	if (this_signal == SIGQUIT && g_signal.command == false)
 	{
 		g_signal.sigquit = 1;
 		g_signal.exit_status = 128 + 3;
@@ -169,4 +84,5 @@ void	init_signal(void)
 	g_signal.print_basic_error = true;
 	g_signal.pid = getpid();
 	g_signal.heredoc = false;
+	g_signal.command = false;
 }

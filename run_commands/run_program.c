@@ -60,12 +60,12 @@ void	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2], t_minishell *minish
 		close(old_pid[1]);
 	}
 	input = readline("heredoc> ");
-	signal_check(input, NULL, minishell);
+	signal_check(input, minishell);
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
 		free(input);
 		input = readline("heredoc> ");
-		signal_check(input, NULL, minishell);
+		signal_check(input, minishell);
 	}
 	free(input);
 	g_signal.heredoc = false;
@@ -118,37 +118,28 @@ void	run_commands(t_list **head, t_minishell *minishell)
  *
  * @return	true if the input should be used, false if not
  */
-t_bool	should_use(char *input, t_bool *hi)
+t_bool	should_use(char *input)
 {
-	if (input == NULL || *hi == false)
+	if (input == NULL)
 		return (false);
 	while (*input && ft_iswhite_space(*input))
 		input++;
 	return ((*input) != '\0');
 }
 
-char	*prompt(t_bool *display_prompt)
+char	*prompt(void)
 {
-	char *input;
+	char	*input;
 
-	if (*display_prompt == false)
+	if (g_signal.sigquit == 1 && g_signal.exit_status != 0) //cuz it was registered in this process
 	{
-		input = readline("");
-		*display_prompt = true;
-		g_signal.sigquit = 0; //not sure if needed
-	}
-	else
-	{
-		if (g_signal.sigquit == 1 && g_signal.exit_status != 0) //cuz it was registered in this process
-		{
+		if (g_signal.exit_status == 131)
 			ft_printf(1, "Quit: 3\n");
-			g_signal.sigquit = 0;
-		}
-		input = readline("some shell>");
+		g_signal.sigquit = 0;
 	}
+	input = readline("some shell>");
 	return (input);
 }
-
 
 /**
  * Starts (minishell) program loop,
@@ -161,14 +152,13 @@ void	start_program_loop(t_minishell *minishell)
 	char		*input;
 	t_list		**head;
 	t_list		**parse_results;
-	t_bool		display_prompt;
 
-	display_prompt = true;
 	while (g_signal.sigint != 1 && g_signal.veof != 1) //input
 	{
-		input = prompt(&display_prompt);
-		signal_check(input, &display_prompt, minishell);
-		if (should_use(input, &display_prompt) == true)
+		g_signal.command = true;
+		input = prompt();
+		signal_check(input, minishell);
+		if (should_use(input) == true)
 		{
 			add_history(input);
 			parse_results = parse(input, minishell); //TODO free
@@ -178,32 +168,16 @@ void	start_program_loop(t_minishell *minishell)
 			head = find_commands(parse_results, minishell); //TODO free
 			if (head == NULL)
 			{
-				signal_check(NULL, NULL, minishell);
+				signal_check(NULL, minishell);
+				g_signal.command = false;
 				return ;
 			}
+			g_signal.command = false;
 			run_commands(head, minishell);
 			free_commands(head);
 		}
 	}
+	g_signal.command = false;
 	if (input != NULL)
 		free(input);
 }
-
-
-
-//was above the input != NULL
-//if (g_signal.veof != 1) //not sure about this yet
-	//{
-	//	ft_printf("\n");
-	//}
-/*
-if (g_signal.sigint != 1)
-{
-	//ft_printf("setting sigquit to 1\n"); //delete the prev char apostrophe D
-	//int stdout_copy = dup(STDOUT_FILENO);
-	//close(STDOUT_FILENO);
-	//dup2(stdout_copy, STDOUT_FILENO);
-	//close(stdout_copy);
-	g_signal.sigquit = 1;
-}
-*/

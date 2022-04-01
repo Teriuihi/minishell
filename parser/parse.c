@@ -16,36 +16,44 @@
 #include "../hashtable/hashtable.h"
 #include "../headers/minishell.h"
 
-/** TODO FINISH COMMENTS
- * Does not need a null check for value cus NULL is valid
- * @param pos
- * @param start
- * @param input
- * @return
+/**
+ * Gets the value of a variable
+ *
+ * @param	end		End of key
+ * @param	start	Start of key
+ * @param	input	String containing key
+ *
+ * @return	They key's value or null if the key doesn't exist
+ * 	set's success to false on failure
  */
-t_string	*get_string_from_var(int pos, int start, char *input, t_minishell *minishell)
+t_string	*get_string_from_var(int end, int start, char *input,
+									t_bool *success)
 {
 	char			*key;
 	char			*value;
 	t_hash_table	*table;
 	t_string		*result;
 
-	if (pos == start)
+	*success = false;
+	if (end == start)
 		return (init_string(NULL));
 	table = get_hash_table();
-	key = ft_calloc(pos - start + 1, sizeof(char));
+	key = ft_calloc(end - start + 1, sizeof(char));
 	if (key == NULL)
 		return (NULL);
-	ft_strlcpy(key, input + start, pos - start + 1);
+	ft_strlcpy(key, input + start, end - start + 1);
 	if (ft_strlen(key) == 1 && *key == '?')
 	{
-		value = ft_itoa(g_signal.exit_status); //TODO NULL check?
+		value = ft_itoa(g_signal.exit_status);
+		if (value == NULL)
+			return (NULL);
 	}
 	else
-		value = ft_get_env_val(key, table);
+		value = ft_get_env_val(key, table); //TODO add boolean flag?
 	free(key);
 	result = init_string(value);
 	free(value);
+	*success = true;
 	return (result);
 }
 
@@ -60,9 +68,10 @@ t_string	*get_string_from_var(int pos, int start, char *input, t_minishell *mini
  *
  * @return	String we appended too (could have a different address now)
  */
-t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg, t_minishell *minishell)
+t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg)
 {
 	t_string	*result;
+	t_bool		success;
 
 	while (input[*pos])
 	{
@@ -72,7 +81,7 @@ t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg, t_
 				(*pos)++;
 			else if (*pos == start)
 				return (append_char(arg, "$"));
-			result = get_string_from_var(*pos, start, input, minishell);
+			result = get_string_from_var(*pos, start, input, &success);
 			if (result == NULL)
 				return (NULL);
 			return (join_strings(arg, result));
@@ -81,7 +90,7 @@ t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg, t_
 	}
 	if (start == *pos)
 		return (append_char(arg, "$"));
-	result = get_string_from_var(*pos, start, input, minishell);
+	result = get_string_from_var(*pos, start, input, &success);
 	if (result == NULL)
 		return (NULL);
 	return (join_strings(arg, result));
@@ -97,7 +106,7 @@ t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg, t_
  *
  * @return	String we appended too (could have a different address now)
  */
-t_string	*parse_quotation(char *input, int *start, char quote, t_string *arg, t_minishell *minishell)
+t_string	*parse_quotation(char *input, int *start, char quote, t_string *arg)
 {
 	int		pos;
 
@@ -109,7 +118,7 @@ t_string	*parse_quotation(char *input, int *start, char quote, t_string *arg, t_
 			arg = append_content(input, *start, pos, arg);
 			if (arg == NULL)
 				return (NULL);
-			arg = parse_env_variable(input, ++pos, &pos, arg, minishell);
+			arg = parse_env_variable(input, ++pos, &pos, arg);
 			if (arg == NULL)
 				return (NULL);
 			*start = pos;
@@ -208,7 +217,7 @@ t_list	**parse(char *input, t_minishell *minishell)
 			if (pos != 0 && pos != start)
 				string = append_content(input, start, pos, string);
 			pos++;
-			string = parse_quotation(input, &pos, input[pos - 1], string, minishell);
+			string = parse_quotation(input, &pos, input[pos - 1], string);
 			has_data = true;
 			start = pos;
 			literal = true;
@@ -246,7 +255,7 @@ t_list	**parse(char *input, t_minishell *minishell)
 				string = append_content(input, start, pos, string);
 			if (string == NULL)
 				return (NULL);
-			string = parse_env_variable(input, ++pos, &pos, string, minishell);
+			string = parse_env_variable(input, ++pos, &pos, string);
 			if (string == NULL)
 				return (NULL);
 			start = pos;

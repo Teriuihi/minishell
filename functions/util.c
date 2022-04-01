@@ -180,40 +180,16 @@ int interruptible_getc(void)
 	int		r;
 	char	c;
 
-	if (g_signal.interrupted == true)
-	{
-		return EOF;
-	}
+//	if (g_signal.interrupted == true)
+//	{
+//		return EOF;
+//	}
 	r = read(0, &c, 1);
 	//crtl \ -> errno = 4, -1 r
 	//crtl D -> errno = 2, 1 r
-	if (r == -1 && errno == EINTR) //then this is sigint (crtl c here)
+	if (r == -1 && errno == EINTR && g_signal.sigint != 1) //then this is sigint (crtl c here)
 	{
-		//ft_printf("%d is errno KKKK\n", errno);
-		if (errno == 4 && g_signal.sigint != 1 && r == -1) //then this should be 
-		{
-			//ft_printf("setting sigquit\n", g_signal.sigquit);
-			g_signal.sigquit = 1;
-			//g_signal.interrupted = true;
-		}
-		//ft_printf("%d is errno KKKK\n", errno);
-		//if (errno == 4 && g_signal.sigint != 1)
-		//{
-		//	g_signal.sigquit == 1;
-		//	ft_printf("%d is sigquit\n", g_signal.sigquit);
-		//}
-		else if (errno == EINTR && g_signal.sigint != 1) //we have to check which signal was which it interrupted
-		{
-			//ft_printf("we are interrupted, %d is errno, %d is r, %d sigquit\n", errno, r, g_signal.sigquit);
-
-			//ft_printf("sigquit is right place\n");
-			//write(1, "right place for sigquit\n", 25);
-			//ft_printf("we are interrupted, %d is errno, %d is r, %d sigquit\n", errno, r, g_signal.sigquit);
-			//ft_printf("GONNA SET INTERRUPTED\n");
-			g_signal.interrupted = true;
-			//return (1);
-		}
+		return (0);
 	}
-	//r == 1 ? printf("%c to return\n", c) : printf("EOF to return\n");
 	return (r == 1 ? c : EOF); //if we use signals this we always return EOF
 }
