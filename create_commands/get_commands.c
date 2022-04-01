@@ -262,7 +262,7 @@ char	*str_from_arg(t_list *entry)
  *
  * @return	non zero on error, 0 on success
  */
-t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe_type)
+t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe_type, t_minishell *minishell)
 {
 	t_cmd_data	*cmd_data;
 	t_list		*entry;
@@ -309,7 +309,7 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 						message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->output.file, ": No such file or directory\n"));
 						if (!message)
 							message = "some shell: out of memory";
-						err_int_return(message, 1);
+						set_exit_status(minishell, 1, message);
 						success = false;
 					}
 					close(fd);
@@ -400,7 +400,7 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 					message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->output.file, ": No such file or directory\n"));
 					if (!message)
 						message = "some shell: out of memory";
-					err_int_return(message, 1);
+					set_exit_status(minishell, 1, message);
 					success = false;
 				}
 				close(fd);
