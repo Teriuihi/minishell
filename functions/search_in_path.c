@@ -69,6 +69,8 @@ char	*search_folder(char *command, t_minishell *minishell)
 	directroy_path = ft_strjoin(cwd_path, "/");
 	if (!directroy_path)
 		exit(1);
+	if (directory == NULL)
+		return (NULL);
 	while ((file = readdir(directory)))
 	{
 		executable_path = ft_strjoin(directroy_path, file->d_name);
