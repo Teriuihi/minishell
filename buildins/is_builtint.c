@@ -57,6 +57,7 @@ t_bool	env_variable_found(t_command *command_t)
 		return (false);
 	if (ft_streq(command, "export"))
 	{
+		//one if this is the only argument
 		command_t->export_found = true;
 		return (true);
 	}

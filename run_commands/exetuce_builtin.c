@@ -96,6 +96,7 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 	{
 		return (export_found(command, minishell));
 	}
+
 	//else its a normal one
 	splitted = ft_split(command->command, '=');
 	if (split_len(splitted) != 2)
@@ -107,6 +108,8 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 	{
 		if (succesful_insert(minishell->env, splitted[0], splitted[1], true) == true)
 		{
+			ft_printf(1, "entered with succesful insert here\n");
+			print_splitted(splitted);
 			return (set_exit_status(minishell, 0, NULL));
 		}
 		return (set_exit_status(minishell, 1, NULL));
@@ -147,6 +150,11 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 	else if (ft_streq(command->command, "unset"))
 		return (ft_remove_exported_var(command->args[1], minishell->env,
 				minishell));
+	else if(ft_streq(command->command, "export") && command->args_len == 1)
+	{
+		//ft_printf(1, "RIGHT PLACE\n");
+		export(minishell->env);
+	}
 	else if (env_var_added(command, minishell) == true)
 		return (true);
 	return (set_exit_status(minishell, 1, NULL));

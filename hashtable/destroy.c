@@ -20,6 +20,10 @@
  */
 void	free_key_value(t_entry *entry)
 {
+	if (entry == NULL)
+	{
+		return ;
+	}
 	if (entry->key != NULL)
 	{
 		free(entry->key);

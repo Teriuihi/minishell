@@ -26,6 +26,7 @@ typedef struct entry_table
 {
 	t_entry		**entries;
 	int			size;
+	int			amount_of_keys;
 }	t_hash_table;
 
 t_hash_table	*get_hash_table(void);
@@ -46,5 +47,6 @@ void			destroy_entry(t_entry *entry);
 t_bool			print_h_table(t_hash_table *h_table);
 char			**get_envp(t_hash_table *h_table);
 void			set_to_exported(t_hash_table *h_table);
+void			export(t_hash_table *h_table);
 
 #endif

@@ -20,7 +20,6 @@ extern char	**environ;
 /**
  * Creates a hashtable where we will store env and other variables
 */
-
 t_hash_table	*init_hash_table(int size)
 {
 	t_hash_table	*hash_table;
@@ -61,6 +60,7 @@ t_entry	*create_hash_table_pair(char *key, char *val, t_bool is_exported)
 	entry->val = ft_strncpy(entry->val, (char *)val, ft_strlen((char *)val));
 	entry->is_exported = is_exported;
 	entry->next = NULL;
+
 	return (entry);
 }
 
@@ -70,7 +70,9 @@ t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val,
 	unsigned int	slot;
 	t_entry			*entry;
 	t_entry			*prev;
+	int				i;
 
+	i = 0;
 	slot = hash(key, "", h_table->size);
 	entry = h_table->entries[slot];
 	if (entry == NULL)
@@ -87,9 +89,12 @@ t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val,
 			if (entry->val == NULL)
 			{
 				entry->val = (char *)ft_calloc((ft_strlen(val) + 1), 1);
+				if (!entry->val) //ft_strncpy doesnt malloc, can happen that one of them doesnt exist
+				{
+					//SHOULD NOT EXIT, SOMETIMES THERE IS NO KEY? OR ENTRY VAL?
+					//exit(1);
+				}
 				entry->val = ft_strncpy(entry->val, (char *)val, ft_strlen((char *)val));
-				if (!entry->val)
-					exit(1);
 				return (true);
 			}
 			free(entry->val);
@@ -98,6 +103,7 @@ t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val,
 		}
 		prev = entry;
 		entry = prev->next;
+		i++;
 	}
 	prev->next = create_hash_table_pair(key, val, is_exported);
 	if (!prev->next)

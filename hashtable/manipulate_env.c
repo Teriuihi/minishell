@@ -21,7 +21,8 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 {
 	unsigned int	hashkey;
 	t_entry			*current;
-
+	t_entry			*prev;
+	t_entry			*head;
 
 	if (!key || !h_table || !minishell)
 	{
@@ -29,19 +30,43 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 	}
 	hashkey = hash(key, "", h_table->size);
 	current = h_table->entries[hashkey];
+	if (current != NULL)
+	{
+		prev = (t_entry *)malloc(sizeof(t_entry));
+		if (!prev)
+		{
+			//exit(1);
+		}
+		prev = NULL;
+	}
 	while (current != NULL)
 	{
 		if (ft_strncmp(key, current->key,
 				ft_strlen(key)) == 0)
 		{
+			if (prev == NULL) //if the current is the first node in chain
+			{
+				prev = current->next;
+				if (current->next)
+				{
+					prev->next = current->next->next;
+				}
+				head = prev;
+			}
+			else //otherwise
+			{
+				head = prev;
+				prev->next = current->next;
+			}
 			free(current->val);
 			free(current->key);
-			current = NULL;
-			//h_table->entries[hashkey]->val = ft_strdup("\n");
 			return (set_exit_status(minishell, 0, NULL));
 		}
+		prev = current;
 		current = current->next;
 	}
+	prev = NULL;
+	free(prev);
 	return (set_exit_status(minishell, 0, NULL));
 }
 
