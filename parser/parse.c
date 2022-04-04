@@ -58,6 +58,7 @@ static t_bool	func_3(t_parse_data *data, t_minishell *minishell)
 			return (false);
 	}
 	data->pos++;
+	data->start = data->pos;
 	if (parse_quotation(data, data->input[data->pos - 1], minishell) == false)
 		return (false);
 	data->has_data = true;

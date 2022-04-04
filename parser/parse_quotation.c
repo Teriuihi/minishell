@@ -46,28 +46,25 @@ t_bool	handle_env_variable(t_parse_data *data, t_minishell *minishell)
  */
 t_bool	parse_quotation(t_parse_data *data, char quote, t_minishell *minishell)
 {
-	int		pos;
-
-	pos = data->start;
-	while (data->input[pos])
+	while (data->input[data->pos])
 	{
-		if (quote == '"' && data->input[pos] == '$')
+		if (quote == '"' && data->input[data->pos] == '$')
 		{
 			if (handle_env_variable(data, minishell) == false)
 				return (false);
 		}
-		else if (data->input[pos] == quote)
+		else if (data->input[data->pos] == quote)
 		{
-			if (pos != data->start)
+			if (data->pos != data->start)
 			{
 				if (append_content(data, minishell) == false)
 					return (false);
 			}
-			data->start = pos + 1;
+			data->start = ++data->pos;
 			return (true);
 		}
 		else
-			pos++;
+			data->pos++;
 	}
 	return (true);
 }
