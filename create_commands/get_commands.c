@@ -266,7 +266,6 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 {
 	t_cmd_data	*cmd_data;
 	t_list		*entry;
-	int			fd;
 	char		*message;
 	t_bool		success;
 
@@ -303,16 +302,15 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 				}
 				if (pipe_type == REDIRECT_INPUT)
 				{
-					fd = open(cmd_data->output.file, O_RDONLY, 0);
-					if (fd < 0)
+					chdir(minishell->cur_wd);
+					if (access(cmd_data->input.file, R_OK) != 0)
 					{
-						message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->output.file, ": No such file or directory\n"));
+						message = ft_strjoin("some shell: parse1: ", ft_strjoin(cmd_data->input.file, ": No such file or directory\n"));
 						if (!message)
 							message = "some shell: out of memory";
 						set_exit_status(minishell, 1, message);
 						success = false;
 					}
-					close(fd);
 				}
 			}
 			else if ((pipe_type == APPEND_OUTPUT || pipe_type == REDIRECT_OUTPUT) && success == true)
@@ -326,7 +324,9 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 					success = false;
 					//TODO error return
 				}
-				close(open(cmd_data->output.file, O_CREAT, 0777));
+				chdir(minishell->cur_wd);
+				if (access(cmd_data->output.file, F_OK) != 0)
+					close(open(cmd_data->output.file, O_CREAT, 0777));
 			}
 			entry = entry->next;
 		}
@@ -390,16 +390,16 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 			}
 			if (pipe_type == REDIRECT_INPUT)
 			{
-				fd = open(cmd_data->output.file, O_RDONLY, 0);
-				if (fd < 0)
+				chdir(minishell->cur_wd);
+				ft_printf(1, "\n%s/%s   -   %d\n", minishell->cur_wd, cmd_data->input.file, access(cmd_data->input.file, R_OK));
+				if (access(cmd_data->input.file, R_OK) != 0)
 				{
-					message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->output.file, ": No such file or directory\n"));
+					message = ft_strjoin("some shell: parse2: ", ft_strjoin(cmd_data->input.file, ": No such file or directory\n"));
 					if (!message)
 						message = "some shell: out of memory";
 					set_exit_status(minishell, 1, message);
 					success = false;
 				}
-				close(fd);
 			}
 		}
 		else if ((pipe_type == APPEND_OUTPUT || pipe_type == REDIRECT_OUTPUT) && success == true)
@@ -413,7 +413,9 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 				success = false;
 				//TODO error return
 			}
-			close(open(cmd_data->output.file, O_CREAT, 0777));
+			chdir(minishell->cur_wd);
+			if (access(cmd_data->output.file, F_OK) != 0)
+				close(open(cmd_data->output.file, O_CREAT, 0777));
 		}
 		entry = entry->next;
 	}

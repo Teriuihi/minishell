@@ -197,6 +197,7 @@ t_bool	check_input_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 
 	if (cmd_data->input.type == REDIRECT_INPUT)
 	{
+		chdir(minishell->cur_wd);
 		fd = open(cmd_data->input.file, O_RDONLY);
 		if (fd < 0)
 		{
