@@ -57,22 +57,26 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 			while (i + 1 < command->args_len)
 			{
 				splitted = ft_split(command->args[i + 1], '=');
-				if (split_len(splitted) < 1)
-				{
-					free_splitted(splitted);
+				if (!splitted)
 					return (false);
-				}
-				/* EDGE CASE TO FIX W STIJN
-				if (command->args[i][0] = '$') //check if i can expand?
+				if (split_len(splitted) == 1)
 				{
-					char *message = ft_strjoin("some shell: export: ", ft_strjoin(command->args[1], ": No such file or directory\n"));
-					if (!message)
-						return (set_exit_status(minishell, 1, NULL));
-					return (set_exit_status(minishell, 1, message));
-					//ft_printf("export: `=tkt'c");
-				}
-				//what happens if there are more args and all of them should be set?
-				*/
+					int was_there_equal = 0;
+					int k = 0;
+					while (command->args[i + 1][k] != '\0')
+					{
+						if (command->args[i + 1][k] == '=')
+							was_there_equal = 1; //we could ++, and 3 lines below check if its 1, or more equals?
+						k++;
+					}
+					if (was_there_equal == 1)
+					{
+						//ft_printf(1, "%d is equal signs\n", was_there_equal); 
+						ft_set_env(splitted[0], "", minishell->env, true);
+						free_splitted(splitted);
+						return (true);
+					}
+				}	
 				ft_set_env(splitted[0], splitted[1], minishell->env, true);
 				free_splitted(splitted);
 				i++;
