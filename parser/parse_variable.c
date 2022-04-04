@@ -14,6 +14,8 @@
 #include "../headers/arguments.h"
 #include "../hashtable/hashtable.h"
 #include "../headers/minishell.h"
+#include "../headers/functions.h"
+#include "internal_parser.h"
 
 /**
  * Get the value from a key from the hash table
@@ -29,6 +31,7 @@ static t_string	*get_value_from_key(char *key, t_bool *success)
 	t_string		*result;
 	t_hash_table	*table;
 
+	*success = false;
 	table = get_hash_table();
 	if (ft_strlen(key) == 1 && *key == '?')
 	{
@@ -54,59 +57,80 @@ static t_string	*get_value_from_key(char *key, t_bool *success)
  * @return	They key's value or null if the key doesn't exist
  * 	set's success to false on failure
  */
-static t_string	*get_string_from_var(int end, int start, char *input,
-				t_bool *success)
+static t_string	*get_string_from_var(t_parse_data *data, t_minishell *minishell)
 {
 	char		*key;
 	t_string	*result;
+	t_bool		success;
 
-	*success = false;
-	if (end == start)
+	if (data->pos == data->start)
 		return (init_string(NULL));
-	key = ft_calloc(end - start + 1, sizeof(char));
+	key = ft_calloc(data->pos - data->start + 1, sizeof(char));
 	if (key == NULL)
 		return (NULL);
-	ft_strlcpy(key, input + start, end - start + 1);
-	result = get_value_from_key(key, success);
+	ft_strlcpy(key, data->input + data->start, data->pos - data->start + 1);
+	result = get_value_from_key(key, &success);
 	free(key);
+	if (result == NULL)
+		return (NULL);
 	return (result);
+}
+
+static t_bool	parse_env_variable_finalize(t_parse_data *data, t_minishell *minishell)
+{
+	t_string	*result;
+
+	if (data->start == data->pos)
+	{
+		data->string = append_char(data->string, "$");
+		if (data->string == NULL)
+			return (set_exit_status(minishell, 1,
+					"some shell: Out of memory."));
+		return (true);
+	}
+	result = get_string_from_var(data, minishell);
+	if (result == NULL)
+		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+	data->string = join_strings(data->string, result);
+	if (data->string == NULL)
+		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+	return (true);
 }
 
 /**
  * Called when finding a $ indicating a variable should be parsed
  * Parse the variable and swap it with its value
  *
- * @param	input	Input from user
- * @param	start	Start pos (location of $)
- * @param	pos		Current pos while iterating over input
- * @param	arg		String containing the current argument that we're appending too
+ * @param	data	A struct containing data related to current env variable
  *
- * @return	String we appended too (could have a different address now)
+ * @return	boolean to indicate success
  */
-t_string	*parse_env_variable(char *input, int start, int *pos, t_string *arg)
+t_bool	parse_env_variable(t_parse_data *data, t_minishell *minishell)
 {
 	t_string	*result;
-	t_bool		success;
 
-	while (input[*pos])
+	while (data->input[data->pos])
 	{
-		if (!ft_isalnum(input[*pos]) && *pos != '_')
+		if (!ft_isalnum(data->input[data->pos]) && data->pos != '_')
 		{
-			if (*pos == start && input[*pos] == '?')
-				(*pos)++;
-			else if (*pos == start)
-				return (append_char(arg, "$"));
-			result = get_string_from_var(*pos, start, input, &success);
+			if (data->pos == data->start && data->input[data->pos] == '?')
+				data->pos++;
+			else if (data->pos == data->start)
+			{
+				data->string = append_char(data->string, "$");
+				if (data->string == NULL)
+					return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+				return (true);
+			}
+			result = get_string_from_var(data, minishell);
 			if (result == NULL)
-				return (NULL);
-			return (join_strings(arg, result));
+				return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+			data->string = join_strings(data->string, result);
+			if (data->string == NULL)
+				return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+			return (true);
 		}
-		(*pos)++;
+		data->pos++;
 	}
-	if (start == *pos)
-		return (append_char(arg, "$"));
-	result = get_string_from_var(*pos, start, input, &success);
-	if (result == NULL)
-		return (NULL);
-	return (join_strings(arg, result));
+	return (parse_env_variable_finalize(data, minishell));
 }

@@ -13,12 +13,20 @@
 #ifndef INTERNAL_PARSER_H
 # define INTERNAL_PARSER_H
 # include "../string/string.h"
+# include "../headers/minishell.h"
 
-t_string	*append_content(char *input, int start, int pos, t_string *arg);
-t_string	*parse_env_variable(char *input, int start, int *pos,
-				t_string *arg);
-t_string	*parse_quotation(char *input, int *start, char quote,
-				t_string *arg);
+typedef struct s_parse_data {
+	char		*input;
+	int			pos;
+	int			start;
+	t_bool		has_data;
+	t_bool		is_literal;
+	t_string	*string;
+}	t_parse_data;
+
+t_bool		append_content(t_parse_data *data, t_minishell *minishell);
+t_bool		parse_env_variable(t_parse_data *data, t_minishell *minishell);
+t_bool		parse_quotation(t_parse_data *data, char quote,
+				t_minishell *minishell);
 t_string	*safe_add_to_list(t_list **head, t_string *string, t_bool literal);
-
 #endif

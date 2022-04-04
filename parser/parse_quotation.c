@@ -13,20 +13,28 @@
 #include "../libft/libft.h"
 #include "../headers/arguments.h"
 #include "internal_parser.h"
+#include "../headers/functions.h"
 
-t_string	*handle_env_variable(char *input, int *start, int *pos, t_string *arg)
+/**TODO comment
+ *
+ * @param data
+ * @param minishell
+ * @return
+ */
+t_bool	handle_env_variable(t_parse_data *data, t_minishell *minishell)
 {
-	arg = append_content(input, *start, *pos, arg);
-	if (arg == NULL)
-		return (NULL);
-	arg = parse_env_variable(input, ++(*pos), pos, arg);
-	if (arg == NULL)
-		return (NULL);
-	*start = *pos;
-	return (arg);
+	if (append_content(data, minishell) == false)
+		return (false);
+	if (data->string == NULL)
+		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+	data->pos++;
+	data->start = data->pos;
+	if (parse_env_variable(data, minishell) == false)
+		return (false);
+	return (true);
 }
 
-/**
+/** todo update
  * Parse string between quotes
  *
  * @param	input	Input to append from
@@ -36,30 +44,30 @@ t_string	*handle_env_variable(char *input, int *start, int *pos, t_string *arg)
  *
  * @return	String we appended too (could have a different address now)
  */
-t_string	*parse_quotation(char *input, int *start, char quote, t_string *arg)
+t_bool	parse_quotation(t_parse_data *data, char quote, t_minishell *minishell)
 {
 	int		pos;
 
-	pos = *start;
-	while (input[pos])
+	pos = data->start;
+	while (data->input[pos])
 	{
-		if (quote == '"' && input[pos] == '$')
+		if (quote == '"' && data->input[pos] == '$')
 		{
-			arg = handle_env_variable(input, start, &pos, arg);
-			if (arg == NULL)
-				return (NULL);
+			if (handle_env_variable(data, minishell) == false)
+				return (false);
 		}
-		else if (input[pos] == quote)
+		else if (data->input[pos] == quote)
 		{
-			if (pos != *start)
-				arg = append_content(input, *start, pos, arg);
-			if (arg == NULL)
-				return (NULL);
-			*start = pos + 1;
-			return (arg);
+			if (pos != data->start)
+			{
+				if (append_content(data, minishell) == false)
+					return (false);
+			}
+			data->start = pos + 1;
+			return (true);
 		}
 		else
 			pos++;
 	}
-	return (arg);
+	return (true);
 }
