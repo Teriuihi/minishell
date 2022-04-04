@@ -14,6 +14,8 @@
 #include "../hashtable/hashtable.h"
 #include "../headers/minishell.h"
 #include "../headers/functions.h"
+#include <string.h>
+
 /**
  * Checks if a string ends with a specific suffix
  *
@@ -84,24 +86,20 @@ t_bool	print_h_table(t_hash_table *h_table)
 }
 
 //get only names from htable
-char	**get_names(t_hash_table *h_table)
+t_list	*get_names(t_hash_table *h_table)
 {
 	t_entry	*curr;
+	t_list	*head;
 	char	*current_env;
 	char	**envp;
 	int		env_i;
 	int		i;
 
-	if (!h_table)
-	{
+	if (!h_table) //at this point this should not be possible
 		return (NULL);
-	}
-	envp = (char **)ft_calloc(h_table->size + 1, sizeof(char *)); //get the amount of distinct key value pairs created, htable size will be less than the slots
-	if (!envp)
-	{
+	head = (t_list *)malloc(sizeof(t_list));
+	if (!head)
 		return (NULL);
-	}
-	envp[h_table->size] = NULL;
 	i = 0;
 	env_i = 0;
 	while (i < h_table->size)
@@ -111,60 +109,62 @@ char	**get_names(t_hash_table *h_table)
 		{
 			while (curr != NULL)
 			{
-				envp[env_i] = ft_strdup(curr->key);
-				env_i++;
+				if (curr->key != NULL)
+				{
+					ft_lstadd_front(&head, ft_lstnew(curr->key));
+				}
 				curr = curr->next;
 			}
 		}
 		i++;
 	}
-	return (envp);
+	return (head);
+}
+
+void	sort_by_name(t_list *names) //this sorts in place
+{
+	t_list	*curr;
+	t_list	*index;
+	void	*tmp;
+
+	curr = names;
+	while (curr->next != NULL)
+	{
+		t_list *index = curr->next;
+		while (index != NULL)
+		{
+			if (index->content != NULL)
+			{
+				if (strcmp((char *)curr->content, (char *)index->content) > 0)
+				{
+					tmp = curr->content;
+					curr->content = index->content;
+					index->content = tmp;
+				}
+			}
+			index = index->next;
+		}
+		curr = curr->next;
+	}
 }
 
 void	export(t_hash_table *h_table)
 {
-	char	**sorted;
-	char	*tmp;
-	int		i;
-	int		j;
-	int		sorted_len;
+	t_list	*names;
+	t_list	*curr;
+	char	*val;
 
-	//sort a double pointer?
-	//allocate enough memory
-	sorted = get_names(h_table);
-	for (sorted_len = 0; sorted[sorted_len] != NULL; sorted_len++)
+	names = get_names(h_table);
+	sort_by_name(names);	
+	curr = names;
+	while (curr != NULL)
 	{
-		;
-	}
-	//ft_bzero(tmp, 1100);
-	tmp = (char *)ft_calloc(1000, 1);
-
-	//sort sorted based on key sorted[0]
-	i = 0;
-	while (i < sorted_len)
-	{
-		j = i + 1;
-		while (j < sorted_len)
+		val = ft_get_env_val((char *)curr->content, h_table);
+		if (val != NULL)
 		{
-			if (ft_strncmp(sorted[i], sorted[j], ft_strlen(sorted[i]) > 0))
-			{
-				tmp = (char *)ft_calloc(ft_strlen(sorted[i]), 1);
-				ft_strncpy(tmp, sorted[i], ft_strlen(sorted[i]));
-				//ft_printf(1,"%s is tmp now\n", tmp);
-				
-				free(sorted[i]);
-				sorted[i] = (char *)ft_calloc(ft_strlen(sorted[j]), 1);
-				ft_strncpy(sorted[i], sorted[j], ft_strlen(sorted[j]));
-				//ft_printf(1,"%s is sorted[i] now\n", sorted[i]);
-				
-				free(sorted[j]);
-				sorted[j] = (char *)ft_calloc(ft_strlen(tmp), 1);
-				ft_strncpy(sorted[j], tmp, ft_strlen(tmp));
-				//ft_printf(1,"%s is sorted[j] now\n", sorted[j]);
-			}
-			j++;
+			ft_printf(1, "declare -x %s=\"%s\"\n",(char *)curr->content, val);
 		}
-		i++;
+		curr = curr->next;
 	}
-	//print_splitted(sorted);
+
 }
