@@ -157,12 +157,20 @@ void	export(t_hash_table *h_table)
 	names = get_names(h_table);
 	sort_by_name(names);	
 	curr = names;
+	val = NULL;
 	while (curr != NULL)
 	{
-		val = ft_get_env_val((char *)curr->content, h_table);
-		if (val != NULL)
+		if (curr->content != NULL)
 		{
-			ft_printf(1, "declare -x %s=\"%s\"\n",(char *)curr->content, val);
+			val = ft_get_env_val((char *)curr->content, h_table);
+			if (val != NULL)
+			{
+				ft_printf(1, "declare -x %s=\"%s\"\n",(char *)curr->content, val);
+			}
+			//else //check if its null or 0
+			//{
+			//	ft_printf(1, "declare -x %s=\"\"\n",(char *)curr->content, val);
+			//}
 		}
 		curr = curr->next;
 	}

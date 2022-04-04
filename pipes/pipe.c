@@ -294,6 +294,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
 	command = cmd_data->command;
 	control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell);
+	
 	if (cmd_data->executable_found == false)
 	{
 		ft_printf(2, "some shell: %s: No such file or directory\n", command->command);
@@ -313,6 +314,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 		char *increased_level = ft_itoa(ft_atoi(getenv("SHLVL"), &success) + 1);
 		ft_set_env("SHLVL", increased_level, minishell->env, true);
 	}
+	//check with access(X_OK)
 	if (execve(command->command, command->args,
 			get_envp(minishell->env)) < 0)
 	{
