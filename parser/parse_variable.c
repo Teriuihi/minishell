@@ -50,14 +50,12 @@ static t_string	*get_value_from_key(char *key, t_bool *success)
 /**
  * Gets the value of a variable
  *
- * @param	end		End of key
- * @param	start	Start of key
- * @param	input	String containing key
+ * @param	data	Data used for parsing
  *
  * @return	They key's value or null if the key doesn't exist
  * 	set's success to false on failure
  */
-static t_string	*get_string_from_var(t_parse_data *data, t_minishell *minishell)
+static t_string	*get_string_from_var(t_parse_data *data)
 {
 	char		*key;
 	t_string	*result;
@@ -76,7 +74,17 @@ static t_string	*get_string_from_var(t_parse_data *data, t_minishell *minishell)
 	return (result);
 }
 
-static t_bool	parse_env_variable_finalize(t_parse_data *data, t_minishell *minishell)
+/**
+ * When the end of a string is reached this function parses the variable we were
+ *	reading and ensures the pos and start are set past it
+ *
+ * @param	data		Data used for parsing
+ * @param	minishell	Data for minishell
+ *
+ * @return	Boolean indicating success
+ */
+static t_bool	parse_env_variable_end_string(t_parse_data *data,
+												t_minishell *minishell)
 {
 	t_string	*result;
 
@@ -88,7 +96,40 @@ static t_bool	parse_env_variable_finalize(t_parse_data *data, t_minishell *minis
 					"some shell: Out of memory."));
 		return (true);
 	}
-	result = get_string_from_var(data, minishell);
+	result = get_string_from_var(data);
+	if (result == NULL)
+		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+	data->string = join_strings(data->string, result);
+	if (data->string == NULL)
+		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+	return (true);
+}
+
+/**
+ * When the end of a variable is reached this function parses it and ensures the
+ * 	pos and start are set past it
+ *
+ * @param	data		Data used for parsing
+ * @param	minishell	Data for minishell
+ *
+ * @return	Boolean indicating success
+ */
+static t_bool	handle_env_variable_in_string(t_parse_data *data,
+												t_minishell *minishell)
+{
+	t_string	*result;
+
+	if (data->pos == data->start && data->input[data->pos] == '?')
+		data->pos++;
+	else if (data->pos == data->start)
+	{
+		data->string = append_char(data->string, "$");
+		if (data->string == NULL)
+			return (set_exit_status(minishell, 1,
+					"some shell: Out of memory."));
+		return (true);
+	}
+	result = get_string_from_var(data);
 	if (result == NULL)
 		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
 	data->string = join_strings(data->string, result);
@@ -107,30 +148,13 @@ static t_bool	parse_env_variable_finalize(t_parse_data *data, t_minishell *minis
  */
 t_bool	parse_env_variable(t_parse_data *data, t_minishell *minishell)
 {
-	t_string	*result;
-
 	while (data->input[data->pos])
 	{
 		if (!ft_isalnum(data->input[data->pos]) && data->pos != '_')
 		{
-			if (data->pos == data->start && data->input[data->pos] == '?')
-				data->pos++;
-			else if (data->pos == data->start)
-			{
-				data->string = append_char(data->string, "$");
-				if (data->string == NULL)
-					return (set_exit_status(minishell, 1, "some shell: Out of memory."));
-				return (true);
-			}
-			result = get_string_from_var(data, minishell);
-			if (result == NULL)
-				return (set_exit_status(minishell, 1, "some shell: Out of memory."));
-			data->string = join_strings(data->string, result);
-			if (data->string == NULL)
-				return (set_exit_status(minishell, 1, "some shell: Out of memory."));
-			return (true);
+			return (handle_env_variable_in_string(data, minishell));
 		}
 		data->pos++;
 	}
-	return (parse_env_variable_finalize(data, minishell));
+	return (parse_env_variable_end_string(data, minishell));
 }
