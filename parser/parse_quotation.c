@@ -31,6 +31,7 @@ t_bool	handle_env_variable(t_parse_data *data, t_minishell *minishell)
 	data->start = data->pos;
 	if (parse_env_variable(data, minishell) == false)
 		return (false);
+	data->start = data->pos;
 	return (true);
 }
 
