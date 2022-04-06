@@ -41,7 +41,7 @@ t_bool	output_pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type)
 		return (false);
 	if (cmd_get->cmd_len > 1)
 		if (append_arguments_to_command(cmd_data->command, entry->next,
-			cmd_get->cmd_len - 1, false) == false)
+				cmd_get->cmd_len - 1, false) == false)
 			return (false);
 	cmd_data->output.type = pipe_type;
 	entry = get_arg_at_pos(cmd_get->cur_arg, cmd_get->cmd_len);
@@ -66,7 +66,11 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 	}
 	entry = entry->next;
 	if (entry == NULL)
+	{
+		set_exit_status(minishell, 1,
+			"some shell: syntax error near unexpected token.");
 		return (ERROR);
+	}
 	if ((pipe_type == DELIMITER_INPUT || pipe_type == REDIRECT_INPUT))
 	{
 		cmd_data->input.type = pipe_type;
@@ -75,7 +79,7 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 		cmd_data->input.file = ft_strdup(str_from_arg(entry));
 		if (cmd_data->input.file == NULL)
 		{
-			//TODO error return
+			set_exit_status(minishell, 1, "some shell: Out of memory.");
 			return (ERROR);
 		}
 		if (pipe_type == REDIRECT_INPUT)
@@ -85,7 +89,7 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 			{
 				message = ft_strjoin("some shell: parse2: ", ft_strjoin(cmd_data->input.file, ": No such file or directory\n"));
 				if (!message)
-					message = "some shell: out of memory";
+					message = "some shell: Out of memory.";
 				set_exit_status(minishell, 1, message);
 				return (ERROR);
 			}
@@ -99,8 +103,8 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 		cmd_data->output.file = ft_strdup(str_from_arg(entry));
 		if (cmd_data->output.file == NULL)
 		{
+			set_exit_status(minishell, 1, "some shell: Out of memory.");
 			return (ERROR);
-			//TODO error return
 		}
 		chdir(minishell->cur_wd);
 		if (access(cmd_data->output.file, F_OK) != 0)
@@ -110,7 +114,7 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 	return (CONTINUE);
 }
 
-t_bool	get_null_command(t_cmd_get_struct *cmd_get, t_list *entry, t_minishell *minishell)
+t_cmd_data	*command_with_pipe_start(t_cmd_get_struct *cmd_get, t_list *entry, t_minishell *minishell)
 {
 	t_cmd_data		*cmd_data;
 	t_pipe_type		pipe_type;
@@ -118,7 +122,7 @@ t_bool	get_null_command(t_cmd_get_struct *cmd_get, t_list *entry, t_minishell *m
 
 	cmd_data = create_new_cmd(cmd_get->head, NULL);
 	if (cmd_data == NULL)
-		return (false);
+		return (NULL);
 	while (entry != NULL)
 	{
 		pipe_type = pipe_type_from_arg(entry->content);
@@ -131,21 +135,21 @@ t_bool	get_null_command(t_cmd_get_struct *cmd_get, t_list *entry, t_minishell *m
 			//TODO ERROR
 		}
 		if (exit_state == RETURN)
-			return (true);
+			return (cmd_data);
 		entry = cmd_get->cur_arg;
 	}
 	if (entry == NULL)
 	{
 		cmd_get->cur_arg = entry;
-		return (true);
+		return (cmd_data);
 	}
 	cmd_data->command->command = ft_strdup(((t_arg *)entry->content)->arg->s);
 	if (cmd_data->command->command == NULL)
-		return (false); //TODO free?
+		return (NULL); //TODO free?
 	if (append_arguments_to_command(cmd_data->command, entry, 1, true) == false)
-		return (false);
+		return (NULL);
 	entry = entry->next;
-	while (!pipe_type_from_arg(entry->content))
+	while (entry != NULL && !pipe_type_from_arg(entry->content))
 	{
 		cmd_get->cmd_len++;
 		entry = entry->next;
@@ -153,9 +157,9 @@ t_bool	get_null_command(t_cmd_get_struct *cmd_get, t_list *entry, t_minishell *m
 	if (cmd_get->cmd_len && append_arguments_to_command(
 			cmd_data->command, entry->next,
 			cmd_get->cmd_len - 1, false) == false)
-		return (false);
+		return (NULL);
 	cmd_get->cmd_len = 0;
-	return (true);
+	return (cmd_data);
 }
 
 /**
@@ -181,14 +185,14 @@ t_bool	pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type,
 	success = true;
 	entry = cmd_get->cur_arg;
 	if (cmd_get->cmd_len == 0)
-	{
-		return (get_null_command(cmd_get, entry, minishell));
-	}
-	cmd_data = create_new_cmd(cmd_get->head, ((t_arg *)entry->content)->arg->s);
+		cmd_data = command_with_pipe_start(cmd_get, entry, minishell);
+	else
+		cmd_data = create_new_cmd(cmd_get->head,
+				((t_arg *)entry->content)->arg->s);
 	if (cmd_data == NULL)
 		return (false);
-	if (append_arguments_to_command(cmd_data->command, entry->next,
-									(cmd_get->cmd_len - 1), false) == false)
+	if (cmd_get->cmd_len > 0 && append_arguments_to_command(cmd_data->command, entry->next,
+			(cmd_get->cmd_len - 1), false) == false)
 		return (false);
 	entry = get_arg_at_pos(entry, cmd_get->cmd_len);
 	cmd_get->cmd_len = 0;
@@ -197,7 +201,8 @@ t_bool	pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type,
 		pipe_type = pipe_type_from_arg(entry->content);
 		if (pipe_type == NONE)
 		{
-			if (append_arguments_to_command(cmd_data->command, entry, 1, false) == false)
+			if (append_arguments_to_command(cmd_data->command,
+					entry, 1, false) == false)
 				return (false);
 			entry = entry->next;
 			continue ;
@@ -205,10 +210,8 @@ t_bool	pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type,
 		cmd_get->cur_arg = entry;
 		exit_state = update_pipe(cmd_data, cmd_get, minishell);
 		if (exit_state == ERROR)
-		{
-			//TODO ERROR
-		}
-		if (exit_state == RETURN)
+			return (false);
+		else if (exit_state == RETURN)
 			return (true);
 		entry = cmd_get->cur_arg;
 	}
