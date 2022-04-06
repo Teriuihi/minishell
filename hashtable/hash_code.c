@@ -127,6 +127,10 @@ void	sort_by_name(t_list *names) //this sorts in place
 	t_list	*index;
 	void	*tmp;
 
+	if (!names)
+	{
+		return ;
+	}
 	curr = names;
 	while (curr->next != NULL)
 	{
@@ -154,9 +158,13 @@ void	export(t_hash_table *h_table)
 	t_list	*curr;
 	char	*val;
 
+	if (!h_table)
+		return ;
 	names = get_names(h_table);
 	sort_by_name(names);	
 	curr = names;
+	if (!curr)
+		return ;
 	val = NULL;
 	while (curr != NULL)
 	{

@@ -149,16 +149,18 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 		exit(1);
 	else if (ft_streq(command->command, "cd"))
 		return (cd(command, minishell));
-	else if (ft_streq(command->command, "env"))
-		return (ft_env(minishell->env, minishell));
+	//else if (ft_streq(command->command, "env"))
+	//	return (ft_env(minishell->env, minishell));
 	else if (ft_streq(command->command, "unset"))
 		return (ft_remove_exported_var(command->args[1], minishell->env,
 				minishell));
-	else if(ft_streq(command->command, "export") && command->args_len == 1)
-	{
+	//else if(ft_streq(command->command, "export") && command->args_len == 1)
+	//{
 		//ft_printf(1, "RIGHT PLACE\n");
-		export(minishell->env);
-	}
+	//	export(minishell->env);
+	//	return (set_exit_status(minishell, 0, NULL));
+
+	//}
 	else if (env_var_added(command, minishell) == true)
 		return (true);
 	return (set_exit_status(minishell, 1, NULL));
@@ -190,6 +192,12 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 		return (ft_echo(command, 1, minishell));
 	else if (ft_streq(command->command, "pwd"))
 		return (ft_pwd(cur_dir, minishell));
+	else if(ft_streq(command->command, "export"))
+	{
+		//ft_printf(1, "RIGHT PLACE\n");
+		export(minishell->env);
+		return (set_exit_status(minishell, 0, NULL));
+	}
 	else
 		return (set_exit_status(minishell, 1, NULL));
 }
