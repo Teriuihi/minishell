@@ -296,6 +296,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	command = cmd_data->command;
 	control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell);
 	
+	//if no slash before then 127
 	if (cmd_data->executable_found == false)
 	{
 		ft_printf(2, "some shell: %s: No such file or directory\n", command->command);
@@ -344,21 +345,14 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
 	waitpid(c_pid, &status, 0);
 	if (WIFEXITED(status))
 	{
-		/*
-		if WIFSIGNALED(status)
-			g_signal_exit_status = WTERMSIG(status) + 128;
-		*/
-		if (g_signal.sigint == 1 && g_signal.sigquit == 0) //what if sigquit is == 1?
+		if (WIFSIGNALED(status)) 
 		{
-			g_signal.exit_status = 128 + 2;
+			g_signal.exit_status = WTERMSIG(status) + 128;
 		}
-		//else if (g_signal.sigquit == 1)
-		//{
-		//	ft_printf("QUIT registered\n");
-		//	g_signal.exit_status = 128 + 3;
-		//}
 		else
+		{
 			g_signal.exit_status = WEXITSTATUS(status);
+		}
 	}
 }
 
@@ -371,6 +365,8 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
  */
 t_bool	should_be_child(t_command *command)
 {
+	if (ft_streq(command->command, "export") == 1 && command->args_len == 1)
+		return (true);
 	if (env_variable_found(command) == true)
 		return (false);
 	if (ft_streq(command->command, "cd"))
@@ -449,7 +445,7 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	command = cmd_data->command;
 	if (ft_streq(command->command, "exit"))
 	{
-		if (cmd_data->input.type == NONE)
+		if (cmd_data->input.type == NONE) // && cmd_data->output.type == NONE)
 			exit(0);
 		else
 			return ;
@@ -459,7 +455,9 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 		return ;
 	}
 	if (is_built_in == false)
+	{
 		cmd_data->executable_found = search_executable(cmd_data, minishell);
+	}
 	if (should_be_child(command) == false)
 	{
 		if (execute_non_forked_builtin(command, minishell) == false && g_signal.print_basic_error == true)

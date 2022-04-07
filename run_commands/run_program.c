@@ -157,7 +157,8 @@ void	start_program_loop(t_minishell *minishell)
 	{
 		g_signal.command = true;
 		input = prompt();
-		signal_check(input, minishell);
+		if (signal_check(input, minishell) == false)
+			break ; //reset stuff?
 		if (should_use(input) == true)
 		{
 			add_history(input);
@@ -171,9 +172,11 @@ void	start_program_loop(t_minishell *minishell)
 			head = find_commands(parse_results, minishell); //TODO free
 			if (head == NULL)
 			{
-				signal_check(NULL, minishell);
 				g_signal.command = false;
-				return ;
+				if (signal_check(NULL, minishell) == false)
+					break ;
+				else
+					return ; //y tho
 			}
 			g_signal.command = false;
 			run_commands(head, minishell);

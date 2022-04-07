@@ -127,6 +127,10 @@ void	sort_by_name(t_list *names) //this sorts in place
 	t_list	*index;
 	void	*tmp;
 
+	if (!names)
+	{
+		return ;
+	}
 	curr = names;
 	while (curr->next != NULL)
 	{
@@ -157,6 +161,11 @@ void	export(t_hash_table *h_table)
 	names = get_names(h_table);
 	sort_by_name(names);	
 	curr = names;
+	if (!curr)
+	{
+		return ;
+	}
+	curr = names;
 	val = NULL;
 	while (curr != NULL)
 	{
@@ -167,12 +176,7 @@ void	export(t_hash_table *h_table)
 			{
 				ft_printf(1, "declare -x %s=\"%s\"\n",(char *)curr->content, val);
 			}
-			//else //check if its null or 0
-			//{
-			//	ft_printf(1, "declare -x %s=\"\"\n",(char *)curr->content, val);
-			//}
 		}
 		curr = curr->next;
 	}
-
 }

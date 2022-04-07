@@ -175,21 +175,19 @@ t_bool	set_exit_status(t_minishell *minishell, int status, char *message)
 	}
 }
 
-int interruptible_getc(void)
+int interruptible_getc(void) //crtl \ -> errno = 4, -1 r , //crtl D -> errno = 2, 1 r
 {	
 	int		r;
 	char	c;
 
-//	if (g_signal.interrupted == true)
-//	{
-//		return EOF;
-//	}
 	r = read(0, &c, 1);
-	//crtl \ -> errno = 4, -1 r
-	//crtl D -> errno = 2, 1 r
-	if (r == -1 && errno == EINTR && g_signal.sigint != 1) //then this is sigint (crtl c here)
+	if (r == -1 && errno == EINTR && g_signal.sigint != 1)
 	{
 		return (0);
 	}
-	return (r == 1 ? c : EOF); //if we use signals this we always return EOF
+	if (c == 4)
+	{
+		g_signal.veof = 1;
+	}
+	return (r == 1 ? c : EOF);
 }

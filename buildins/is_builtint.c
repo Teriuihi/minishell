@@ -54,10 +54,11 @@ t_bool	env_variable_found(t_command *command_t)
 	command = command_t->command;
 	count = 0;
 	if (!command)
-		return (false);
-	if (ft_streq(command, "export"))
 	{
-		//one if this is the only argument
+		return (false);
+	}
+	if (ft_streq(command, "export") && command_t->args_len != 1)
+	{
 		command_t->export_found = true;
 		return (true);
 	}
@@ -80,19 +81,23 @@ t_bool	env_variable_found(t_command *command_t)
 t_bool	is_builtin(t_command *command)
 {
 	int			i;
-	const char	*builtins[6] = {"echo", "cd", "pwd", "export", "unset", "env"};
+	const char	*builtins[5] = {"echo", "cd", "pwd", "export", "unset"}; //if its env, always fork it
 
 	if (!command)
+	{
 		return (false);
+	}
 	i = 0;
 	if (env_variable_found(command) == true)
 	{
 		return (true);
 	}
-	while (i < 6)
+	while (i < 5)
 	{
 		if (ft_streq(command->command, builtins[i]))
+		{
 			return (true);
+		}
 		i++;
 	}
 	return (false);
