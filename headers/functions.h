@@ -18,6 +18,7 @@
 # include "structs.h"
 # include "../libft/libft.h"
 # include "minishell.h"
+# include "arguments.h"
 
 t_list			**find_commands(t_list **args, t_minishell *minishell);
 char			*search_in_path(char *command, t_minishell *minishell);
@@ -46,6 +47,7 @@ void			signal_check(char *input, t_minishell *minishell);
 t_bool			set_exit_status(t_minishell *minishell, int status, char *message);
 void			check_status(t_minishell *minishell);
 char			*search_folder(char *command, t_minishell *minishell);
-int 			interruptible_getc(void);
+int				interruptible_getc(void);
+t_pipe_type		pipe_type_from_arg(t_arg *arg);
 
 #endif

@@ -13,6 +13,7 @@
 #include "../libft/libft.h"
 #include "../headers/arguments.h"
 #include "internal_parser.h"
+#include "../headers/functions.h"
 
 static t_bool	is_pipe(char c)
 {
@@ -160,6 +161,35 @@ static t_bool	func(t_parse_data *data, t_list **head, t_minishell *minishell)
 	return (finalize(data, head, minishell));
 }
 
+t_bool	validate_parse(t_list	*entry, t_minishell *minishell)
+{
+	t_pipe_type	prev_pipe;
+	t_pipe_type	cur_pipe;
+	char		*message;
+
+	prev_pipe = NONE;
+	while (entry != NULL)
+	{
+		cur_pipe = pipe_type_from_arg(entry->content);
+		if (prev_pipe != NONE && cur_pipe != NONE)
+		{
+			message = ft_strjoin("some shell: syntax error near "
+					"unexpected token `", ((t_arg *)entry->content)->arg->s);
+			if (message != NULL)
+				message = ft_strjoin(message, "'");
+			if (message == NULL)
+				message = "some shell: Out of memory.";
+			set_exit_status(minishell, 258, message);
+			return (false);
+		}
+		prev_pipe = cur_pipe;
+		entry = entry->next;
+	}
+	if (prev_pipe != NONE)
+		return (false);
+	return (true);
+}
+
 /**
  * Parse user input
  *
@@ -184,7 +214,17 @@ t_list	**parse(char *input, t_minishell *minishell)
 		data.pos++;
 	data.start = data.pos;
 	if (func(&data, head, minishell) == true)
-		return (head);
+	{
+		if (validate_parse(*head, minishell) == true)
+			return (head);
+		else
+		{
+			//TODO free and let end of function return NULL
+		}
+	}
 	else
-		return (NULL);
+	{
+		//TODO error
+	}
+	return (NULL);
 }

@@ -66,25 +66,6 @@ t_list	*get_command_start(t_list *cur, int cmd_len)
 }
 
 /**
- * Safely get pipe type from argument
- *
- * @param	arg	arg to get pipe type from
- *
- * @return	pipe_type of arg or NONE if arg is literal
- */
-t_pipe_type	pipe_type_from_arg(t_arg *arg)
-{
-	t_pipe_type	pipe_type;
-
-	if (arg->literal)
-		return (NONE);
-	pipe_type = command_separator_type(arg->arg->s);
-	if (pipe_type == NONE)
-		return (NONE);
-	return (pipe_type);
-}
-
-/**
  * Set the input type for a command if it doesn't have one yet but
  * 	does have a previous command
  *

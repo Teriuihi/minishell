@@ -164,8 +164,7 @@ void	start_program_loop(t_minishell *minishell)
 			parse_results = parse(input, minishell); //TODO free
 			if (parse_results == NULL)
 			{
-				ft_printf(2, "some shell: Out of memory.");
-				exit(1);
+				continue ;
 			}
 			chdir(minishell->cur_wd);
 			head = find_commands(parse_results, minishell); //TODO free

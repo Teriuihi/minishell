@@ -23,7 +23,7 @@
  *
  * @return	non zero on error, 0 on success
  */
-t_bool	find_commands_in_args(t_cmd_get_struct *cmd_get, t_minishell *minishell)
+static t_bool	find_commands_in_args(t_cmd_get_struct *cmd_get, t_minishell *minishell)
 {
 	t_pipe_type		pipe_type;
 	t_bool			success;

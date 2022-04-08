@@ -23,7 +23,7 @@
  *
  * @return	The command data that was stored or NULL on failure
  */
-t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
+static t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
 {
 	t_list	*new;
 	char	*entry;
@@ -56,7 +56,7 @@ t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
  *
  * @return	True on success false on failure
  */
-t_bool	store_args(char **args, int len, t_command *command)
+static t_bool	store_args(char **args, int len, t_command *command)
 {
 	int		i;
 	char	*entry;
@@ -117,7 +117,7 @@ static t_bool	create_command_args(t_command *command, int len, char **args)
  *
  * @return	The command data for this command or NULL on failure
  */
-t_cmd_data	*create_command_data(char **args, int len)
+static t_cmd_data	*create_command_data(char **args, int len)
 {
 	t_cmd_data	*cmd_data;
 	t_command	*command;

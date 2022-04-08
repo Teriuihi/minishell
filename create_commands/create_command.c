@@ -50,6 +50,13 @@ t_bool	output_pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type)
 	return (true);
 }
 
+void	go_to_end_cmd(t_cmd_get_struct *cmd_get)
+{
+	while (cmd_get->cur_arg != NULL
+		&& pipe_type_from_arg(cmd_get->cur_arg->content) != OUTPUT_TO_COMMAND)
+		cmd_get->cur_arg = cmd_get->cur_arg->next;
+}
+
 t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 							t_minishell *minishell)
 {
@@ -88,9 +95,10 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 			if (access(cmd_data->input.file, R_OK) != 0)
 			{
 				message = ft_strjoin("some shell: parse2: ", ft_strjoin(cmd_data->input.file, ": No such file or directory\n"));
-				if (!message)
+				if (message == NULL)
 					message = "some shell: Out of memory.";
 				set_exit_status(minishell, 1, message);
+				go_to_end_cmd(cmd_get);
 				return (ERROR);
 			}
 		}
@@ -122,7 +130,12 @@ t_cmd_data	*command_with_pipe_start(t_cmd_get_struct *cmd_get, t_list *entry, t_
 
 	cmd_data = create_new_cmd(cmd_get->head, NULL);
 	if (cmd_data == NULL)
-		return (NULL);
+	{
+		{
+			set_exit_status(minishell, 1, "some shell: Out of memory.");
+			return (NULL);
+		}
+	}
 	while (entry != NULL)
 	{
 		pipe_type = pipe_type_from_arg(entry->content);
@@ -132,7 +145,8 @@ t_cmd_data	*command_with_pipe_start(t_cmd_get_struct *cmd_get, t_list *entry, t_
 		exit_state = update_pipe(cmd_data, cmd_get, minishell);
 		if (exit_state == ERROR)
 		{
-			//TODO ERROR
+			//TODO ERROR free
+			return (NULL);
 		}
 		if (exit_state == RETURN)
 			return (cmd_data);
@@ -145,57 +159,25 @@ t_cmd_data	*command_with_pipe_start(t_cmd_get_struct *cmd_get, t_list *entry, t_
 	}
 	cmd_data->command->command = ft_strdup(((t_arg *)entry->content)->arg->s);
 	if (cmd_data->command->command == NULL)
-		return (NULL); //TODO free?
+		return (NULL); //TODO free
 	if (append_arguments_to_command(cmd_data->command, entry, 1, true) == false)
-		return (NULL);
+		return (NULL); //TODO free
 	entry = entry->next;
+	cmd_get->cur_arg = entry;
 	while (entry != NULL && !pipe_type_from_arg(entry->content))
 	{
 		cmd_get->cmd_len++;
 		entry = entry->next;
 	}
-	if (cmd_get->cmd_len && append_arguments_to_command(
-			cmd_data->command, entry->next,
-			cmd_get->cmd_len - 1, false) == false)
-		return (NULL);
-	cmd_get->cmd_len = 0;
 	return (cmd_data);
 }
 
-/**
- * Handles creating commands for types that need to create input and forward it
- * 	to the next command
- *
- * @param	t_list		All data related to commands
- * @param	args		All arguments
- * @param	start_pos	Start of arguments for this command in args
- * @param	len			Amount of arguments after start that belong to
- * 	this command
- *
- * @return	non zero on error, 0 on success
- */
-t_bool	pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type,
-					t_minishell *minishell)
+t_bool	pipe_part_2(t_list *entry, t_cmd_get_struct *cmd_get,
+			t_cmd_data *cmd_data, t_minishell *minishell)
 {
-	t_cmd_data		*cmd_data;
-	t_list			*entry;
-	t_bool			success;
 	t_exit_state	exit_state;
+	t_pipe_type		pipe_type;
 
-	success = true;
-	entry = cmd_get->cur_arg;
-	if (cmd_get->cmd_len == 0)
-		cmd_data = command_with_pipe_start(cmd_get, entry, minishell);
-	else
-		cmd_data = create_new_cmd(cmd_get->head,
-				((t_arg *)entry->content)->arg->s);
-	if (cmd_data == NULL)
-		return (false);
-	if (cmd_get->cmd_len > 0 && append_arguments_to_command(cmd_data->command, entry->next,
-			(cmd_get->cmd_len - 1), false) == false)
-		return (false);
-	entry = get_arg_at_pos(entry, cmd_get->cmd_len);
-	cmd_get->cmd_len = 0;
 	while (entry != NULL)
 	{
 		pipe_type = pipe_type_from_arg(entry->content);
@@ -215,9 +197,47 @@ t_bool	pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type,
 			return (true);
 		entry = cmd_get->cur_arg;
 	}
-	if (entry != NULL)
-		cmd_get->cur_arg = entry->prev;
+	cmd_get->cur_arg = entry;
+	return (true);
+}
+
+/**
+ * Handles creating commands for types that need to create input and forward it
+ * 	to the next command
+ *
+ * @param	t_list		All data related to commands
+ * @param	args		All arguments
+ * @param	start_pos	Start of arguments for this command in args
+ * @param	len			Amount of arguments after start that belong to
+ * 	this command
+ *
+ * @return	non zero on error, 0 on success
+ */
+t_bool	pipe_command(t_cmd_get_struct *cmd_get, t_list *entry,
+			t_minishell *minishell)
+{
+	t_cmd_data		*cmd_data;
+	t_bool			success;
+
+	if (cmd_get->cmd_len == 0)
+	{
+		cmd_data = command_with_pipe_start(cmd_get, entry, minishell);
+		entry = cmd_get->cur_arg;
+	}
 	else
-		cmd_get->cur_arg = entry;
+	{
+		cmd_data = create_new_cmd(cmd_get->head,
+				((t_arg *)entry->content)->arg->s);
+		entry = get_arg_at_pos(entry, cmd_get->cmd_len);
+	}
+	if (cmd_data == NULL)
+		return (false);
+	if (entry != NULL && cmd_get->cmd_len > 1
+		&& append_arguments_to_command(cmd_data->command, entry->next,
+			(cmd_get->cmd_len - 1), false) == false)
+		return (false);
+	success = pipe_part_2(entry, cmd_get, cmd_data, minishell);
+	if (success && cmd_get->cur_arg != NULL)
+		cmd_get->cur_arg = entry->prev;
 	return (success);
 }

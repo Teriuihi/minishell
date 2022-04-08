@@ -33,9 +33,8 @@ typedef struct s_cmd_get_struct
 
 t_bool			append_arguments_to_command(t_command *cmd, t_list *entry,
 					int len, t_bool prefix);
-t_pipe_type		pipe_type_from_arg(t_arg *arg);
 t_list			*get_command_start(t_list *cur, int cmd_len);
-t_bool			pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type,
+t_bool			pipe_command(t_cmd_get_struct *cmd_get, t_list *entry,
 					t_minishell *minishell);
 char			*str_from_arg(t_list *entry);
 t_list			*get_arg_at_pos(t_list *entry, int i);
