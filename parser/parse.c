@@ -51,7 +51,7 @@ t_bool	pipe_in_string_skip(int start, t_parse_data *data, t_minishell *minishell
 	return (true);
 }
 
-static t_bool	func_3(t_parse_data *data, t_minishell *minishell)
+static t_bool	parse_quotes(t_parse_data *data, t_minishell *minishell)
 {
 	if (data->pos != 0 && data->pos != data->start)
 	{
@@ -68,7 +68,7 @@ static t_bool	func_3(t_parse_data *data, t_minishell *minishell)
 	return (true);
 }
 
-static t_bool	func_2(t_parse_data *data, t_list **head,
+static t_bool	store_normal_arg(t_parse_data *data, t_list **head,
 					t_minishell *minishell)
 {
 	if (data->has_data)
@@ -103,7 +103,7 @@ static t_bool	func_2(t_parse_data *data, t_list **head,
 	return (true);
 }
 
-static t_bool	func_1(t_parse_data *data, t_minishell *minishell)
+static t_bool	parse_variable(t_parse_data *data, t_minishell *minishell)
 {
 	if (data->pos != 0 && data->pos != data->start)
 	{
@@ -132,24 +132,24 @@ static t_bool	finalize(t_parse_data *data, t_list **head,
 	return (true);
 }
 
-static t_bool	func(t_parse_data *data, t_list **head, t_minishell *minishell)
+static t_bool	parse_into_data(t_parse_data *data, t_list **head, t_minishell *minishell)
 {
 	while (data->input[data->pos])
 	{
 		if (data->input[data->pos] == '"' || data->input[data->pos] == '\'')
 		{
-			if (func_3(data, minishell) == false)
+			if (parse_quotes(data, minishell) == false)
 				return (false);
 		}
 		else if (ft_iswhite_space(data->input[data->pos])
 			|| is_pipe(data->input[data->pos]))
 		{
-			if (func_2(data, head, minishell) == false)
+			if (store_normal_arg(data, head, minishell) == false)
 				return (false);
 		}
 		else if (data->input[data->pos] == '$')
 		{
-			if (func_1(data, minishell) == false)
+			if (parse_variable(data, minishell) == false)
 				return (false);
 		}
 		else
@@ -190,6 +190,22 @@ t_bool	validate_parse(t_list	*entry, t_minishell *minishell)
 	return (true);
 }
 
+t_bool	init_parse(t_parse_data *data, char *input, t_list ***head)
+{
+	data->pos = 0;
+	data->input = input;
+	data->has_data = false;
+	data->is_literal = false;
+	data->string = init_string(NULL);
+	*head = ft_calloc(1, sizeof(t_list *));
+	if (data->string == NULL)
+		return (false);
+	while (ft_iswhite_space(input[data->pos]))
+		data->pos++;
+	data->start = data->pos;
+	return (true);
+}
+
 /**
  * Parse user input
  *
@@ -202,18 +218,9 @@ t_list	**parse(char *input, t_minishell *minishell)
 	t_list			**head;
 	t_parse_data	data;
 
-	data.pos = 0;
-	data.input = input;
-	data.has_data = false;
-	data.is_literal = false;
-	data.string = init_string(NULL);
-	head = ft_calloc(1, sizeof(t_list *));
-	if (data.string == NULL)
+	if (init_parse(&data, input, &head) == false)
 		return (NULL);
-	while (ft_iswhite_space(input[data.pos]))
-		data.pos++;
-	data.start = data.pos;
-	if (func(&data, head, minishell) == true)
+	if (parse_into_data(&data, head, minishell) == true)
 	{
 		if (validate_parse(*head, minishell) == true)
 			return (head);

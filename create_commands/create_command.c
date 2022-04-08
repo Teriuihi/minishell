@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "../headers/functions.h"
-#include "../headers/arguments.h"
 #include "internal_create_commands.h"
 #include <fcntl.h>
 
@@ -228,7 +227,7 @@ t_bool	pipe_command(t_cmd_get_struct *cmd_get, t_list *entry,
 	{
 		cmd_data = create_new_cmd(cmd_get->head,
 				((t_arg *)entry->content)->arg->s);
-		entry = get_arg_at_pos(entry, cmd_get->cmd_len);
+		entry = get_arg_at_pos(entry, cmd_get->cmd_len - 1);
 	}
 	if (cmd_data == NULL)
 		return (false);
@@ -236,7 +235,7 @@ t_bool	pipe_command(t_cmd_get_struct *cmd_get, t_list *entry,
 		&& append_arguments_to_command(cmd_data->command, entry->next,
 			(cmd_get->cmd_len - 1), false) == false)
 		return (false);
-	success = pipe_part_2(entry, cmd_get, cmd_data, minishell);
+	success = pipe_part_2(entry->next, cmd_get, cmd_data, minishell);
 	if (success && cmd_get->cur_arg != NULL)
 		cmd_get->cur_arg = entry->prev;
 	return (success);
