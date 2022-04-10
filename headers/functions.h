@@ -47,5 +47,6 @@ t_bool			set_exit_status(t_minishell *minishell, int status, char *message);
 void			check_status(t_minishell *minishell);
 char			*search_folder(char *command, t_minishell *minishell);
 int 			interruptible_getc(void);
+t_bool			is_input_correct(char *command, int *count);
 
 #endif

@@ -18,7 +18,7 @@
  * @return	true if if export or correct variable assignment is present,
  			false otherwise
 */
-static t_bool	is_input_correct(char *command, int *count)
+t_bool	is_input_correct(char *command, int *count)
 {
 	int	i;
 	int	equal_found;
@@ -33,12 +33,15 @@ static t_bool	is_input_correct(char *command, int *count)
 			equal_found++;
 			if (i == 0)
 				return (false);
-			if (command[i + 1] == '=' && equal_found == 1)
-				return (false);
+			//if (command[i + 1] == '=' && equal_found == 1)
+			//	return (false);
 		}
 		i++;
-	}	
-	return (true);
+	}
+	if (equal_found != 0)
+		return (true);
+	else
+		return (false);
 }
 
 /**

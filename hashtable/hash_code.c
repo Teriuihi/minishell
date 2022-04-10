@@ -175,7 +175,7 @@ t_bool	export(void *minishell)//t_hash_table *h_table)
 	val = NULL;
 	while (curr != NULL)
 	{
-		if (curr->content != NULL)
+		if (curr->content != NULL) //this can be uninitialized soms
 		{
 			val = ft_get_env_val((char *)curr->content, h_table);
 			if (val != NULL)

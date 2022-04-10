@@ -268,7 +268,7 @@ void	child_execute_built_in(t_cmd_data *cmd_data, const int *old_pid,
 		exit(0);
 }
 
-t_bool	check_input_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
+t_bool	check_input_redir(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 							t_minishell *minishell)
 {
 	if (cmd_data->input.type == REDIRECT_INPUT)
@@ -363,9 +363,8 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
 	command = cmd_data->command;
 	if (control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell) == false)
-	{
 		exit(1);
-	}
+	
 	if (cmd_data->executable_found == false) //at this point it just means what
 	{
 		ft_printf(2, "some shell: %s: No such file or directory\n", command->command);
@@ -377,7 +376,8 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 		char *increased_level = ft_itoa(ft_atoi(getenv("SHLVL"), &success) + 1);
 		ft_set_env("SHLVL", increased_level, minishell->env, true);
 	}
-	if (access(command->command, (X_OK | F_OK)) == 0) 	//check with access(X_OK), if its executable, this has also accesses
+
+	if (access(command->command, (X_OK | F_OK)) == 0)
 	{
 		if (execve(command->command, command->args,
 			get_envp(minishell->env)) < 0)
@@ -388,9 +388,10 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	}
 	else
 	{
-		char *message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->input.file, ": No such file or directory\n"));
-		ft_printf(2, "permission denied\n"); //name of the command, without /
+		char *message = ft_strjoin("some shell: ", ft_strjoin(command->command, ": Permission denied"));
 		close(old_pid[0]);
+		ft_printf(2, "%s\n", message); //name of the command, without /
+		free(message);
 		exit(126);
 	}	
 }
@@ -434,8 +435,6 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
  */
 t_bool	should_be_child(t_command *command)
 {
-	//if (ft_streq(command->command, "export") == 1 && command->args_len == 1)
-	//	return (true);
 	if (env_variable_found(command) == true)
 		return (false);
 	if (ft_streq(command->command, "cd"))
@@ -522,16 +521,16 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	t_command	*command;
 
 	command = cmd_data->command;
+	if (check_input_redir(cmd_data, old_pid, cur_pid, minishell) == false)
+	{
+		return ;
+	}
 	if (ft_streq(command->command, "exit"))
 	{
 		if (cmd_data->input.type == NONE && cmd_data->output.type == NONE)
 			exit(0);
 		else
 			return ;
-	}
-	if (check_input_pipes(cmd_data, old_pid, cur_pid, minishell) == false)
-	{
-		return ;
 	}
 	if (is_built_in == false)
 	{
