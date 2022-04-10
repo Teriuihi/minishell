@@ -139,41 +139,6 @@ t_bool	ft_env(t_hash_table *h_table, t_minishell *minishell)
 	}
 }
 
-<<<<<<< Updated upstream
-t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
-{
-	char	*cur_dir;
-	
-	cur_dir = get_pwd(minishell);
-	if (!command->command || !minishell || !cur_dir)
-		exit(1);
-	else if (ft_streq(command->command, "cd"))
-		return (cd(command, minishell));
-	//else if (ft_streq(command->command, "env"))
-	//	return (ft_env(minishell->env, minishell));
-	else if (ft_streq(command->command, "unset"))
-		return (ft_remove_exported_var(command->args[1], minishell->env,
-				minishell));
-	//else if(ft_streq(command->command, "export") && command->args_len == 1)
-	//{
-		//ft_printf(1, "RIGHT PLACE\n");
-	//	export(minishell->env);
-	//	return (set_exit_status(minishell, 0, NULL));
-
-	//}
-	else if (env_var_added(command, minishell) == true)
-		return (true);
-	return (set_exit_status(minishell, 1, NULL));
-}
-
-t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
-{
-	ft_putstr_fd(cur_dir, 1);
-	ft_putstr_fd("\n", 1);
-	return (set_exit_status(minishell, 0, NULL));
-}
-=======
->>>>>>> Stashed changes
 
 t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 {
@@ -193,8 +158,6 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 	else
 		return (set_exit_status(minishell, 1, NULL));
 }
-<<<<<<< Updated upstream
-=======
 
 t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 {
@@ -220,4 +183,3 @@ t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
 	ft_putstr_fd("\n", 1);
 	return (set_exit_status(minishell, 0, NULL));
 }
->>>>>>> Stashed changes
