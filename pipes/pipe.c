@@ -52,6 +52,60 @@ void	init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
 	cur_dir = get_pwd(minishell);
 	chdir(cur_dir);
 }
+/*
+t_bool		init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
+					t_minishell *minishell)
+{
+	char    *cur_dir;
+
+	if (old_pid[0] > -1)
+	{
+		if (dup2(old_pid[0], STDIN_FILENO) == -1)
+		{
+			ft_printf(2, "dupfail\n");
+			return (set_exit_status(minishell, 1, NULL));
+		}
+		if (close(old_pid[0]) == -1)
+		{
+			ft_printf(2, "closefail1\n");
+			return (set_exit_status(minishell, 1, NULL));
+		}
+		if (close(old_pid[1]) == -1)
+		{
+			ft_printf(2, "closefail2\n");
+			return (set_exit_status(minishell, 1, NULL));
+		}
+	}
+	if (cur_pid[0] > -1)
+	{
+		if (type != DELIMITER_INPUT)
+		{
+			if (dup2(cur_pid[1], STDOUT_FILENO) == -1)
+			{
+				ft_printf(2, "closefail3\n");
+				return (set_exit_status(minishell, 1, NULL));
+			}
+			if (close(cur_pid[1]) == -1)
+			{
+				return (set_exit_status(minishell, 1, NULL));
+				ft_printf(2, "closefail4\n");
+			}
+
+		}
+		if (close(cur_pid[0]) == -1)
+		{
+			ft_printf(2, "closefail5\n");
+			return (set_exit_status(minishell, 1, NULL));
+		}
+	}
+	cur_dir = get_pwd(minishell);
+	if (!cur_dir)
+		return (set_exit_status(minishell, 1, NULL));
+	if (chdir(cur_dir) == -1)
+		return (set_exit_status(minishell, 1, NULL));
+	return (true);
+}
+*/
 
 /**
  * Read input using readline until delimiter is found and write it to pipe
@@ -65,12 +119,11 @@ t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2],
 	char		*input;
 
 	g_signal.heredoc = true;
-	(void)minishell;
-	if (old_pid[0] != -1)
+	if (old_pid[0] != -1) //these can be under on function
 	{
 		if (close(old_pid[0]) == -1)
 			return (set_exit_status(minishell, 1, NULL));
-		close(old_pid[1]);
+		if (close(old_pid[1]) == -1)
 			return (set_exit_status(minishell, 1, NULL));
 	}
 	if (pipe(old_pid) == -1)
@@ -98,34 +151,47 @@ t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2],
  * @param	cmd_data		Current command and it's attributes
  * @param	minishell		Data for minishell
  */
-void	redirect_output(t_cmd_data *cmd_data, t_minishell *minishell)
+t_bool	redirect_output(t_cmd_data *cmd_data, t_minishell *minishell)
 {
 	char	*path;
 	int		fd;
 
 	path = get_pwd(minishell);
 	if (path == NULL)
-		err_exit("out of memory", 0);
-	chdir(path);
+		return (set_exit_status(minishell, 1, NULL));
+	if (chdir(path) == -1)
+		return (set_exit_status(minishell, 1, NULL));
 	fd = open(cmd_data->output.file, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd < 0)
-		err_exit("no such file or directory", 0);
-	dup2(fd, STDOUT_FILENO);
+	{
+		char *message = ft_strdup("no such file or directory");
+		return (set_exit_status(minishell, 1, message));
+	}
+	if (dup2(fd, STDOUT_FILENO) == -1)
+		return (set_exit_status(minishell, 1, NULL));
+	return (true);
+
 }
 
-void	append_output(t_cmd_data *cmd_data, t_minishell *minishell)
+t_bool	append_output(t_cmd_data *cmd_data, t_minishell *minishell)
 {
 	char	*path;
 	int		fd;
 
 	path = get_pwd(minishell);
 	if (path == NULL)
-		err_exit("out of memory", 0);
-	chdir(path);
+		return (set_exit_status(minishell, 1, NULL));
+	if (chdir(path) == -1)
+		return (set_exit_status(minishell, 1, NULL));
 	fd = open(cmd_data->output.file, O_WRONLY | O_CREAT | O_APPEND, 0777);
 	if (fd < 0)
-		err_exit("no such file or directory", 0);
-	dup2(fd, STDOUT_FILENO);
+	{
+		char *message = ft_strdup("no such file or directory");
+		return (set_exit_status(minishell, 1, message));
+	}
+	if (dup2(fd, STDOUT_FILENO) == -1)
+		return (set_exit_status(minishell, 1, NULL));
+	return (true);
 }
 
 /**
@@ -144,23 +210,22 @@ t_bool	redirect_file(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 
 	path = get_pwd(minishell);
 	if (path == NULL)
-		err_exit("out of memory", 0);
-	chdir(path);
+		return (set_exit_status(minishell, 1, NULL));
+	if (chdir(path) == -1)
+		return (set_exit_status(minishell, 1, NULL));
 	if (old_pid[0] > -1)
 	{
-		close(old_pid[0]);
-		close(old_pid[1]);
+		if (close(old_pid[0]) == -1)
+			return (set_exit_status(minishell, 1, NULL));
+		if (close(old_pid[1]) == -1)
+			return (set_exit_status(minishell, 1, NULL));
 	}
-	pipe(old_pid);
+	if (pipe(old_pid) == -1)
+		return (set_exit_status(minishell, 1, NULL));
 	fd = open(cmd_data->input.file, O_RDONLY);
 	if (fd < 0)
 	{
 		char *message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->input.file, ": No such file or directory\n"));
-		if (!message)
-		{
-			//prob if there is a malloc fail, we shoildnt exit
-			return (set_exit_status(minishell, 1, NULL));
-		}
 		return (set_exit_status(minishell, 1, message));
 	}
 	len = 1000;
@@ -168,9 +233,13 @@ t_bool	redirect_file(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	{
 		ft_bzero(buffer, sizeof(char) * 1000);
 		len = read(fd, buffer, 1000);
-		write(old_pid[1], buffer, len);
+		if (len == -1)
+			return (set_exit_status(minishell, 1, NULL));
+		if (write(old_pid[1], buffer, len) == -1)
+			return (set_exit_status(minishell, 1, NULL));
 	}
-	close(old_pid[1]);
+	if (close(old_pid[1]) == -1)
+		return (set_exit_status(minishell, 1, NULL));
 	return (true);
 }
 
@@ -190,29 +259,25 @@ void	child_execute_built_in(t_cmd_data *cmd_data, const int *old_pid,
 
 	command = cmd_data->command;
 	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
-	if (execute_builtin(command, minishell) == false)
+	if (execute_builtin(command, minishell) == false) //take a look at the src code in exetuce builtin
 	{
 		ft_printf(2, "Unable to execute command: %s\n", command->command);
 		exit(g_signal.exit_status);
 	}
-	exit(0);
+	else
+		exit(0);
 }
 
 t_bool	check_input_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 							t_minishell *minishell)
 {
-	//hey, is the file existing which should be going hand in hand w this function
-
-	int fd;
-	char *message;
-
 	if (cmd_data->input.type == REDIRECT_INPUT)
 	{
 		return (redirect_file(cmd_data, old_pid, cur_pid, minishell));
 	}
 	else if (cmd_data->input.type == DELIMITER_INPUT)
 	{
-		read_input_write(cmd_data, old_pid, cur_pid, minishell);
+		return (read_input_write(cmd_data, old_pid, cur_pid, minishell));
 	}
 	return (true);
 }
@@ -225,7 +290,7 @@ void	close_pipes(int *pid1, int *pid2)
 		close(*pid2);
 }
 
-void	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
+t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 						t_minishell *minishell)
 {
 	char	*cur_dir;
@@ -260,14 +325,22 @@ void	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	}
 	if (cmd_data->output.type == REDIRECT_OUTPUT)
 	{
-		redirect_output(cmd_data, minishell);
+		return (redirect_output(cmd_data, minishell));
 	}
 	if (cmd_data->output.type == APPEND_OUTPUT)
 	{
-		append_output(cmd_data, minishell);
+		return (append_output(cmd_data, minishell));
 	}
 	cur_dir = get_pwd(minishell);
-	chdir(cur_dir);
+	if (!cur_dir)
+		return (false);
+	if (chdir(cur_dir) == -1)
+	{
+		ft_printf(2, "couldnt enter dir\n");
+		return (false);
+	}
+
+	return (true);
 }
 
 /**
@@ -282,43 +355,44 @@ void	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 								const int *cur_pid, t_minishell *minishell)
 {
-	t_command	*command;
+
 	struct stat	sb;
-	t_bool	success;
+	t_command	*command;
+	t_bool		success;
 
 	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
 	command = cmd_data->command;
-	control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell);
-	
-	//if no slash before then 127
-	if (cmd_data->executable_found == false)
+	if (control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell) == false)
+	{
+		exit(1);
+	}
+	if (cmd_data->executable_found == false) //at this point it just means what
 	{
 		ft_printf(2, "some shell: %s: No such file or directory\n", command->command);
 		exit(127);
 	}
-	/*
-	//do stat before execve?
-	if (stat(command->command, &sb == -1))
-	{
-		//correct error cmd?
-		exit(2);
-	}
-	*/
-	if (g_signal.minishell_exec_found)
+	if (g_signal.minishell_exec_found == 1) //if the executable is minishell
 	{
 		g_signal.minishell_exec_found = 0;
 		char *increased_level = ft_itoa(ft_atoi(getenv("SHLVL"), &success) + 1);
 		ft_set_env("SHLVL", increased_level, minishell->env, true);
 	}
-	//check with access(X_OK)
-	//if ./executable then its 126
-	if (execve(command->command, command->args,
-			get_envp(minishell->env)) < 0)
+	if (access(command->command, (X_OK | F_OK)) == 0) 	//check with access(X_OK), if its executable, this has also accesses
 	{
-		ft_printf(2, "%s: command not found IN EXECVE\n", command->command);
+		if (execve(command->command, command->args,
+			get_envp(minishell->env)) < 0)
+		{
+			close(old_pid[0]);
+			exit(126);
+		}
+	}
+	else
+	{
+		char *message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->input.file, ": No such file or directory\n"));
+		ft_printf(2, "permission denied\n"); //name of the command, without /
 		close(old_pid[0]);
 		exit(126);
-	}
+	}	
 }
 
 /**
@@ -360,8 +434,8 @@ void	parent(pid_t c_pid, const int *old_pid, t_minishell *minishell)
  */
 t_bool	should_be_child(t_command *command)
 {
-	if (ft_streq(command->command, "export") == 1 && command->args_len == 1)
-		return (true);
+	//if (ft_streq(command->command, "export") == 1 && command->args_len == 1)
+	//	return (true);
 	if (env_variable_found(command) == true)
 		return (false);
 	if (ft_streq(command->command, "cd"))
@@ -375,36 +449,36 @@ t_bool	should_be_child(t_command *command)
 
 static t_bool	assign_path_to_command(char *executable, t_bool should_path_extend, t_command *command)
 {
+	free(*command->args);
+	*command->args = ft_strdup(command->command);
+	if (!command->args)
+	{
+		return (false);
+	}
 	if (should_path_extend == true)
 	{
-		free(*command->args);
-		*command->args = ft_strdup(command->command);
 		command->command = ft_strdup(executable);
 		free(executable);
-		return (true);
+		if (!command->command)
+		{
+			return (false);
+		}
 	}
-	else
-	{
-		free(*command->args);
-		*command->args = ft_strdup(command->command);
-		return (true);
-	}
+	return (true);
+
 }
 
 static t_bool	search_executable(t_cmd_data *cmd_data,
 				t_minishell *minishell)
 {
-	t_command	*command;
 	char		*executable;
+	t_command	*command;
 
-	command = cmd_data->command;
 	executable = NULL;
-	if (command->command != NULL)
+	command = cmd_data->command;
+	if (command->command != NULL && command->command[0] == '/')
 	{
-		if (command->command[0] == '/')
-		{
-			return (assign_path_to_command(executable, false, command));
-		}
+		return (assign_path_to_command(executable, false, command));
 	}
 	executable = search_folder(command->command, minishell);
 	if (executable != NULL)
@@ -439,7 +513,7 @@ static t_bool	search_executable(t_cmd_data *cmd_data,
  * @param	old_pid		PIDs used by the previous process
  * @param	cur_pid		PIDs used by the current process
  * @param	is_built_in	If a command is a built in command or not
- * @param	minishell	Data for minishell
+ * @param	minishells	Data for minishell
  */
 void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			t_bool is_built_in, t_minishell *minishell)
@@ -463,12 +537,18 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	{
 		cmd_data->executable_found = search_executable(cmd_data, minishell);
 	}
+
+	//this should be one function
 	if (should_be_child(command) == false)
 	{
 		if (execute_non_forked_builtin(command, minishell) == false && g_signal.print_basic_error == true)
+		{
 			ft_printf(2, "command not found: %s\n", command->command);
+		}
 		if (g_signal.print_basic_error == true)
+		{
 			g_signal.print_basic_error = false;
+		}
 		return ;
 	}
 	g_signal.pid = fork();

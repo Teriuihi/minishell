@@ -28,7 +28,8 @@ extern char		**environ;
 char	*search_in_path(char *command, t_minishell *minishell)
 {
 	int			i;
-	char		*tmp;
+	char		*tmp_path;
+	char		*executable_path;
 	char		*path;
 	char		**split_path;
 	struct stat	sb;
@@ -37,17 +38,34 @@ char	*search_in_path(char *command, t_minishell *minishell)
 	if (path == NULL)
 		return (NULL);
 	split_path = ft_split(path, ':');
+	free(path);
+	if (!split_path)
+		return (NULL);
 	i = 1;
 	while (split_path[i])
 	{
-		chdir(split_path[i]);
-		if (stat(command, &sb) == 0)
+		if (chdir(split_path[i]) == 0) //meaning it just doestn exit
 		{
-			tmp = ft_strjoin(split_path[i], "/");
-			return (ft_strjoin(tmp, command));
+			if (stat(command, &sb) == 0)
+			{
+				tmp_path = ft_strjoin(split_path[i], "/");
+				if (!tmp_path)
+				{
+					free_splitted(split_path);
+					return (NULL);
+				}
+				executable_path = ft_strjoin(tmp_path, command);
+				free_splitted(split_path);
+				free(tmp_path);	
+				if (!executable_path)
+					return (NULL);
+				else
+					return (executable_path);
+			}
 		}
 		i++;
 	}
+	free_splitted(split_path);
 	return (NULL);
 }
 
@@ -55,48 +73,54 @@ char	*search_in_path(char *command, t_minishell *minishell)
 char	*search_folder(char *command, t_minishell *minishell)
 {
 	char			*cwd_path;
-	char			*directroy_path;
+	char			*directory_path;
 	char			*executable_path;
+	char			*tmp;
 	DIR				*directory;
 	struct dirent	*file;
 	struct stat		sb;
 
-	cwd_path = NULL;
+	executable_path = NULL;
 	cwd_path = get_pwd(minishell);
 	if (cwd_path == NULL)
-		exit(1);
+		return (NULL);
 	directory = opendir(cwd_path);
-	directroy_path = ft_strjoin(cwd_path, "/");
-	if (!directroy_path)
-		exit(1);
-	if (directory == NULL)
+	if (!directory)
+		return (NULL);
+	directory_path = ft_strjoin(cwd_path, "/");
+	if (!directory_path)
 		return (NULL);
 	while ((file = readdir(directory)))
 	{
-		executable_path = ft_strjoin(directroy_path, file->d_name);
-		if (!executable_path)
-			exit(1);
-		if (stat(executable_path, &sb) == -1)
+		executable_path = ft_strjoin(directory_path, file->d_name);
+		if (!executable_path || stat(executable_path, &sb) == -1)
+			break ;
+		if (!S_ISDIR(sb.st_mode)) //we could already here assign stuff?
 		{
-			ft_printf(2, "STAT HAS ERROR\n");
-		}
-		if (!S_ISDIR(sb.st_mode)) //if its not a directory
-		{
-			if (ft_streq(command, ft_strjoin("./", file->d_name))) //check if the given command is also ./ + commandname (eg: ./a.out)
+			tmp = ft_strjoin("./", file->d_name);
+			if (!tmp)
+				break ;
+			if (ft_streq(command, tmp)) //check if the given command is also ./ + commandname (eg: ./a.out)
 			{
 				if (ft_streq("minishell", file->d_name))
 				{
 					g_signal.shell_level += 1;
 					g_signal.minishell_exec_found = 1;
 				}
-				//TODO FREE
-				closedir(directory); //close dir before returning
-				return (executable_path); //return the entire executable path
+				free(directory_path);
+				free(tmp);
+				closedir(directory);
+				return (executable_path);
 			}
+			free(tmp);
 		}
+		free(executable_path);
+		executable_path = NULL;
 	}
-	free(directroy_path);
-	free(executable_path);
+	if (directory_path != NULL)
+		free(directory_path);
+	if (executable_path != NULL)
+		free(executable_path);
 	closedir(directory);
 	return (NULL);
 }

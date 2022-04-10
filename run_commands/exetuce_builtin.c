@@ -112,8 +112,7 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 	{
 		if (succesful_insert(minishell->env, splitted[0], splitted[1], true) == true)
 		{
-			ft_printf(1, "entered with succesful insert here\n");
-			print_splitted(splitted);
+			//print_splitted(splitted);
 			return (set_exit_status(minishell, 0, NULL));
 		}
 		return (set_exit_status(minishell, 1, NULL));
@@ -140,6 +139,7 @@ t_bool	ft_env(t_hash_table *h_table, t_minishell *minishell)
 	}
 }
 
+<<<<<<< Updated upstream
 t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 {
 	char	*cur_dir;
@@ -172,32 +172,52 @@ t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
 	ft_putstr_fd("\n", 1);
 	return (set_exit_status(minishell, 0, NULL));
 }
+=======
+>>>>>>> Stashed changes
 
 t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 {
 	char		*cur_dir;
-	t_bool		did_execution_succeed;
 
-	did_execution_succeed = false;
-	if (!command->command || !minishell)
-	{
-		return (set_exit_status(minishell, 1, NULL));
-	}
 	cur_dir = get_pwd(minishell);
-	if (!cur_dir)
+	if (!command->command || !minishell || !cur_dir)
 		return (set_exit_status(minishell, 1, NULL));
 	if (env_var_added(command, minishell) == true)
-		return (true);
+		return (set_exit_status(minishell, 0, NULL));
 	if (ft_streq(command->command, "echo"))
 		return (ft_echo(command, 1, minishell));
 	else if (ft_streq(command->command, "pwd"))
 		return (ft_pwd(cur_dir, minishell));
 	else if(ft_streq(command->command, "export"))
-	{
-		//ft_printf(1, "RIGHT PLACE\n");
-		export(minishell->env);
-		return (set_exit_status(minishell, 0, NULL));
-	}
+		return (export((void *)minishell));
 	else
 		return (set_exit_status(minishell, 1, NULL));
 }
+<<<<<<< Updated upstream
+=======
+
+t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
+{
+	char	*cur_dir;
+	
+	cur_dir = get_pwd(minishell); //what is !minishell
+	if (!command->command || !minishell || !cur_dir)
+		return (set_exit_status(minishell, 1, NULL));
+	else if (ft_streq(command->command, "unset"))
+		return (ft_remove_exported_var(command->args[1], minishell->env,
+				minishell));
+	else if (ft_streq(command->command, "cd"))
+		return (cd(command, minishell));
+	else if (env_var_added(command, minishell) == true)
+		return (true);
+	else
+		return (set_exit_status(minishell, 1, NULL));
+}
+
+t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
+{
+	ft_putstr_fd(cur_dir, 1);
+	ft_putstr_fd("\n", 1);
+	return (set_exit_status(minishell, 0, NULL));
+}
+>>>>>>> Stashed changes

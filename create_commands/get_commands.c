@@ -392,7 +392,7 @@ t_bool	pipe_command(t_list **head, t_list **args, int *cmd_len, t_pipe_type pipe
 			{
 				chdir(minishell->cur_wd);
 				ft_printf(1, "\n%s/%s   -   %d\n", minishell->cur_wd, cmd_data->input.file, access(cmd_data->input.file, R_OK));
-				if (access(cmd_data->input.file, R_OK) != 0)
+				if (access(cmd_data->input.file, R_OK) != 0) //in this case dont display the msg here? gonna be displayed later
 				{
 					message = ft_strjoin("some shell: parse2: ", ft_strjoin(cmd_data->input.file, ": No such file or directory\n"));
 					if (!message)

@@ -152,19 +152,26 @@ void	sort_by_name(t_list *names) //this sorts in place
 	}
 }
 
-void	export(t_hash_table *h_table)
+t_bool	export(void *minishell)//t_hash_table *h_table)
 {
-	t_list	*names;
-	t_list	*curr;
-	char	*val;
+	t_hash_table	*h_table;
+	t_list			*names;
+	t_list			*curr;
+	t_minishell		*shell;
+	char			*val;
 
-	if (!h_table)
-		return ;
+	if (!minishell)
+		return (set_exit_status((t_minishell *)minishell, 1, NULL));
+	shell = (t_minishell *)minishell;
+	h_table = shell->env;
 	names = get_names(h_table);
+	if (!names)
+		return (set_exit_status((t_minishell *)minishell, 1, NULL));
 	sort_by_name(names);	
 	curr = names;
 	if (!curr)
-		return ;
+		return (set_exit_status(minishell, 1, NULL));
+	curr = names;
 	val = NULL;
 	while (curr != NULL)
 	{
@@ -175,12 +182,8 @@ void	export(t_hash_table *h_table)
 			{
 				ft_printf(1, "declare -x %s=\"%s\"\n",(char *)curr->content, val);
 			}
-			//else //check if its null or 0
-			//{
-			//	ft_printf(1, "declare -x %s=\"\"\n",(char *)curr->content, val);
-			//}
 		}
 		curr = curr->next;
 	}
-
+	return (set_exit_status(minishell, 0, NULL));
 }

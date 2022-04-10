@@ -154,7 +154,6 @@ void	free_char_arr(char **args)
 t_bool	set_exit_status(t_minishell *minishell, int status, char *message)
 {
 	g_signal.exit_status = status;
-	//if there is a message, sthat means we just have to
 	if (message != NULL)
 	{
 		g_signal.print_basic_error = false;
