@@ -52,60 +52,6 @@ void	init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
 	cur_dir = get_pwd(minishell);
 	chdir(cur_dir);
 }
-/*
-t_bool		init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
-					t_minishell *minishell)
-{
-	char    *cur_dir;
-
-	if (old_pid[0] > -1)
-	{
-		if (dup2(old_pid[0], STDIN_FILENO) == -1)
-		{
-			ft_printf(2, "dupfail\n");
-			return (set_exit_status(minishell, 1, NULL));
-		}
-		if (close(old_pid[0]) == -1)
-		{
-			ft_printf(2, "closefail1\n");
-			return (set_exit_status(minishell, 1, NULL));
-		}
-		if (close(old_pid[1]) == -1)
-		{
-			ft_printf(2, "closefail2\n");
-			return (set_exit_status(minishell, 1, NULL));
-		}
-	}
-	if (cur_pid[0] > -1)
-	{
-		if (type != DELIMITER_INPUT)
-		{
-			if (dup2(cur_pid[1], STDOUT_FILENO) == -1)
-			{
-				ft_printf(2, "closefail3\n");
-				return (set_exit_status(minishell, 1, NULL));
-			}
-			if (close(cur_pid[1]) == -1)
-			{
-				return (set_exit_status(minishell, 1, NULL));
-				ft_printf(2, "closefail4\n");
-			}
-
-		}
-		if (close(cur_pid[0]) == -1)
-		{
-			ft_printf(2, "closefail5\n");
-			return (set_exit_status(minishell, 1, NULL));
-		}
-	}
-	cur_dir = get_pwd(minishell);
-	if (!cur_dir)
-		return (set_exit_status(minishell, 1, NULL));
-	if (chdir(cur_dir) == -1)
-		return (set_exit_status(minishell, 1, NULL));
-	return (true);
-}
-*/
 
 /**
  * Read input using readline until delimiter is found and write it to pipe

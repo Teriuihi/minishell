@@ -39,6 +39,8 @@ static int	split_len(char **splitted)
 	return (i);
 }
 
+
+//CHECK THIS TOMORROW
 static t_bool	export_found(t_command *command, t_minishell *minishell)
 {
 	char	**splitted;
@@ -139,7 +141,7 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 	if(ft_streq(command->command, "export") == 1 && command->args_len == 1)
 		return (export((void *)minishell));
 	else if (env_variable_found(command) == true) //env_var_added(command, minishell) == true)
-		return (env_var_added(command, minishell) == true);
+		return (env_var_added(command, minishell));
 	else if (ft_streq(command->command, "echo"))
 		return (ft_echo(command, 1, minishell));
 	else if (ft_streq(command->command, "pwd"))
