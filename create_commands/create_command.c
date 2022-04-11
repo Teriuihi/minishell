@@ -74,7 +74,7 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 	if (entry == NULL)
 	{
 		set_exit_status(minishell, 1,
-			"some shell: syntax error near unexpected token.");
+			"some shell: syntax error near unexpected token.", false);
 		return (ERROR);
 	}
 	if ((pipe_type == DELIMITER_INPUT || pipe_type == REDIRECT_INPUT))
@@ -85,7 +85,7 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 		cmd_data->input.file = ft_strdup(str_from_arg(entry));
 		if (cmd_data->input.file == NULL)
 		{
-			set_exit_status(minishell, 1, "some shell: Out of memory.");
+			set_exit_status(minishell, 1, "some shell: Out of memory.", false);
 			return (ERROR);
 		}
 		if (pipe_type == REDIRECT_INPUT)
@@ -95,8 +95,9 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 			{
 				message = ft_strjoin("some shell: parse2: ", ft_strjoin(cmd_data->input.file, ": No such file or directory\n"));
 				if (message == NULL)
-					message = "some shell: Out of memory.";
-				set_exit_status(minishell, 1, message);
+					set_exit_status(minishell, 1, "some shell: Out of memory.", true);
+				else
+					set_exit_status(minishell, 1, message, true);
 				go_to_end_cmd(cmd_get);
 				return (ERROR);
 			}
@@ -110,7 +111,7 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 		cmd_data->output.file = ft_strdup(str_from_arg(entry));
 		if (cmd_data->output.file == NULL)
 		{
-			set_exit_status(minishell, 1, "some shell: Out of memory.");
+			set_exit_status(minishell, 1, "some shell: Out of memory.", false);
 			return (ERROR);
 		}
 		chdir(minishell->cur_wd);
@@ -131,7 +132,7 @@ t_cmd_data	*command_with_pipe_start(t_cmd_get_struct *cmd_get, t_list *entry, t_
 	if (cmd_data == NULL)
 	{
 		{
-			set_exit_status(minishell, 1, "some shell: Out of memory.");
+			set_exit_status(minishell, 1, "some shell: Out of memory.", false);
 			return (NULL);
 		}
 	}

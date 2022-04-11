@@ -151,7 +151,8 @@ void	free_char_arr(char **args)
 	free(tmp);
 }
 
-t_bool	set_exit_status(t_minishell *minishell, int status, char *message)
+t_bool	set_exit_status(t_minishell *minishell, int status, char *message,
+			t_bool should_free)
 {
 	g_signal.exit_status = status;
 	//if there is a message, sthat means we just have to
@@ -163,7 +164,8 @@ t_bool	set_exit_status(t_minishell *minishell, int status, char *message)
 			ft_printf(2, "%s\n", message); //if error then to stderr
 		else
 			ft_printf(1, "%s\n", message);
-		free(message);
+		if (should_free == true)
+			free(message);
 	}
 	if (status == 0)
 	{

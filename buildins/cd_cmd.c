@@ -61,14 +61,14 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	{
 		args = ft_calloc(3, sizeof(char *));
 		if (!args)
-			return (set_exit_status(minishell, 1, NULL));
+			return (set_exit_status(minishell, 1, NULL, false));
 		//check if HOME is not unset
 		if (ft_get_env_val("HOME", minishell->env) == NULL)
 		{
 			char *message = ft_strjoin("some shell: cd: ", "HOME not set\n");
 			if (!message)
-				return (set_exit_status(minishell, 1, NULL));
-			return (set_exit_status(minishell, 1, message));
+				return (set_exit_status(minishell, 1, NULL, false));
+			return (set_exit_status(minishell, 1, message, true));
 		}
 		args[0] = command->args[0];
 		args[1] = ft_strdup(minishell->home); //TODO error checking
@@ -80,39 +80,39 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	{
 		char *message = ft_strjoin("some shell: cd: ", ft_strjoin(command->args[1], ": No such file or directory\n"));
 		if (!message)
-			return (set_exit_status(minishell, 1, NULL));
-		return (set_exit_status(minishell, 1, message));
+			return (set_exit_status(minishell, 1, NULL, false));
+		return (set_exit_status(minishell, 1, message, true));
 	}
 	if (command->args[1] == NULL)
 	{
 		char *message = ft_strjoin("some shell: cd: ", "HOME not set\n");
 		if (!message)
-			return (set_exit_status(minishell, 1, NULL));
-		return (set_exit_status(minishell, 1, message));
+			return (set_exit_status(minishell, 1, NULL, false));
+		return (set_exit_status(minishell, 1, message, true));
 	}
 	dir = get_path_from_arg(command->args[1], minishell);
 	if (dir == NULL)
-		return (set_exit_status(minishell, 1, NULL));
+		return (set_exit_status(minishell, 1, NULL, false));
 	tmp = opendir(dir);
 	if (!tmp)
 	{
 		char *message = ft_strjoin("some shell: cd: ", ft_strjoin(command->args[1], ": No such file or directory\n"));
 		if (!message)
-			return (set_exit_status(minishell, 1, NULL));
-		return (set_exit_status(minishell, 1, message));
+			return (set_exit_status(minishell, 1, NULL, false));
+		return (set_exit_status(minishell, 1, message, true));
 	}
 	result = tmp != NULL;
 	free(tmp);
 	ft_set_env("OLDPWD", get_pwd(minishell), get_hash_table(), true); //TODO error checking
 	if (result == false)
-		return (set_exit_status(minishell, 1, NULL));
+		return (set_exit_status(minishell, 1, NULL, false));
 	if (chdir(dir) == -1) //what if chdir fails? this is technically a sys call
-		return (set_exit_status(minishell, 1, NULL));
+		return (set_exit_status(minishell, 1, NULL, false));
 	if (dir != command->args[1])
 		free(dir);
 	result = set_pwd(getcwd(NULL, 0), minishell);
 	if (result == true)
-		return (set_exit_status(minishell, 0, NULL));
+		return (set_exit_status(minishell, 0, NULL, false));
 	else
-		return (set_exit_status(minishell, 1, NULL));
+		return (set_exit_status(minishell, 1, NULL, false));
 }

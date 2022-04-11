@@ -26,7 +26,7 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 
 	if (!key || !h_table || !minishell)
 	{
-		return (set_exit_status(minishell, 1, NULL));
+		return (set_exit_status(minishell, 1, NULL, false));
 	}
 	hashkey = hash(key, "", h_table->size);
 	current = h_table->entries[hashkey];
@@ -60,14 +60,14 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 			}
 			free(current->val);
 			free(current->key);
-			return (set_exit_status(minishell, 0, NULL));
+			return (set_exit_status(minishell, 0, NULL, false));
 		}
 		prev = current;
 		current = current->next;
 	}
 	prev = NULL;
 	free(prev);
-	return (set_exit_status(minishell, 0, NULL));
+	return (set_exit_status(minishell, 0, NULL, false));
 }
 
 t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,

@@ -204,16 +204,15 @@ t_bool	check_input_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			message = ft_strjoin("some shell: ", ft_strjoin(cmd_data->input.file, ": No such file or directory"));
 			if (!message)
 			{
-				return (set_exit_status(minishell, 1, message));
+				return (set_exit_status(minishell, 1, "some shell: Out of memory", false));
 			}
-			//free(message);
-			return (set_exit_status(minishell, 1, message));
+			return (set_exit_status(minishell, 1, message, true));
 		}
 		else
 		{
 			close(fd);
 			redirect_file(cmd_data, old_pid, cur_pid, minishell);
-			return (set_exit_status(minishell, 0, NULL));
+			return (set_exit_status(minishell, 0, NULL, false));
 		}
 	}
 	else if (cmd_data->input.type == DELIMITER_INPUT)

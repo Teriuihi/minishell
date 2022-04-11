@@ -39,18 +39,18 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 	c = '\0';
 	if (!args || args[0] == NULL)
 	{
-		return (set_exit_status(minishell, 2, NULL));
+		return (set_exit_status(minishell, 2, NULL, false));
 	}
 	//another functions checking for edge case, put the two functions below into that
 	if (command->args_len == 1 && ft_streq(args[0], "echo"))
 	{
 		write(fd, "\n", 1);
-		return (set_exit_status(minishell, 0, NULL));
+		return (set_exit_status(minishell, 0, NULL, false));
 	}
 	//what happens if its only echo -n
 	if (command->args_len == 2 && ft_streq(args[1], "-n"))
 	{
-		return (set_exit_status(minishell, 0, NULL));
+		return (set_exit_status(minishell, 0, NULL, false));
 	}
 	if (ft_strncmp(args[i], "-n", 3) == 0) //replace w streq, used to be ft_strcmp, -n, 3, 
 	{	
@@ -82,7 +82,7 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 		i++;
 	}
 	write(fd, &c, 1);
-	return (set_exit_status(minishell, 0, NULL));
+	return (set_exit_status(minishell, 0, NULL, false));
 }
 
 /*
