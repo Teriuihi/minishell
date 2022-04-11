@@ -95,7 +95,7 @@ t_list	*get_names(t_hash_table *h_table)
 	int		env_i;
 	int		i;
 
-	if (!h_table) //at this point this should not be possible
+	if (!h_table)
 		return (NULL);
 	head = (t_list *)malloc(sizeof(t_list));
 	if (!head)
@@ -152,18 +152,16 @@ void	sort_by_name(t_list *names) //this sorts in place
 	}
 }
 
-t_bool	export(void *minishell)//t_hash_table *h_table)
+t_bool	export(void *minishell)
 {
 	t_hash_table	*h_table;
 	t_list			*names;
 	t_list			*curr;
-	t_minishell		*shell;
 	char			*val;
 
 	if (!minishell)
 		return (set_exit_status((t_minishell *)minishell, 1, NULL));
-	shell = (t_minishell *)minishell;
-	h_table = shell->env;
+	h_table = ((t_minishell *)minishell)->env;
 	names = get_names(h_table);
 	if (!names)
 		return (set_exit_status((t_minishell *)minishell, 1, NULL));
@@ -171,8 +169,6 @@ t_bool	export(void *minishell)//t_hash_table *h_table)
 	curr = names;
 	if (!curr)
 		return (set_exit_status(minishell, 1, NULL));
-	curr = names;
-	val = NULL;
 	while (curr != NULL)
 	{
 		if (curr->content != NULL) //this can be uninitialized soms

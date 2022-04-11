@@ -38,8 +38,8 @@ t_bool	init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
 	{
 		if (dup2(old_pid[0], STDIN_FILENO) == -1)
 		{
-			ft_printf(1, "DUP\n");
-			return (set_exit_status(minishell, 1, NULL));
+			ft_printf(1, "DUP CHILD\n");
+			//return (set_exit_status(minishell, 1, NULL));
 		}
 		close(old_pid[0]);
 		close(old_pid[1]);
@@ -48,10 +48,11 @@ t_bool	init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
 	{
 		if (type != DELIMITER_INPUT)
 		{
+			//this doesnt work yet, it will return -1
 			if (dup2(cur_pid[1], STDOUT_FILENO) == -1)
 			{
-				ft_printf(1, "DUP\n");
-				return (set_exit_status(minishell, 1, NULL));
+				ft_printf(1, "DUP child2\n");
+				//return (set_exit_status(minishell, 1, NULL));
 			}
 			close(cur_pid[1]);
 		}
@@ -263,8 +264,8 @@ t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	{
 		if (dup2(cur_pid[0], STDIN_FILENO) == -1)
 		{
-			ft_printf(1, "DUP\n");
-			return (false);
+			ft_printf(1, "DUP1\n");
+			//return (false);
 		}
 		close_pipes(&cur_pid[0], &cur_pid[1]);
 	}
@@ -272,8 +273,8 @@ t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	{
 		if (dup2(cur_pid[0], STDIN_FILENO) == -1)
 		{
-			ft_printf(1, "DUP\n");
-			return (false);
+			ft_printf(1, "DUP2\n");
+			//return (false);
 		}
 		close_pipes(&cur_pid[0], &cur_pid[1]);
 	}
@@ -281,8 +282,8 @@ t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	{
 		if (dup2(old_pid[0], STDIN_FILENO) == -1)
 		{
-			ft_printf(1, "DUP\n");
-			return (false);
+			ft_printf(1, "DUP3\n");
+			//return (false);
 		}
 		close_pipes(NULL, &old_pid[0]);
 	}
@@ -292,8 +293,8 @@ t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 		{
 			if (dup2(old_pid[0], STDIN_FILENO) == -1)
 			{
-				ft_printf(1, "DUP\n");
-				return (false);
+				ft_printf(1, "DUP4\n");
+				//return (false);
 			}
 			close_pipes(&old_pid[0], &old_pid[1]);
 		}
@@ -301,8 +302,8 @@ t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 		{
 			if (dup2(cur_pid[1], STDOUT_FILENO) == -1)
 			{
-				ft_printf(1, "DUP\n");
-				return (false);
+				ft_printf(1, "DUP5\n");
+				//return (false);
 			}
 			close_pipes(&cur_pid[0], &cur_pid[1]);
 		}
@@ -319,17 +320,37 @@ t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	if (!cur_dir)
 	{
 		ft_printf(1, "DIR\n");
-		return (false);
+		//return (false);
 	}
 	if (chdir(cur_dir) == -1)
 	{
 		ft_printf(1, "curDIR\n");
-		return (false);
+		//return (false);
 	}
 	return (true);
 }
 
 
+void	execute_with_access_check(t_command *command, t_minishell *minishell, char *old_pid)
+{
+	if (access(command->command, (F_OK)) == 0)
+	{
+		if (access(command->command, X_OK) == -1)
+		{
+			char *message = ft_strjoin("some shell: ", ft_strjoin(command->command, ": Permission denied"));
+			close(old_pid[0]);
+			ft_printf(2, "%s\n", message);
+			free(message);
+			exit(126);
+		}
+		else if (execve(command->command, command->args,
+			get_envp(minishell->env)) < 0)
+		{
+			close(old_pid[0]);
+			exit(126);
+		}
+	}
+}
 
 /**
  * Execute an external command
@@ -352,27 +373,14 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 	{
 		exit(1);
 	}
-	if (cmd_data->executable_found == false) //at this point it just means what
+	else if (cmd_data->executable_found == false) //at this point it just means what
 	{
 		ft_printf(2, "some shell: %s: No such file or directory\n", command->command);
 		exit(127);
 	}
-	if (access(command->command, (F_OK)) == 0)
+	else
 	{
-		if (access(command->command, X_OK) == -1)
-		{
-			char *message = ft_strjoin("some shell: ", ft_strjoin(command->command, ": Permission denied"));
-			close(old_pid[0]);
-			ft_printf(2, "%s\n", message);
-			free(message);
-			exit(126);
-		}
-		else if (execve(command->command, command->args,
-			get_envp(minishell->env)) < 0)
-		{
-			close(old_pid[0]);
-			exit(126);
-		}
+		execute_with_access_check(command, minishell, (char *)old_pid);
 	}
 }
 
