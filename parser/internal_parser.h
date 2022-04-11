@@ -29,4 +29,10 @@ t_bool		parse_env_variable(t_parse_data *data, t_minishell *minishell);
 t_bool		parse_quotation(t_parse_data *data, char quote,
 				t_minishell *minishell);
 t_string	*safe_add_to_list(t_list **head, t_string *string, t_bool literal);
+t_bool		is_pipe(char c);
+t_bool		store_normal_arg(t_parse_data *data, t_list **head,
+				t_minishell *minishell);
+t_bool		parse_into_data(t_parse_data *data, t_list **head,
+				t_minishell *minishell);
+t_bool		parse_error(t_minishell *minishell, char c);
 #endif

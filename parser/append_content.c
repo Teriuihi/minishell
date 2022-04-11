@@ -31,10 +31,12 @@ t_bool	append_content(t_parse_data *data, t_minishell *minishell)
 
 	to_add = ft_calloc((data->pos - data->start) + 2, sizeof(char));
 	if (to_add == NULL)
-		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+		return (set_exit_status(minishell, 1,
+				"some shell: Out of memory.", false));
 	ft_strlcpy(to_add, data->input + data->start, data->pos - data->start + 1);
 	data->string = append_char_array(data->string, to_add);
 	if (data->string == NULL)
-		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+		return (set_exit_status(minishell, 1,
+				"some shell: Out of memory.", false));
 	return (true);
 }

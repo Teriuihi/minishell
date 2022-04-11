@@ -30,7 +30,8 @@ t_bool	handle_env_variable(t_parse_data *data, t_minishell *minishell)
 	if (append_content(data, minishell) == false)
 		return (false);
 	if (data->string == NULL)
-		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+		return (set_exit_status(minishell, 1,
+				"some shell: Out of memory.", false));
 	data->pos++;
 	data->start = data->pos;
 	if (parse_env_variable(data, minishell) == false)
