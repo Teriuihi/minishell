@@ -14,6 +14,10 @@
 #include "../headers/arguments.h"
 #include "internal_parser.h"
 
+/**
+ * Move the pos and start past any current spaces
+ * @param data
+ */
 static void	skip_space(t_parse_data *data)
 {
 	while (data->pos && ft_iswhite_space(data->input[data->pos]))
@@ -21,6 +25,14 @@ static void	skip_space(t_parse_data *data)
 	data->start = data->pos;
 }
 
+/**
+ * Skip through pipes to the next start of a command
+ *
+ * @param	data		Data for parsing
+ * @param	minishell	Data for minishell
+ *
+ * @return	A boolean indicating success
+ */
 static t_bool	pipe_in_string_skip(t_parse_data *data, t_minishell *minishell)
 {
 	int		len;
@@ -49,6 +61,15 @@ static t_bool	pipe_in_string_skip(t_parse_data *data, t_minishell *minishell)
 	return (true);
 }
 
+/**
+ * Store a normal argument separated by spaces
+ *
+ * @param	data		Data for parsing
+ * @param	head		Start of the argument list
+ * @param	minishell	Data for minishell
+ *
+ * @return	A boolean indicating success
+ */
 t_bool	store_normal_arg(t_parse_data *data, t_list **head,
 			t_minishell *minishell)
 {

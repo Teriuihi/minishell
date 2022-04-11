@@ -15,6 +15,14 @@
 #include "internal_parser.h"
 #include "../headers/functions.h"
 
+/**
+ * Parse data found between quotes
+ *
+ * @param	data		Data for parsing
+ * @param	minishell	Data for minishell
+ *
+ * @return	A boolean indicating success
+ */
 static t_bool	parse_quotes(t_parse_data *data, t_minishell *minishell)
 {
 	if (data->pos != 0 && data->pos != data->start)
@@ -32,6 +40,14 @@ static t_bool	parse_quotes(t_parse_data *data, t_minishell *minishell)
 	return (true);
 }
 
+/**
+ * Parse an environment variable
+ *
+ * @param	data		Data for parsing
+ * @param	minishell	Data for minishell
+ *
+ * @return	A boolean indicating success
+ */
 static t_bool	parse_variable(t_parse_data *data, t_minishell *minishell)
 {
 	if (data->pos != 0 && data->pos != data->start)
@@ -48,6 +64,15 @@ static t_bool	parse_variable(t_parse_data *data, t_minishell *minishell)
 	return (true);
 }
 
+/**
+ * Finalize parsing through the user input (store the leftovers)
+ *
+ * @param	data		Data for parsing
+ * @param	head		Start of the argument list
+ * @param	minishell	Data for minishell
+ *
+ * @return	A boolean indicating success
+ */
 static t_bool	finalize(t_parse_data *data, t_list **head,
 					t_minishell *minishell)
 {
@@ -62,6 +87,15 @@ static t_bool	finalize(t_parse_data *data, t_list **head,
 	return (true);
 }
 
+/**
+ * Read through the input and store each argument in the parse data
+ *
+ * @param	data		Data for parsing
+ * @param	head		Start of the argument list
+ * @param	minishell	Data for minishell
+ *
+ * @return	A boolean indicating success
+ */
 t_bool	parse_into_data(t_parse_data *data, t_list **head,
 			t_minishell *minishell)
 {

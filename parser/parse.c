@@ -15,7 +15,15 @@
 #include "internal_parser.h"
 #include "../headers/functions.h"
 
-t_bool	validate_parse(t_list	*entry, t_minishell *minishell)
+/**
+ * Check if the parsed data is valid
+ *
+ * @param	entry		Entry to start checking from
+ * @param	minishell	Data for minishell
+ *
+ * @return	Boolean indicating if the parsed data is valid
+ */
+t_bool	validate_parse(t_list *entry, t_minishell *minishell)
 {
 	t_pipe_type	prev_pipe;
 	t_pipe_type	cur_pipe;
@@ -34,7 +42,17 @@ t_bool	validate_parse(t_list	*entry, t_minishell *minishell)
 	return (true);
 }
 
-t_bool	init_parse(t_parse_data *data, char *input, t_list ***head)
+/**
+ * Initialize data used for parsing
+ *
+ * @param	data	Data used for parsing
+ * @param	input	The user input to be parsed
+ * @param	head	Start of the list of arguments
+ *
+ * @return	A boolean indicating success
+ */
+t_bool	init_parse(t_parse_data *data, char *input, t_list ***head,
+			t_minishell *minishell)
 {
 	data->pos = 0;
 	data->input = input;
@@ -43,13 +61,19 @@ t_bool	init_parse(t_parse_data *data, char *input, t_list ***head)
 	data->string = init_string(NULL);
 	*head = ft_calloc(1, sizeof(t_list *));
 	if (data->string == NULL)
-		return (false);
+		return (set_exit_status(minishell, 1,
+				"some shell: Out of memory.", false));
 	while (ft_iswhite_space(input[data->pos]))
 		data->pos++;
 	data->start = data->pos;
 	return (true);
 }
 
+/**
+ * Free's all data in given list
+ *
+ * @param	head	Start of the list
+ */
 void	free_argument_list(t_list **head)
 {
 	t_list	*cur;
@@ -66,6 +90,7 @@ void	free_argument_list(t_list **head)
 		cur = cur->next;
 		free(last);
 	}
+	free(head);
 }
 
 /**
@@ -80,7 +105,7 @@ t_list	**parse(char *input, t_minishell *minishell)
 	t_list			**head;
 	t_parse_data	data;
 
-	if (init_parse(&data, input, &head) == false)
+	if (init_parse(&data, input, &head, minishell) == false)
 		return (NULL);
 	if (parse_into_data(&data, head, minishell) == true)
 	{
