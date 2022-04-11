@@ -87,8 +87,8 @@ void	read_input_write(t_cmd_data *cmd_data, int old_pid[2], int cur_pid[2],
 /**
  * Redirects the output to a location pointed by cmd_data->output.file
  *
- * @param	cmd_data		Current command and it's attributes
- * @param	minishell		Data for minishell
+ * @param	cmd_data	Current command and it's attributes
+ * @param	minishell	Data for minishell
  */
 void	redirect_output(t_cmd_data *cmd_data, t_minishell *minishell)
 {

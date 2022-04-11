@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <fcntl.h>
 #include "../headers/arguments.h"
 #include "../headers/functions.h"
 
@@ -83,4 +84,29 @@ void	update_last_command_input(t_list **head)
 	if (cmd_data->input.type != NONE || entry->prev == NULL)
 		return ;
 	cmd_data->input.type = OUTPUT_TO_COMMAND;
+}
+
+/**
+ * Create the output file for a command
+ *
+ * @param	cmd_data	Current command and it's attributes
+ * @param	minishell	Data for minishell
+ *
+ * @return	Boolean indicating success
+ */
+t_bool	create_file(t_cmd_data *cmd_data, t_minishell *minishell)
+{
+	int	fd;
+
+	fd = open(cmd_data->output.file, O_CREAT, 0777);
+	if (fd < 0)
+		return (set_exit_status(minishell, 1,
+				"some shell: No permission to access file", false));
+	else
+	{
+		if (close(fd) != 0)
+			return (set_exit_status(minishell, 1,
+					"Unable to close file", false));
+	}
+	return (true);
 }
