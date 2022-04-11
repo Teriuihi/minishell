@@ -90,7 +90,7 @@ static t_bool	parse_env_variable_end_string(t_parse_data *data,
 
 	if (data->start == data->pos)
 	{
-		data->string = append_char(data->string, "$");
+		data->string = append_char_array(data->string, "$");
 		if (data->string == NULL)
 			return (set_exit_status(minishell, 1,
 					"some shell: Out of memory."));
@@ -123,7 +123,7 @@ static t_bool	handle_env_variable_in_string(t_parse_data *data,
 		data->pos++;
 	else if (data->pos == data->start)
 	{
-		data->string = append_char(data->string, "$");
+		data->string = append_char_array(data->string, "$");
 		if (data->string == NULL)
 			return (set_exit_status(minishell, 1,
 					"some shell: Out of memory."));

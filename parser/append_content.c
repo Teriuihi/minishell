@@ -33,7 +33,7 @@ t_bool	append_content(t_parse_data *data, t_minishell *minishell)
 	if (to_add == NULL)
 		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
 	ft_strlcpy(to_add, data->input + data->start, data->pos - data->start + 1);
-	data->string = append_char(data->string, to_add);
+	data->string = append_char_array(data->string, to_add);
 	if (data->string == NULL)
 		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
 	return (true);
