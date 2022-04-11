@@ -96,7 +96,34 @@ void	init_termios(void)
 
 }
 
-void	init(t_minishell *minishell)
+
+t_bool		increase_shell_level(t_minishell *minishell)
+{
+		int		val;
+		char	*level;
+		char	*increased_level;
+		t_bool	success;
+
+		level = getenv("SHLVL");
+		if (!level)
+		{
+			return (false);
+		}
+		val = ft_atoi(level, &success);
+		if (success == false)
+		{
+			return (false);
+		}
+		increased_level = ft_itoa(val + 1);
+		if (!increased_level)
+		{
+			return (false);
+		}
+		return (ft_set_env("SHLVL", increased_level, minishell->env, true));
+}
+
+
+t_bool	init_succeeded(t_minishell *minishell)
 {
 	char		*cur_dir;
 
@@ -105,24 +132,25 @@ void	init(t_minishell *minishell)
 	{
 		exit(1);
 	}
+	rl_getc_function = (int (*)(FILE *)) interruptible_getc;
 	minishell->cur_wd = cur_dir;
 	minishell->env = get_hash_table();
 	set_pwd(ft_strdup(cur_dir), minishell);
-	rl_getc_function = (int (*)(FILE *)) interruptible_getc;
+	increase_shell_level(minishell);
+	return (true);
 }
 
 int	main(void)
 {
 	t_minishell		minishell;
 
-	init(&minishell);
+	init_succeeded(&minishell);
 	init_signal();
 	signal(SIGINT, sigquit_handler); //this is important for crtlc
 	signal(SIGQUIT, sigquit_handler);
 	//init_termios();
-	while (g_signal.veof != 1 && g_signal.shell_level >= 1)
+	while (g_signal.veof != 1 && g_signal.shell_level >= 0)
 	{
-		//init_keyboard();
 		while (g_signal.sigint != 1 && g_signal.veof != 1)
 		{
 			start_program_loop(&minishell);

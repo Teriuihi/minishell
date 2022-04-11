@@ -45,7 +45,7 @@ t_bool			ft_remove_exported_var(char *key, t_hash_table *h_table,
 t_bool			signal_check(char *input, t_minishell *minishell);
 t_bool			set_exit_status(t_minishell *minishell, int status, char *message);
 void			check_status(t_minishell *minishell);
-char			*search_folder(char *command, t_minishell *minishell);
+char			*search_in_folder(char *command, t_minishell *minishell);
 int 			interruptible_getc(void);
 t_bool			is_input_correct(char *command, int *count);
 

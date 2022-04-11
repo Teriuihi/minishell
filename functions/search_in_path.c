@@ -70,7 +70,7 @@ char	*search_in_path(char *command, t_minishell *minishell)
 }
 
 
-char	*search_folder(char *command, t_minishell *minishell)
+char	*search_in_folder(char *command, t_minishell *minishell)
 {
 	char			*cwd_path;
 	char			*directory_path;

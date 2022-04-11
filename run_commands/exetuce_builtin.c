@@ -39,7 +39,6 @@ static int	split_len(char **splitted)
 	return (i);
 }
 
-
 //CHECK THIS TOMORROW
 static t_bool	export_found(t_command *command, t_minishell *minishell)
 {
@@ -90,15 +89,6 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 	return (false);
 }
 
-/*
-	if (split_len(splitted) == 1 && is_input_correct(command->command, &k); == false)
-	{
-		return (false);
-	}
-	ft_printf(1, "\n\n", split_len(splitted));
-	print_splitted(splitted);
-	ft_printf(1, "\n\n", split_len(splitted));
-*/
 static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 {	
 	char	**splitted;
@@ -117,7 +107,7 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 		else
 			return (set_exit_status(minishell, 1, NULL));
 	}
-	if (ft_set_env(splitted[0], splitted[1], minishell->env, false) == false)
+	else if (ft_set_env(splitted[0], splitted[1], minishell->env, false) == false)
 		return (set_exit_status(minishell, 1, NULL));
 	else
 		return (set_exit_status(minishell, 0, NULL));
@@ -146,6 +136,8 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 		return (ft_echo(command, 1, minishell));
 	else if (ft_streq(command->command, "pwd"))
 		return (ft_pwd(cur_dir, minishell));
+	else if (ft_streq(command->command, "env"))
+		return (print_h_table(minishell->env));
 	else
 		return (set_exit_status(minishell, 1, NULL));
 }

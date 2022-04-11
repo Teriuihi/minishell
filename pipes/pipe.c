@@ -29,14 +29,18 @@
  * @param	type		Type of pipe for this child process
  * @param	minishell	Data for minishell
  */
-void	init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
+t_bool	init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
 					t_minishell *minishell)
 {
 	char	*cur_dir;
 
 	if (old_pid[0] > -1)
 	{
-		dup2(old_pid[0], STDIN_FILENO);
+		if (dup2(old_pid[0], STDIN_FILENO) == -1)
+		{
+			ft_printf(1, "DUP\n");
+			return (set_exit_status(minishell, 1, NULL));
+		}
 		close(old_pid[0]);
 		close(old_pid[1]);
 	}
@@ -44,13 +48,22 @@ void	init_child(const int *old_pid, const int *cur_pid, t_pipe_type type,
 	{
 		if (type != DELIMITER_INPUT)
 		{
-			dup2(cur_pid[1], STDOUT_FILENO);
+			if (dup2(cur_pid[1], STDOUT_FILENO) == -1)
+			{
+				ft_printf(1, "DUP\n");
+				return (set_exit_status(minishell, 1, NULL));
+			}
 			close(cur_pid[1]);
 		}
 		close(cur_pid[0]);
 	}
 	cur_dir = get_pwd(minishell);
-	chdir(cur_dir);
+	if (!cur_dir)
+		return (set_exit_status(minishell, 1, NULL));
+	if (chdir(cur_dir) == -1)
+		return (set_exit_status(minishell, 1, NULL));
+	else
+		return (set_exit_status(minishell, 0, NULL));
 }
 
 /**
@@ -204,14 +217,19 @@ void	child_execute_built_in(t_cmd_data *cmd_data, const int *old_pid,
 	t_command	*command;
 
 	command = cmd_data->command;
-	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
+	if (init_child(old_pid, cur_pid, cmd_data->output.type, minishell) == false)
+	{
+		exit(1);
+	}
 	if (execute_builtin(command, minishell) == false) //take a look at the src code in exetuce builtin
 	{
 		ft_printf(2, "Unable to execute command: %s\n", command->command);
 		exit(g_signal.exit_status);
 	}
 	else
+	{
 		exit(0);
+	}
 }
 
 t_bool	check_input_redir(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
@@ -243,29 +261,49 @@ t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 
 	if (cmd_data->input.type == OUTPUT_TO_COMMAND)
 	{
-		dup2(cur_pid[0], STDIN_FILENO);
+		if (dup2(cur_pid[0], STDIN_FILENO) == -1)
+		{
+			ft_printf(1, "DUP\n");
+			return (false);
+		}
 		close_pipes(&cur_pid[0], &cur_pid[1]);
 	}
 	if (cmd_data->input.type == DELIMITER_INPUT)
 	{
-		dup2(cur_pid[0], STDIN_FILENO);
+		if (dup2(cur_pid[0], STDIN_FILENO) == -1)
+		{
+			ft_printf(1, "DUP\n");
+			return (false);
+		}
 		close_pipes(&cur_pid[0], &cur_pid[1]);
 	}
 	if (cmd_data->input.type == REDIRECT_INPUT)
 	{
-		dup2(old_pid[0], STDIN_FILENO);
+		if (dup2(old_pid[0], STDIN_FILENO) == -1)
+		{
+			ft_printf(1, "DUP\n");
+			return (false);
+		}
 		close_pipes(NULL, &old_pid[0]);
 	}
 	if (cmd_data->output.type == OUTPUT_TO_COMMAND)
 	{
 		if (old_pid[0] > -1)
 		{
-			dup2(old_pid[0], STDIN_FILENO);
+			if (dup2(old_pid[0], STDIN_FILENO) == -1)
+			{
+				ft_printf(1, "DUP\n");
+				return (false);
+			}
 			close_pipes(&old_pid[0], &old_pid[1]);
 		}
 		if (cur_pid[0] > -1)
 		{
-			dup2(cur_pid[1], STDOUT_FILENO);
+			if (dup2(cur_pid[1], STDOUT_FILENO) == -1)
+			{
+				ft_printf(1, "DUP\n");
+				return (false);
+			}
 			close_pipes(&cur_pid[0], &cur_pid[1]);
 		}
 	}
@@ -279,15 +317,19 @@ t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	}
 	cur_dir = get_pwd(minishell);
 	if (!cur_dir)
-		return (false);
-	if (chdir(cur_dir) == -1)
 	{
-		ft_printf(2, "couldnt enter dir\n");
+		ft_printf(1, "DIR\n");
 		return (false);
 	}
-
+	if (chdir(cur_dir) == -1)
+	{
+		ft_printf(1, "curDIR\n");
+		return (false);
+	}
 	return (true);
 }
+
+
 
 /**
  * Execute an external command
@@ -302,44 +344,36 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, const int *old_pid,
 								const int *cur_pid, t_minishell *minishell)
 {
 
-	struct stat	sb;
 	t_command	*command;
-	t_bool		success;
 
-	init_child(old_pid, cur_pid, cmd_data->output.type, minishell);
 	command = cmd_data->command;
-	if (control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell) == false)
+	if (init_child(old_pid, cur_pid, cmd_data->output.type, minishell) == false
+		|| control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell) == false)
+	{
 		exit(1);
-	
+	}
 	if (cmd_data->executable_found == false) //at this point it just means what
 	{
 		ft_printf(2, "some shell: %s: No such file or directory\n", command->command);
 		exit(127);
 	}
-	if (g_signal.minishell_exec_found == 1) //if the executable is minishell
+	if (access(command->command, (F_OK)) == 0)
 	{
-		g_signal.minishell_exec_found = 0;
-		char *increased_level = ft_itoa(ft_atoi(getenv("SHLVL"), &success) + 1);
-		ft_set_env("SHLVL", increased_level, minishell->env, true);
-	}
-
-	if (access(command->command, (X_OK | F_OK)) == 0)
-	{
-		if (execve(command->command, command->args,
+		if (access(command->command, X_OK) == -1)
+		{
+			char *message = ft_strjoin("some shell: ", ft_strjoin(command->command, ": Permission denied"));
+			close(old_pid[0]);
+			ft_printf(2, "%s\n", message);
+			free(message);
+			exit(126);
+		}
+		else if (execve(command->command, command->args,
 			get_envp(minishell->env)) < 0)
 		{
 			close(old_pid[0]);
 			exit(126);
 		}
 	}
-	else
-	{
-		char *message = ft_strjoin("some shell: ", ft_strjoin(command->command, ": Permission denied"));
-		close(old_pid[0]);
-		ft_printf(2, "%s\n", message); //name of the command, without /
-		free(message);
-		exit(126);
-	}	
 }
 
 /**
@@ -387,9 +421,8 @@ t_bool	should_be_child(t_command *command)
 		return (false);
 	if (ft_streq(command->command, "unset"))
 		return (false);
-	if (ft_streq(command->command, "env"))
-		return (false);
 	return (true);
+
 }
 
 static t_bool	assign_path_to_command(char *executable, t_bool should_path_extend, t_command *command)
@@ -425,7 +458,7 @@ static t_bool	search_executable(t_cmd_data *cmd_data,
 	{
 		return (assign_path_to_command(executable, false, command));
 	}
-	executable = search_folder(command->command, minishell);
+	executable = search_in_folder(command->command, minishell);
 	if (executable != NULL)
 	{
 		return (assign_path_to_command(executable, true, command));
@@ -497,7 +530,11 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 		return ;
 	}
 	g_signal.pid = fork();
-	if (g_signal.pid == 0)
+	if (g_signal.pid == -1)
+	{
+		exit(1);
+	}
+	else if (g_signal.pid == 0)
 	{
 		if (is_built_in == true)
 			child_execute_built_in(cmd_data, old_pid, cur_pid, minishell);

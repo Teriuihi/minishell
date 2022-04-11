@@ -84,7 +84,7 @@ t_bool	env_variable_found(t_command *command_t)
 t_bool	is_builtin(t_command *command)
 {
 	int			i;
-	const char	*builtins[5] = {"echo", "cd", "pwd", "export", "unset"}; //if its env, always fork it
+	const char	*builtins[6] = {"echo", "cd", "pwd", "export", "unset", "env"}; //if its env, always fork it
 
 	i = 0;
 	if (!command)
@@ -95,7 +95,7 @@ t_bool	is_builtin(t_command *command)
 	{
 		return (true);
 	}
-	while (i < 5)
+	while (i < 6)
 	{
 		if (ft_streq(command->command, builtins[i]))
 		{
