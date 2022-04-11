@@ -13,6 +13,7 @@
 #include "../libft/libft.h"
 #include "../headers/arguments.h"
 #include "internal_parser.h"
+#include "../headers/functions.h"
 
 /**
  * Move the pos and start past any current spaces
@@ -93,7 +94,7 @@ t_bool	store_normal_arg(t_parse_data *data, t_list **head,
 	data->has_data = false;
 	data->is_literal = false;
 	skip_space(data);
-	if (is_pipe(data->input[data->pos]))
+	if (is_pipe(data->input[data->pos]) && pipe_type_from_arg(((t_arg *)ft_lstlast(*head)->content)) != OUTPUT_TO_COMMAND)
 		return (parse_error(minishell, data->input[data->pos]));
 	skip_space(data);
 	return (true);

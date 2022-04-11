@@ -26,6 +26,8 @@
 static t_bool	check_pipe_make_command(t_pipe_type pipe_type,
 					t_cmd_get_struct *cmd_get, t_minishell *minishell)
 {
+	t_bool	success;
+
 	if (pipe_type == OUTPUT_TO_COMMAND)
 	{
 		cmd_get->cur_arg = get_command_start(cmd_get->cur_arg,
@@ -38,7 +40,10 @@ static t_bool	check_pipe_make_command(t_pipe_type pipe_type,
 	{
 		cmd_get->cur_arg = get_command_start(cmd_get->cur_arg,
 				cmd_get->cmd_len);
-		return (pipe_command(cmd_get, cmd_get->cur_arg, minishell));
+		success = pipe_command(cmd_get, cmd_get->cur_arg, minishell);
+		if (success == true && cmd_get->cur_arg != NULL)
+			cmd_get->cur_arg = cmd_get->cur_arg->prev;
+		return (success);
 	}
 	return (true);
 }

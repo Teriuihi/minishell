@@ -14,19 +14,34 @@
 #include "internal_create_commands.h"
 #include <fcntl.h>
 
-t_exit_state	ptr3(t_cmd_get_struct *cmd_get, t_list *entry,
+void	free_cmd(t_cmd_data *cmd_data)
+{
+	free(cmd_data->command->command);
+	while (cmd_data->command->args_len)
+	{
+		free(cmd_data->command->args[cmd_data->command->args_len - 1]);
+		cmd_data->command->args_len--;
+	}
+	free(cmd_data->command->args);
+	free(cmd_data->input.file);
+	free(cmd_data->output.file);
+	free(cmd_data->command);
+	free(cmd_data);
+}
+
+t_exit_state	set_command(t_cmd_get_struct *cmd_get, t_list *entry,
 					t_cmd_data *cmd_data, t_minishell *minishell)
 {
 	cmd_data->command->command = ft_strdup(((t_arg *)entry->content)->arg->s);
 	if (cmd_data->command->command == NULL)
 	{
-		free(cmd_data);
+		free_cmd(cmd_data);
 		set_exit_status(minishell, 1, "some shell: Out of memory.", false);
 		return (ERROR);
 	}
 	if (append_arguments_to_command(cmd_data->command, entry, 1, true) == false)
 	{
-		free(cmd_data->command->command);
+		free_cmd(cmd_data);
 		set_exit_status(minishell, 1, "some shell: Out of memory.", false);
 		return (ERROR);
 	}
@@ -40,7 +55,7 @@ t_exit_state	ptr3(t_cmd_get_struct *cmd_get, t_list *entry,
 	return (CONTINUE);
 }
 
-t_exit_state	ptr2(t_cmd_get_struct *cmd_get, t_list *entry,
+t_exit_state	add_pipes(t_cmd_get_struct *cmd_get, t_list *entry,
 					t_cmd_data *cmd_data, t_minishell *minishell)
 {
 	t_pipe_type		pipe_type;
@@ -59,11 +74,9 @@ t_exit_state	ptr2(t_cmd_get_struct *cmd_get, t_list *entry,
 			return (RETURN);
 		entry = cmd_get->cur_arg;
 	}
+	cmd_get->cur_arg = entry;
 	if (entry == NULL)
-	{
-		cmd_get->cur_arg = entry;
 		return (RETURN);
-	}
 	return (CONTINUE);
 }
 
@@ -81,12 +94,13 @@ t_cmd_data	*command_with_pipe_start(t_cmd_get_struct *cmd_get, t_list *entry,
 			return (NULL);
 		}
 	}
-	exit_state = ptr2(cmd_get, entry, cmd_data, minishell);
+	exit_state = add_pipes(cmd_get, entry, cmd_data, minishell);
 	if (exit_state == RETURN)
 		return (cmd_data);
 	else if (exit_state == ERROR)
 		return (NULL);
-	exit_state = ptr3(cmd_get, entry, cmd_data, minishell);
+	entry = cmd_get->cur_arg;
+	exit_state = set_command(cmd_get, entry, cmd_data, minishell);
 	if (exit_state == ERROR)
 		return (NULL);
 	return (cmd_data);

@@ -48,7 +48,17 @@ t_bool	output_pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type)
 	return (true);
 }
 
-t_bool	pipe_part_2(t_list *entry, t_cmd_get_struct *cmd_get,
+/**
+ * Loop through arguments until the end of the command is
+ * 	reached and add them to the command
+ *
+ * @param	entry		Entry to start from
+ * @param	cmd_get		Data needed to create commands
+ * @param	cmd_data	Current command and it's attributes
+ * @param	minishell	Data for minishell
+ * @return
+ */
+t_bool	loop_through_entries(t_list *entry, t_cmd_get_struct *cmd_get,
 			t_cmd_data *cmd_data, t_minishell *minishell)
 {
 	t_exit_state	exit_state;
@@ -73,7 +83,6 @@ t_bool	pipe_part_2(t_list *entry, t_cmd_get_struct *cmd_get,
 			return (true);
 		entry = cmd_get->cur_arg;
 	}
-	cmd_get->cur_arg = entry;
 	return (true);
 }
 
@@ -112,6 +121,8 @@ t_bool	pipe_command(t_cmd_get_struct *cmd_get, t_list *entry,
 		&& append_arguments_to_command(cmd_data->command, entry->next,
 			(cmd_get->cmd_len - 1), false) == false)
 		return (false);
-	success = pipe_part_2(entry->next, cmd_get, cmd_data, minishell);
+	if (entry == NULL)
+		return (true);
+	success = loop_through_entries(entry->next, cmd_get, cmd_data, minishell);
 	return (success);
 }

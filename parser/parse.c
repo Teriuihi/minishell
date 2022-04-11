@@ -32,7 +32,9 @@ t_bool	validate_parse(t_list *entry, t_minishell *minishell)
 	while (entry != NULL)
 	{
 		cur_pipe = pipe_type_from_arg(entry->content);
-		if (prev_pipe != NONE && cur_pipe != NONE)
+		if ((prev_pipe != NONE && cur_pipe != NONE)
+			&& !(prev_pipe == OUTPUT_TO_COMMAND
+				|| cur_pipe == OUTPUT_TO_COMMAND))
 			return (parse_error(minishell, *((t_arg *)entry->content)->arg->s));
 		prev_pipe = cur_pipe;
 		entry = entry->next;
