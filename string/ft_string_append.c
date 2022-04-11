@@ -72,7 +72,7 @@ t_string	*join_strings(t_string *s1, t_string *s2)
  *
  * @return	String with the data from s and arr or NULL on failure
  */
-t_string	*appen_char_array(t_string *s, char *arr)
+t_string	*append_char_array(t_string *s, char *arr)
 {
 	int			arr_len;
 	t_string	*new_s;
