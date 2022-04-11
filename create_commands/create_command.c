@@ -67,7 +67,7 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 	pipe_type = pipe_type_from_arg(entry->content);
 	if (pipe_type == OUTPUT_TO_COMMAND)
 	{
-		cmd_get->cur_arg = entry;
+		cmd_get->cur_arg = entry->next;
 		return (RETURN);
 	}
 	entry = entry->next;
@@ -237,7 +237,7 @@ t_bool	pipe_command(t_cmd_get_struct *cmd_get, t_list *entry,
 			(cmd_get->cmd_len - 1), false) == false)
 		return (false);
 	success = pipe_part_2(entry->next, cmd_get, cmd_data, minishell);
-	if (success && cmd_get->cur_arg != NULL)
-		cmd_get->cur_arg = entry->prev;
+//	if (success && cmd_get->cur_arg != NULL)
+//		cmd_get->cur_arg = entry->prev;
 	return (success);
 }
