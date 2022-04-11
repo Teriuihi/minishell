@@ -22,7 +22,8 @@
  *
  * @return	non zero on error, 0 on success
  */
-static t_bool	find_commands_in_args(t_cmd_get_struct *cmd_get, t_minishell *minishell)
+static t_bool	find_commands_in_args(t_cmd_get_struct *cmd_get,
+					t_minishell *minishell)
 {
 	t_pipe_type		pipe_type;
 	t_bool			success;
@@ -44,14 +45,14 @@ static t_bool	find_commands_in_args(t_cmd_get_struct *cmd_get, t_minishell *mini
 	return (success);
 }
 
-/**
+/** TODO if a command is NULL only do heredoc then continue
  * Finds all the commands and stores them in t_list
  *
  * @param	args	Arguments to create the commands from
  *
  * @return	NULL on error, command data success
  */
-t_list	**find_commands(t_list **args, t_minishell *minishell) //TODO if a command is NULL only do heredoc then continue
+t_list	**find_commands(t_list **args, t_minishell *minishell)
 {
 	t_cmd_get_struct	cmd_get;
 

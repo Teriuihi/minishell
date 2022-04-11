@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "../headers/functions.h"
-#include "../headers/arguments.h"
 
 /**
  * Add new arguments to command after space has been made
