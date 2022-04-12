@@ -280,6 +280,7 @@ t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	}
 	if (cmd_data->input.type == REDIRECT_INPUT)
 	{
+		//return (function which also returns a bool etc)
 		if (dup2(old_pid[0], STDIN_FILENO) == -1)
 		{
 			ft_printf(1, "DUP3\n");
