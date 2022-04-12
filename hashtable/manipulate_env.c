@@ -44,7 +44,7 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 		if (ft_strncmp(key, current->key,
 				ft_strlen(key)) == 0)
 		{
-			if (prev == NULL) //if the current is the first node in chain
+			if (prev == NULL)
 			{
 				prev = current->next;
 				if (current->next)
@@ -53,7 +53,7 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 				}
 				head = prev;
 			}
-			else //otherwise
+			else
 			{
 				head = prev;
 				prev->next = current->next;
