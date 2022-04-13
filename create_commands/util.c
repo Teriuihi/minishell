@@ -74,26 +74,3 @@ t_bool	create_file(t_cmd_data *cmd_data)
 	}
 	return (true);
 }
-
-/**
- * Free's a command
- *
- * @param	cmd_data	The command to free
- */
-void	free_cmd(t_cmd_data *cmd_data)
-{
-	if (cmd_data->command != NULL)
-	{
-		free(cmd_data->command->command);
-		while (cmd_data->command->args_len)
-		{
-			free(cmd_data->command->args[cmd_data->command->args_len - 1]);
-			cmd_data->command->args_len--;
-		}
-		free(cmd_data->command->args);
-		free(cmd_data->command);
-	}
-	free(cmd_data->input.file);
-	free(cmd_data->output.file);
-	free(cmd_data);
-}

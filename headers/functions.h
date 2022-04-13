@@ -51,5 +51,6 @@ void			check_status(t_minishell *minishell);
 char			*search_folder(char *command, t_minishell *minishell);
 int				interruptible_getc(void);
 t_pipe_type		pipe_type_from_arg(t_arg *arg);
+void			free_cmd(t_cmd_data *cmd_data);
 
 #endif

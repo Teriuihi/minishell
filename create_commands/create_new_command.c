@@ -13,7 +13,6 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include "internal_create_commands.h"
-#include <fcntl.h>
 
 /**
  * Stores a command, on error command is freed
