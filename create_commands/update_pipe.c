@@ -22,7 +22,8 @@
  *
  * @return	The exit state
  */
-static t_exit_state	file_not_there(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get)
+static t_exit_state	file_not_there(t_cmd_data *cmd_data,
+						t_cmd_get_struct *cmd_get)
 {
 	new_set_exit_status(1, "some shell: parse: %s: No such file or directory\n",
 		cmd_data->input.file);

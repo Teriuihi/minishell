@@ -13,7 +13,7 @@
 #ifndef LIBFT_H
 # define LIBFT_H
 # include <stdlib.h>
-#include <zconf.h>
+# include <zconf.h>
 # include "../headers/bool.h"
 
 char	*ft_memset(void *b, int c, size_t len);
