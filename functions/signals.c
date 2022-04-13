@@ -18,29 +18,26 @@
 #include <readline/readline.h>
 #include <errno.h>
 
-void	signal_check(char *input, t_minishell *minishell)
+t_bool	signal_check(char *input, t_minishell *minishell)
 {
 	if (g_signal.sigquit == 1)
 	{
-//		*display_prompt = false;
 		g_signal.sigquit = 0;
-		return ;
+		return (true);
 	}
-	else if (input == 0 || g_signal.sigint == 1)
+	if (input == 0)
 	{
-		if (g_signal.heredoc)
+		if (input == 0 && g_signal.sigint == 0 && g_signal.veof == 0) //if it was crtl c or crtl d then its fine, otherwise error
+		{
+			return (false);
+;		}
+		if (g_signal.heredoc == true)
 		{
 			g_signal.heredoc = false;
 			ft_printf(1, "\b\b");
-			return ;
-		}
-		if (g_signal.sigint != 1)
-		{
-			g_signal.veof = 1;
 		}
 	}
-//	if (display_prompt != NULL)
-//		*display_prompt = true;
+	return (true);
 }
 
 void	check_status(t_minishell *minishell)
@@ -64,19 +61,18 @@ void	sigquit_handler(int this_signal)
 	{
 		g_signal.sigint = 1;
 		g_signal.exit_status = 128 + 2;
-		//ft_printf("Exit status changed to %d\n", g_signal.exit_status);
 	}
 	if (this_signal == SIGQUIT && g_signal.command == false)
 	{
 		g_signal.sigquit = 1;
 		g_signal.exit_status = 128 + 3;
-		//ft_printf("Exit status changed to %d\n", g_signal.exit_status);
 	}
 }
 
 void	init_signal(void)
 {
-	g_signal.shell_level = 2;
+	//g_signal.shell_level = 2;
+	//get shlvl val, add 1
 	g_signal.exit_status = 0;
 	g_signal.minishell_exec_found = 0;
 	g_signal.sigint = 0;

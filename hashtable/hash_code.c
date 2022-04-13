@@ -95,7 +95,7 @@ t_list	*get_names(t_hash_table *h_table)
 	int		env_i;
 	int		i;
 
-	if (!h_table) //at this point this should not be possible
+	if (!h_table)
 		return (NULL);
 	head = (t_list *)malloc(sizeof(t_list));
 	if (!head)
@@ -127,13 +127,17 @@ void	sort_by_name(t_list *names) //this sorts in place
 	t_list	*index;
 	void	*tmp;
 
+	if (!names)
+	{
+		return ;
+	}
 	curr = names;
 	while (curr->next != NULL)
 	{
 		t_list *index = curr->next;
 		while (index != NULL)
 		{
-			if (index->content != NULL)
+			if (index->content != NULL && curr->content != NULL)
 			{
 				if (strcmp((char *)curr->content, (char *)index->content) > 0)
 				{
@@ -148,31 +152,34 @@ void	sort_by_name(t_list *names) //this sorts in place
 	}
 }
 
-void	export(t_hash_table *h_table)
+t_bool	export(void *minishell)
 {
-	t_list	*names;
-	t_list	*curr;
-	char	*val;
+	t_hash_table	*h_table;
+	t_list			*names;
+	t_list			*curr;
+	char			*val;
 
+	if (!minishell)
+		return (set_exit_status((t_minishell *)minishell, 1, NULL, false));
+	h_table = ((t_minishell *)minishell)->env;
 	names = get_names(h_table);
+	if (!names)
+		return (set_exit_status((t_minishell *)minishell, 1, NULL, false));
 	sort_by_name(names);	
 	curr = names;
-	val = NULL;
+	if (!curr)
+		return (set_exit_status(minishell, 1, NULL, false));
 	while (curr != NULL)
 	{
-		if (curr->content != NULL)
+		if (curr->content != NULL) //this can be uninitialized soms
 		{
 			val = ft_get_env_val((char *)curr->content, h_table);
 			if (val != NULL)
 			{
 				ft_printf(1, "declare -x %s=\"%s\"\n",(char *)curr->content, val);
 			}
-			//else //check if its null or 0
-			//{
-			//	ft_printf(1, "declare -x %s=\"\"\n",(char *)curr->content, val);
-			//}
 		}
 		curr = curr->next;
 	}
-
+	return (set_exit_status(minishell, 0, NULL, false));
 }

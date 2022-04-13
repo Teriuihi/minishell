@@ -13,6 +13,41 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 
+static t_bool	is_it_an_edge_case(t_command *command, int fd,
+				t_minishell *minishell)
+{
+	char	**args;
+
+	args = command->args;
+	if (command->args_len == 1 && ft_streq(args[0], "echo"))
+	{
+		write(fd, "\n", 1);
+		return (set_exit_status(minishell, 0, NULL, false));
+	}
+	if (command->args_len == 2 && ft_streq(args[1], "-n"))
+	{
+		return (set_exit_status(minishell, 0, NULL, false));
+	}
+	return (false);
+}
+
+void	print_leftover(int i, char **args, t_bool get_rid_of_space,
+						t_command *command)
+{
+	while (i != command->args_len) //why argslen + 1?
+	{
+		if (i != 1)
+		{
+			if (get_rid_of_space == true)
+				get_rid_of_space = false;
+			else if (i != command->args_len - 1)
+				write(1, " ", 1);
+		}
+		write(1, args[i], ft_strlen(args[i]));
+		i++;
+	}
+}
+
 /**
  * Takes an array of arrays (user input), checks if the first
  *	argument is the -n flag.
@@ -37,25 +72,14 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 	i = 1;
 	get_rid_of_space = false;
 	c = '\0';
-	if (!args || args[0] == NULL)
+	if (is_it_an_edge_case(command, fd, minishell) == true)
 	{
-		return (set_exit_status(minishell, 2, NULL, false));
+		return (true);
 	}
-	//another functions checking for edge case, put the two functions below into that
-	if (command->args_len == 1 && ft_streq(args[0], "echo"))
+	//set initial contidions, TODO FUNCTION, //why is the second condition there in the while loop
+	if (ft_streq(args[i], "-n") == 1)
 	{
-		write(fd, "\n", 1);
-		return (set_exit_status(minishell, 0, NULL, false));
-	}
-	//what happens if its only echo -n
-	if (command->args_len == 2 && ft_streq(args[1], "-n"))
-	{
-		return (set_exit_status(minishell, 0, NULL, false));
-	}
-	if (ft_strncmp(args[i], "-n", 3) == 0) //replace w streq, used to be ft_strcmp, -n, 3, 
-	{	
-		//ft_strncmp(args[i], "-n", 1) == 0 ? ft_printf(1, "YES\n") : ft_printf(1, "NO\n");
-		while (i < command->args_len - 1 && (ft_strncmp(args[i], "-n", 2) == 0)) 
+		while (i < command->args_len - 1 && (ft_streq(args[i], "-n") == 1) == 1)
 		{
 			j = 1;
 			while (args[i][j] == 'n')
@@ -69,32 +93,7 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 	}
 	else
 		c = '\n';
-	while (i != command->args_len) //why argslen + 1?
-	{
-		if (i != 1)
-		{
-			if (get_rid_of_space == true)
-				get_rid_of_space = false;
-			else if (i != command->args_len - 1)
-				write(1, " ", 1);
-		}
-		write(fd, args[i], ft_strlen(args[i]));
-		i++;
-	}
-	write(fd, &c, 1);
+	print_leftover(i, args, get_rid_of_space, command);
+	write(1, &c, 1);
 	return (set_exit_status(minishell, 0, NULL, false));
 }
-
-/*
-if args[1] == ~
-	print $home
-	
-	if (ft_strncmp(args[1], "~", 1) //what is there is another char after?
-	{
-	check next char, if it
-	if (ft_strlen(args[1]) > 1)
-	{
-
-	}
-}
-*/

@@ -44,7 +44,7 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 		if (ft_strncmp(key, current->key,
 				ft_strlen(key)) == 0)
 		{
-			if (prev == NULL) //if the current is the first node in chain
+			if (prev == NULL)
 			{
 				prev = current->next;
 				if (current->next)
@@ -53,13 +53,15 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 				}
 				head = prev;
 			}
-			else //otherwise
+			else
 			{
 				head = prev;
 				prev->next = current->next;
 			}
 			free(current->val);
+			current->val = NULL;
 			free(current->key);
+			current->key = NULL;
 			return (set_exit_status(minishell, 0, NULL, false));
 		}
 		prev = current;
@@ -99,11 +101,14 @@ char	*ft_get_env_val(char *key, t_hash_table *h_table)
 	current = h_table->entries[slot];
 	while (current != NULL)
 	{
-		if (ft_strncmp(key, current->key,
-				ft_strlen(key)) == 0)
+		if (current->key != NULL)
 		{
-			env_val = ft_strdup(current->val);
-			return (env_val);
+			if (ft_strncmp(key, current->key,
+					ft_strlen(key)) == 0)
+			{
+				env_val = ft_strdup(current->val);
+				return (env_val);
+			}
 		}
 		current = current->next;
 	}
@@ -138,7 +143,7 @@ char	**get_envp(t_hash_table *h_table)
 			while (curr != NULL)
 			{
 				current_env = (char *)malloc((ft_strlen(curr->key)
-							+ ft_strlen(curr->val) + 2) * sizeof(char));
+							+ ft_strlen(curr->val) + 2) * sizeof(char)); //why + 2?
 				if (!current_env)
 					exit(1);
 				if (curr->key)

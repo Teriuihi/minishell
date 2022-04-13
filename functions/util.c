@@ -94,7 +94,6 @@ size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 	return (dst_len + ft_strlen(src));
 }
 
-
 void	free_splitted(char **splitted)
 {
 	int	i;
@@ -187,7 +186,6 @@ t_bool	set_exit_status(t_minishell *minishell, int status, char *message,
 			t_bool should_free)
 {
 	g_signal.exit_status = status;
-	//if there is a message, sthat means we just have to
 	if (message != NULL)
 	{
 		g_signal.print_basic_error = false;
@@ -209,23 +207,21 @@ t_bool	set_exit_status(t_minishell *minishell, int status, char *message,
 	}
 }
 
-int interruptible_getc(void)
+int interruptible_getc(void) //crtl \ -> errno = 4, -1 r , //crtl D -> errno = 2, 1 r
 {	
 	int		r;
 	char	c;
 
-//	if (g_signal.interrupted == true)
-//	{
-//		return EOF;
-//	}
 	r = read(0, &c, 1);
-	//crtl \ -> errno = 4, -1 r
-	//crtl D -> errno = 2, 1 r
-	if (r == -1 && errno == EINTR && g_signal.sigint != 1) //then this is sigint (crtl c here)
+	if (r == -1 && errno == EINTR && g_signal.sigint != 1)
 	{
 		return (0);
 	}
-	return (r == 1 ? c : EOF); //if we use signals this we always return EOF
+	if (c == 4)
+	{
+		g_signal.veof = 1;
+	}
+	return (r == 1 ? c : EOF);
 }
 
 /**

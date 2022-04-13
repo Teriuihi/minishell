@@ -39,6 +39,7 @@ static int	split_len(char **splitted)
 	return (i);
 }
 
+//CHECK THIS TOMORROW
 static t_bool	export_found(t_command *command, t_minishell *minishell)
 {
 	char	**splitted;
@@ -71,12 +72,12 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 					}
 					if (was_there_equal == 1)
 					{
-						//ft_printf(1, "%d is equal signs\n", was_there_equal); 
+						//ft_printf(1, "%d is equal signs\n", was_there_equal);
 						ft_set_env(splitted[0], "", minishell->env, true);
 						free_splitted(splitted);
 						return (true);
 					}
-				}	
+				}
 				ft_set_env(splitted[0], splitted[1], minishell->env, true);
 				free_splitted(splitted);
 				i++;
@@ -89,79 +90,74 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 }
 
 static t_bool	env_var_added(t_command *command, t_minishell *minishell)
-{	
+{
 	char	**splitted;
 
-	if (!command || !minishell) //prob not necessary
-	{
+	if (!command || !minishell)
 		return (set_exit_status(minishell, 2, NULL, false));
-	}
 	if (command->export_found == true)
-	{
 		return (export_found(command, minishell));
-	}
-
-	//else its a normal one
 	splitted = ft_split(command->command, '=');
-	if (split_len(splitted) != 2)
-	{
-		free_splitted(splitted);
-		return (set_exit_status(minishell, 2, NULL, false));
-	}
+	if (!splitted)
+		return (set_exit_status(minishell, 1, NULL, false));
 	if (ft_get_env_val(splitted[0], minishell->env) != NULL)
 	{
 		if (succesful_insert(minishell->env, splitted[0], splitted[1], true) == true)
-		{
-			ft_printf(1, "entered with succesful insert here\n");
-			print_splitted(splitted);
 			return (set_exit_status(minishell, 0, NULL, false));
-		}
-		return (set_exit_status(minishell, 1, NULL, false));
+		else
+			return (set_exit_status(minishell, 1, NULL, false));
 	}
-	if (ft_set_env(splitted[0], splitted[1], minishell->env, false) == false)
-	{
+	else if (ft_set_env(splitted[0], splitted[1], minishell->env, false) == false)
 		return (set_exit_status(minishell, 1, NULL, false));
-	}
 	else
-	{
 		return (set_exit_status(minishell, 0, NULL, false));
-	}
 }
 
 t_bool	ft_env(t_hash_table *h_table, t_minishell *minishell)
 {
 	if (print_h_table(h_table) == false)
-	{
 		return (set_exit_status(minishell, 1, NULL, false));
-	}
 	else
-	{
 		return (set_exit_status(minishell, 0, NULL, false));
-	}
+}
+
+t_bool	execute_builtin(t_command *command, t_minishell *minishell)
+{
+	char		*cur_dir;
+
+	cur_dir = get_pwd(minishell);
+	if (!command->command || !minishell || !cur_dir)
+		return (set_exit_status(minishell, 1, NULL, false));
+	if(ft_streq(command->command, "export") == 1 && command->args_len == 1)
+		return (export((void *)minishell));
+	else if (env_variable_found(command) == true) //env_var_added(command, minishell) == true)
+		return (env_var_added(command, minishell));
+	else if (ft_streq(command->command, "echo"))
+		return (ft_echo(command, 1, minishell));
+	else if (ft_streq(command->command, "pwd"))
+		return (ft_pwd(cur_dir, minishell));
+	else if (ft_streq(command->command, "env"))
+		return (print_h_table(minishell->env));
+	else
+		return (set_exit_status(minishell, 1, NULL, false));
 }
 
 t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 {
 	char	*cur_dir;
-	
-	cur_dir = get_pwd(minishell);
+
+	cur_dir = get_pwd(minishell); //what is !minishell
 	if (!command->command || !minishell || !cur_dir)
-		exit(1);
-	else if (ft_streq(command->command, "cd"))
-		return (cd(command, minishell));
-	else if (ft_streq(command->command, "env"))
-		return (ft_env(minishell->env, minishell));
+		return (set_exit_status(minishell, 1, NULL, false));
 	else if (ft_streq(command->command, "unset"))
 		return (ft_remove_exported_var(command->args[1], minishell->env,
 				minishell));
-	else if(ft_streq(command->command, "export") && command->args_len == 1)
-	{
-		//ft_printf(1, "RIGHT PLACE\n");
-		export(minishell->env);
-	}
-	else if (env_var_added(command, minishell) == true)
-		return (true);
-	return (set_exit_status(minishell, 1, NULL, false));
+	else if (ft_streq(command->command, "cd"))
+		return (cd(command, minishell));
+	else if (env_variable_found(command) == true) //env_var_added(command, minishell) == true) //this also calls and checks for commands?
+		return (env_var_added(command, minishell));
+	else
+		return (set_exit_status(minishell, 1, NULL, false));
 }
 
 t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
@@ -169,27 +165,4 @@ t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
 	ft_putstr_fd(cur_dir, 1);
 	ft_putstr_fd("\n", 1);
 	return (set_exit_status(minishell, 0, NULL, false));
-}
-
-t_bool	execute_builtin(t_command *command, t_minishell *minishell)
-{
-	char		*cur_dir;
-	t_bool		did_execution_succeed;
-
-	did_execution_succeed = false;
-	if (!command->command || !minishell)
-	{
-		return (set_exit_status(minishell, 1, NULL, false));
-	}
-	cur_dir = get_pwd(minishell);
-	if (!cur_dir)
-		return (set_exit_status(minishell, 1, NULL, false));
-	if (env_var_added(command, minishell) == true)
-		return (true);
-	if (ft_streq(command->command, "echo"))
-		return (ft_echo(command, 1, minishell));
-	else if (ft_streq(command->command, "pwd"))
-		return (ft_pwd(cur_dir, minishell));
-	else
-		return (set_exit_status(minishell, 1, NULL, false));
 }
