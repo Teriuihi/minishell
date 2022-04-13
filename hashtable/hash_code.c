@@ -137,7 +137,7 @@ void	sort_by_name(t_list *names) //this sorts in place
 		t_list *index = curr->next;
 		while (index != NULL)
 		{
-			if (index->content != NULL)
+			if (index->content != NULL && curr->content != NULL)
 			{
 				if (strcmp((char *)curr->content, (char *)index->content) > 0)
 				{

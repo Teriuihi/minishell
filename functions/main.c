@@ -137,6 +137,7 @@ t_bool	init_succeeded(t_minishell *minishell)
 	minishell->env = get_hash_table();
 	set_pwd(ft_strdup(cur_dir), minishell);
 	increase_shell_level(minishell);
+	minishell->home = ft_get_env_val("HOME", minishell->env);
 	return (true);
 }
 

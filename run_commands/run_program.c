@@ -97,7 +97,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	while (entry)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
-		tmp_print_command(cmd_data);
+		//tmp_print_command(cmd_data);
 		if (cmd_data->command->command == NULL) //maybe separate checking condition?
 		{
 			if (cmd_data->input.type == DELIMITER_INPUT)
