@@ -17,10 +17,10 @@
 /**
  * Starts looping through all arguments to find the commands
  *
- * @param	t_list	All data related to commands
- * @param	args	All arguments
+ * @param	cmd_get		Data needed to create commands
+ * @param	minishell	Data for minishell
  *
- * @return	non zero on error, 0 on success
+ * @return	A boolean indicating success
  */
 static t_bool	find_commands_in_args(t_cmd_get_struct *cmd_get,
 					t_minishell *minishell)
@@ -37,8 +37,6 @@ static t_bool	find_commands_in_args(t_cmd_get_struct *cmd_get,
 	}
 	if (cmd_get->cmd_len != 0 && cmd_get->cur_arg != NULL)
 	{
-		cmd_get->cur_arg = get_command_start(cmd_get->cur_arg,
-				cmd_get->cmd_len - 1);
 		success = output_pipe_command(cmd_get, pipe_type);
 		update_last_command_input(cmd_get->head);
 	}
@@ -49,6 +47,7 @@ static t_bool	find_commands_in_args(t_cmd_get_struct *cmd_get,
  * Finds all the commands and stores them in t_list
  *
  * @param	args	Arguments to create the commands from
+ * @param	minishell	Data for minishell
  *
  * @return	NULL on error, command data success
  */
@@ -61,6 +60,7 @@ t_list	**find_commands(t_list **args, t_minishell *minishell)
 	cmd_get.cur_arg = *args;
 	cmd_get.cmd_len = 0;
 	cmd_get.head = ft_calloc(1, sizeof(t_list *));
+	cmd_get.cur_cmd = NULL;
 	if (!cmd_get.head)
 		return (NULL);
 	if (find_commands_in_args(&cmd_get, minishell) == false)

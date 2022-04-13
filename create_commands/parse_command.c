@@ -26,26 +26,17 @@
 static t_bool	check_pipe_make_command(t_pipe_type pipe_type,
 					t_cmd_get_struct *cmd_get, t_minishell *minishell)
 {
-	t_bool	success;
-
+	if (cmd_get->cur_cmd == NULL)
+		cmd_get->cur_cmd = create_new_cmd(cmd_get->head);
+	if (cmd_get->cur_cmd == NULL)
+		return (false);
 	if (pipe_type == OUTPUT_TO_COMMAND)
-	{
-		cmd_get->cur_arg = get_command_start(cmd_get->cur_arg,
-				cmd_get->cmd_len);
 		return (output_pipe_command(cmd_get, pipe_type));
-	}
 	else if (pipe_type == NONE)
-		cmd_get->cmd_len++;
+		return (append_arguments_to_command(cmd_get->cur_cmd->command,
+				cmd_get->cur_arg, cmd_get));
 	else
-	{
-		cmd_get->cur_arg = get_command_start(cmd_get->cur_arg,
-				cmd_get->cmd_len);
-		success = pipe_command(cmd_get, cmd_get->cur_arg, minishell);
-		if (success == true && cmd_get->cur_arg != NULL)
-			cmd_get->cur_arg = cmd_get->cur_arg->prev;
-		return (success);
-	}
-	return (true);
+		return (pipe_command(cmd_get, cmd_get->cur_arg, minishell));
 }
 
 /**
@@ -71,8 +62,7 @@ t_exit_state	parse_command(t_cmd_get_struct *cmd_get, t_minishell *minishell)
 			return (BREAK);
 		return (CONTINUE);
 	}
-	if (cmd_get->cur_arg == NULL || (cmd_get->cur_arg)->next == NULL)
+	if (cmd_get->cur_arg == NULL)
 		return (BREAK);
-	cmd_get->cur_arg = (cmd_get->cur_arg)->next;
 	return (CONTINUE);
 }

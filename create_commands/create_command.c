@@ -14,15 +14,12 @@
 #include "internal_create_commands.h"
 
 /**
- * Handles command creation for all pipe_type's not handled by pipe_command
+ * Set's the output for a command to pipe type and skips to the next argument
  *
- * @param	t_list		All data related to commands
- * @param	args		All arguments
- * @param	start_pos	Start of arguments for this command in args
- * @param	len			Amount of arguments after start that belong to
- * 	this command
+ * @param	cmd_get		All data for getting commands
+ * @param	pipe_type	Pipe type to set the command to
  *
- * @return	non zero on error, 0 on success
+ * @return	A boolean indicating success
  */
 t_bool	output_pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type)
 {
@@ -30,21 +27,12 @@ t_bool	output_pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type)
 	t_list		*entry;
 
 	entry = cmd_get->cur_arg;
-	if (cmd_get->cmd_len == 0)
-		cmd_data = create_new_cmd(cmd_get->head, NULL);
-	else
-		cmd_data = create_new_cmd(cmd_get->head,
-				((t_arg *)entry->content)->arg->s);
+	cmd_data = cmd_get->cur_cmd;
 	if (!cmd_data)
 		return (false);
-	if (cmd_get->cmd_len > 1)
-		if (append_arguments_to_command(cmd_data->command, entry->next,
-				cmd_get->cmd_len - 1, false) == false)
-			return (false);
 	cmd_data->output.type = pipe_type;
-	entry = get_arg_at_pos(cmd_get->cur_arg, cmd_get->cmd_len);
-	cmd_get->cmd_len = 0;
-	cmd_get->cur_arg = entry;
+	cmd_get->cur_cmd = NULL;
+	cmd_get->cur_arg = entry->next;
 	return (true);
 }
 
@@ -56,9 +44,10 @@ t_bool	output_pipe_command(t_cmd_get_struct *cmd_get, t_pipe_type pipe_type)
  * @param	cmd_get		Data needed to create commands
  * @param	cmd_data	Current command and it's attributes
  * @param	minishell	Data for minishell
- * @return
+ *
+ * @return	A boolean indicating success
  */
-t_bool	loop_through_entries(t_list *entry, t_cmd_get_struct *cmd_get,
+static t_bool	loop_through_entries(t_list *entry, t_cmd_get_struct *cmd_get,
 			t_cmd_data *cmd_data, t_minishell *minishell)
 {
 	t_exit_state	exit_state;
@@ -69,10 +58,10 @@ t_bool	loop_through_entries(t_list *entry, t_cmd_get_struct *cmd_get,
 		pipe_type = pipe_type_from_arg(entry->content);
 		if (pipe_type == NONE)
 		{
-			if (append_arguments_to_command(cmd_data->command,
-					entry, 1, false) == false)
+			if (append_arguments_to_command(cmd_data->command, entry, cmd_get)
+				== false)
 				return (false);
-			entry = entry->next;
+			entry = cmd_get->cur_arg;
 			continue ;
 		}
 		cmd_get->cur_arg = entry;
@@ -90,39 +79,19 @@ t_bool	loop_through_entries(t_list *entry, t_cmd_get_struct *cmd_get,
  * Handles creating commands for types that need to create input and forward it
  * 	to the next command
  *
- * @param	t_list		All data related to commands
- * @param	args		All arguments
- * @param	start_pos	Start of arguments for this command in args
- * @param	len			Amount of arguments after start that belong to
- * 	this command
+ * @param	cmd_get		All data for getting commands
+ * @param	entry		Entry to get pipe type for
+ * @param	minishell	Data for minishell
  *
- * @return	non zero on error, 0 on success
+ * @return	A boolean indicating success
  */
 t_bool	pipe_command(t_cmd_get_struct *cmd_get, t_list *entry,
 			t_minishell *minishell)
 {
 	t_cmd_data		*cmd_data;
-	t_bool			success;
 
-	if (cmd_get->cmd_len == 0)
-	{
-		cmd_data = command_with_pipe_start(cmd_get, entry, minishell);
-		entry = cmd_get->cur_arg;
-	}
-	else
-	{
-		cmd_data = create_new_cmd(cmd_get->head,
-				((t_arg *)entry->content)->arg->s);
-		entry = get_arg_at_pos(entry, cmd_get->cmd_len - 1);
-	}
+	cmd_data = cmd_get->cur_cmd;
 	if (cmd_data == NULL)
 		return (false);
-	if (entry != NULL && cmd_get->cmd_len > 1
-		&& append_arguments_to_command(cmd_data->command, entry->next,
-			(cmd_get->cmd_len - 1), false) == false)
-		return (false);
-	if (entry == NULL)
-		return (true);
-	success = loop_through_entries(entry->next, cmd_get, cmd_data, minishell);
-	return (success);
+	return (loop_through_entries(entry, cmd_get, cmd_data, minishell));
 }

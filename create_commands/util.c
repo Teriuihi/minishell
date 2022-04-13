@@ -15,29 +15,6 @@
 #include "../headers/functions.h"
 
 /**
- * Get the entry i positions ahead of the current one
- *
- * @param	entry	t_list entry to start from
- * @param	i		Amount of positions to move forward
- *
- * @return	The t_list entry at the given position from the given start
- */
-t_list	*get_arg_at_pos(t_list *entry, int i)
-{
-	if (i < 0)
-	{
-		while (entry && i++)
-			entry = entry->prev;
-	}
-	else
-	{
-		while (entry && i--)
-			entry = entry->next;
-	}
-	return (entry);
-}
-
-/**
  * Get the string from a t_list entry which contains a t_arg
  *
  * @param	entry	Entry to get string from
@@ -50,20 +27,6 @@ char	*str_from_arg(t_list *entry)
 
 	arg = entry->content;
 	return (arg->arg->s);
-}
-
-/**
- * Get the start of a command
- *
- * @param	cur		Current argument
- * @param	cmd_len	How far backwards the start of the command is
- * @return
- */
-t_list	*get_command_start(t_list *cur, int cmd_len)
-{
-	while (cmd_len--)
-		cur = cur->prev;
-	return (cur);
 }
 
 /**
@@ -109,4 +72,27 @@ t_bool	create_file(t_cmd_data *cmd_data, t_minishell *minishell)
 					"Unable to close file", false));
 	}
 	return (true);
+}
+
+/**
+ * Free's a command
+ *
+ * @param	cmd_data	The command to free
+ */
+void	free_cmd(t_cmd_data *cmd_data)
+{
+	if (cmd_data->command != NULL)
+	{
+		free(cmd_data->command->command);
+		while (cmd_data->command->args_len)
+		{
+			free(cmd_data->command->args[cmd_data->command->args_len - 1]);
+			cmd_data->command->args_len--;
+		}
+		free(cmd_data->command->args);
+		free(cmd_data->command);
+	}
+	free(cmd_data->input.file);
+	free(cmd_data->output.file);
+	free(cmd_data);
 }

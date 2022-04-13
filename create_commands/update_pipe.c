@@ -171,7 +171,12 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 	pipe_type = pipe_type_from_arg(entry->content);
 	if (pipe_type == OUTPUT_TO_COMMAND)
 	{
+		if (cmd_data->output.type == NONE
+			|| (ft_strlen(cmd_data->command->command) == 4
+				&& ft_strncmp(cmd_data->command->command, "exit", 4)))
+			cmd_data->output.type = OUTPUT_TO_COMMAND;
 		cmd_get->cur_arg = entry->next;
+		cmd_get->cur_cmd = NULL;
 		return (RETURN);
 	}
 	entry = entry->next;
