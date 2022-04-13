@@ -22,6 +22,7 @@
 
 t_list			**find_commands(t_list **args, t_minishell *minishell);
 char			*search_in_path(char *command, t_minishell *minishell);
+char			*search_in_folder(char *command, t_minishell *minishell);
 size_t			ft_strlcat(char *dst, const char *src, size_t dstsize);
 void			crtld_handler(int signum);
 void			sigquit_handler(int signum);

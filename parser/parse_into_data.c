@@ -73,8 +73,7 @@ static t_bool	parse_variable(t_parse_data *data, t_minishell *minishell)
  *
  * @return	A boolean indicating success
  */
-static t_bool	finalize(t_parse_data *data, t_list **head,
-					t_minishell *minishell)
+static t_bool	finalize(t_parse_data *data, t_list **head)
 {
 	if (data->has_data)
 	{
@@ -111,7 +110,8 @@ t_bool	parse_into_data(t_parse_data *data, t_list **head,
 			if (store_normal_arg(data, head) == false)
 				return (false);
 		}
-		else if (data->input[data->pos] == '$')
+		else if (data->input[data->pos] == '$' && pipe_type_from_arg(
+				ft_lstlast(*head)->content) != DELIMITER_INPUT)
 		{
 			if (parse_variable(data, minishell) == false)
 				return (false);
@@ -122,5 +122,5 @@ t_bool	parse_into_data(t_parse_data *data, t_list **head,
 			data->has_data = true;
 		}
 	}
-	return (finalize(data, head, minishell));
+	return (finalize(data, head));
 }

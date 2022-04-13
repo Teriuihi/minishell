@@ -113,8 +113,7 @@ static t_bool	parse_env_variable_end_string(t_parse_data *data,
  *
  * @return	Boolean indicating success
  */
-static t_bool	handle_env_variable_in_string(t_parse_data *data,
-												t_minishell *minishell)
+static t_bool	handle_env_variable_in_string(t_parse_data *data)
 {
 	t_string	*result;
 
@@ -150,7 +149,7 @@ t_bool	parse_env_variable(t_parse_data *data, t_minishell *minishell)
 	{
 		if (!ft_isalnum(data->input[data->pos]) && data->pos != '_')
 		{
-			return (handle_env_variable_in_string(data, minishell));
+			return (handle_env_variable_in_string(data));
 		}
 		data->pos++;
 	}
