@@ -27,11 +27,10 @@
  */
 t_bool	handle_env_variable(t_parse_data *data, t_minishell *minishell)
 {
-	if (append_content(data, minishell) == false)
+	if (append_content(data) == false)
 		return (false);
 	if (data->string == NULL)
-		return (set_exit_status(minishell, 1,
-				"some shell: Out of memory.", false));
+		return (new_set_exit_status(1, "some shell: Out of memory."));
 	data->pos++;
 	data->start = data->pos;
 	if (parse_env_variable(data, minishell) == false)
@@ -62,7 +61,7 @@ t_bool	parse_quotation(t_parse_data *data, char quote, t_minishell *minishell)
 		{
 			if (data->pos != data->start)
 			{
-				if (append_content(data, minishell) == false)
+				if (append_content(data) == false)
 					return (false);
 			}
 			data->start = ++data->pos;

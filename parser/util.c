@@ -32,23 +32,8 @@ t_bool	is_pipe(char c)
  *
  * @return	false
  */
-t_bool	parse_error(t_minishell *minishell, char near)
+t_bool	parse_error(char near)
 {
-	t_string	*message;
-
-	message = init_string("some shell: syntax error near unexpected token `");
-	if (message == NULL)
-		return (set_exit_status(minishell, 1,
-				"some shell: Out of memory.", false));
-	message = append_char(message, near);
-	if (message == NULL)
-		return (set_exit_status(minishell, 1,
-				"some shell: Out of memory.", false));
-	message = append_char(message, '\'');
-	if (message == NULL)
-		return (set_exit_status(minishell, 1,
-				"some shell: Out of memory.", false));
-	set_exit_status(minishell, 258, message->s, false);
-	free_string(message);
-	return (false);
+	return (new_set_exit_status(258,
+			"some shell: syntax error near unexpected token `%c", near));
 }

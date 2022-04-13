@@ -23,28 +23,10 @@
  *
  * @return	The exit state
  */
-static t_exit_state	file_not_there(t_cmd_data *cmd_data,
-						t_cmd_get_struct *cmd_get, t_minishell *minishell)
+static t_exit_state	file_not_there(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get)
 {
-	char	*message;
-	char	*message1;
-
-	message1 = ft_strjoin(cmd_data->input.file,
-			": No such file or directory\n");
-	if (message1 == NULL)
-	{
-		set_exit_status(minishell, 1, "some shell: Out of memory.", true);
-		return (ERROR);
-	}
-	message = ft_strjoin("some shell: parse: ", message1);
-	free(message1);
-	if (message == NULL)
-	{
-		set_exit_status(minishell, 1, "some shell: Out of memory.", true);
-		return (ERROR);
-	}
-	else
-		set_exit_status(minishell, 1, message, true);
+	new_set_exit_status(1, "some shell: parse: %s: No such file or directory\n",
+		cmd_data->input.file);
 	while (cmd_get->cur_arg != NULL
 		&& pipe_type_from_arg(cmd_get->cur_arg->content) != OUTPUT_TO_COMMAND)
 		cmd_get->cur_arg = cmd_get->cur_arg->next;
@@ -72,7 +54,7 @@ static t_exit_state	file_output(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 	cmd_data->output.file = ft_strdup(str_from_arg(entry));
 	if (cmd_data->output.file == NULL)
 	{
-		set_exit_status(minishell, 1, "some shell: Out of memory.", false);
+		new_set_exit_status(1, "some shell: Out of memory.");
 		return (ERROR);
 	}
 	chdir(minishell->cur_wd);
@@ -106,14 +88,14 @@ static t_exit_state	file_input(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 	cmd_data->input.file = ft_strdup(str_from_arg(entry));
 	if (cmd_data->input.file == NULL)
 	{
-		set_exit_status(minishell, 1, "some shell: Out of memory.", false);
+		new_set_exit_status(1, "some shell: Out of memory.");
 		return (ERROR);
 	}
 	if (pipe_type == REDIRECT_INPUT)
 	{
 		chdir(minishell->cur_wd);
 		if (access(cmd_data->input.file, R_OK) != 0)
-			return (file_not_there(cmd_data, cmd_get, minishell));
+			return (file_not_there(cmd_data, cmd_get));
 	}
 	cmd_get->cur_arg = entry;
 	return (CONTINUE);
@@ -182,8 +164,8 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 	entry = entry->next;
 	if (entry == NULL)
 	{
-		set_exit_status(minishell, 1,
-			"some shell: syntax error near unexpected token.", false);
+		new_set_exit_status(1,
+			"some shell: syntax error near unexpected token.");
 		return (ERROR);
 	}
 	cmd_get->cur_arg = entry;

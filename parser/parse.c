@@ -35,7 +35,7 @@ t_bool	validate_parse(t_list *entry, t_minishell *minishell)
 		if ((prev_pipe != NONE && cur_pipe != NONE)
 			&& !(prev_pipe == OUTPUT_TO_COMMAND
 				|| cur_pipe == OUTPUT_TO_COMMAND))
-			return (parse_error(minishell, *((t_arg *)entry->content)->arg->s));
+			return (parse_error(*((t_arg *)entry->content)->arg->s));
 		prev_pipe = cur_pipe;
 		entry = entry->next;
 	}
@@ -63,8 +63,7 @@ t_bool	init_parse(t_parse_data *data, char *input, t_list ***head,
 	data->string = init_string(NULL);
 	*head = ft_calloc(1, sizeof(t_list *));
 	if (data->string == NULL)
-		return (set_exit_status(minishell, 1,
-				"some shell: Out of memory.", false));
+		return (new_set_exit_status(1, "some shell: Out of memory."));
 	while (ft_iswhite_space(input[data->pos]))
 		data->pos++;
 	data->start = data->pos;

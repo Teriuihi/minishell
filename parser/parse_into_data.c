@@ -27,7 +27,7 @@ static t_bool	parse_quotes(t_parse_data *data, t_minishell *minishell)
 {
 	if (data->pos != 0 && data->pos != data->start)
 	{
-		if (append_content(data, minishell) == false)
+		if (append_content(data) == false)
 			return (false);
 	}
 	data->pos++;
@@ -52,7 +52,7 @@ static t_bool	parse_variable(t_parse_data *data, t_minishell *minishell)
 {
 	if (data->pos != 0 && data->pos != data->start)
 	{
-		if (append_content(data, minishell) == false)
+		if (append_content(data) == false)
 			return (false);
 	}
 	data->pos++;
@@ -78,11 +78,10 @@ static t_bool	finalize(t_parse_data *data, t_list **head,
 {
 	if (data->has_data)
 	{
-		if (append_content(data, minishell) == false)
+		if (append_content(data) == false)
 			return (false);
 		if (safe_add_to_list(head, data->string, data->is_literal) == NULL)
-			return (set_exit_status(minishell, 1,
-					"some shell: Out of memory.", false));
+			return (new_set_exit_status(1, "some shell: Out of memory."));
 	}
 	return (true);
 }

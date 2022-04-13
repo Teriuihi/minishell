@@ -40,23 +40,23 @@ static t_bool	pipe_in_string_skip(t_parse_data *data, t_minishell *minishell)
 
 	if (ft_strlen(data->input + data->pos) < 2)
 	{
-		return (parse_error(minishell, *data->input));
+		return (parse_error(*data->input));
 	}
 	if (!ft_strncmp(data->input + data->pos, "<<", 2)
 		|| !ft_strncmp(data->input + data->pos, ">>", 2))
 	{
 		if (!data->input[data->pos + 2] || is_pipe(data->input[data->pos + 2]))
-			return (parse_error(minishell, *data->input));
+			return (parse_error(*data->input));
 		len = 2;
 	}
 	else
 	{
 		if (is_pipe(data->input[data->pos + 1]))
-			return (parse_error(minishell, data->input[data->pos + 1]));
+			return (parse_error(data->input[data->pos + 1]));
 		len = 1;
 	}
 	data->pos += len;
-	if (append_content(data, minishell) == false)
+	if (append_content(data) == false)
 		return (false);
 	skip_space(data);
 	return (true);
@@ -76,7 +76,7 @@ t_bool	store_normal_arg(t_parse_data *data, t_list **head,
 {
 	if (data->has_data)
 	{
-		if (append_content(data, minishell) == false)
+		if (append_content(data) == false)
 			return (false);
 		data->string = safe_add_to_list(head, data->string, data->is_literal);
 		if (data->string == NULL)
@@ -95,7 +95,7 @@ t_bool	store_normal_arg(t_parse_data *data, t_list **head,
 	data->is_literal = false;
 	skip_space(data);
 	if (is_pipe(data->input[data->pos]) && pipe_type_from_arg(((t_arg *)ft_lstlast(*head)->content)) != OUTPUT_TO_COMMAND)
-		return (parse_error(minishell, data->input[data->pos]));
+		return (parse_error(data->input[data->pos]));
 	skip_space(data);
 	return (true);
 }

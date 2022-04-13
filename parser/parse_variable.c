@@ -92,18 +92,15 @@ static t_bool	parse_env_variable_end_string(t_parse_data *data,
 	{
 		data->string = append_char_array(data->string, "$");
 		if (data->string == NULL)
-			return (set_exit_status(minishell, 1,
-					"some shell: Out of memory.", false));
+			return (new_set_exit_status(1, "some shell: Out of memory."));
 		return (true);
 	}
 	result = get_string_from_var(data);
 	if (result == NULL)
-		return (set_exit_status(minishell, 1,
-				"some shell: Out of memory.", false));
+		return (new_set_exit_status(1, "some shell: Out of memory."));
 	data->string = join_strings(data->string, result);
 	if (data->string == NULL)
-		return (set_exit_status(minishell, 1,
-				"some shell: Out of memory.", false));
+		return (new_set_exit_status(1, "some shell: Out of memory."));
 	return (true);
 }
 
@@ -127,18 +124,15 @@ static t_bool	handle_env_variable_in_string(t_parse_data *data,
 	{
 		data->string = append_char_array(data->string, "$");
 		if (data->string == NULL)
-			return (set_exit_status(minishell, 1,
-					"some shell: Out of memory.", false));
+			return (new_set_exit_status(1, "some shell: Out of memory."));
 		return (true);
 	}
 	result = get_string_from_var(data);
 	if (result == NULL)
-		return (set_exit_status(minishell, 1,
-				"some shell: Out of memory.", false));
+		return (new_set_exit_status(1, "some shell: Out of memory."));
 	data->string = join_strings(data->string, result);
 	if (data->string == NULL)
-		return (set_exit_status(minishell, 1,
-				"some shell: Out of memory.", false));
+		return (new_set_exit_status(1, "some shell: Out of memory."));
 	return (true);
 }
 

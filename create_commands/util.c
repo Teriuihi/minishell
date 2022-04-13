@@ -57,19 +57,20 @@ void	update_last_command_input(t_list **head)
  *
  * @return	Boolean indicating success
  */
-t_bool	create_file(t_cmd_data *cmd_data, t_minishell *minishell)
+t_bool	create_file(t_cmd_data *cmd_data)
 {
 	int	fd;
 
 	fd = open(cmd_data->output.file, O_CREAT, 0777);
 	if (fd < 0)
-		return (set_exit_status(minishell, 1,
-				"some shell: No permission to access file", false));
+		return (new_set_exit_status(1,
+				"some shell: %s: Permission denied", cmd_data->output.file));
 	else
 	{
 		if (close(fd) != 0)
-			return (set_exit_status(minishell, 1,
-					"Unable to close file", false));
+			return (new_set_exit_status(1,
+					"some shell: %s: Unable to close file",
+					cmd_data->output.file));
 	}
 	return (true);
 }
