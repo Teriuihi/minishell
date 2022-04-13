@@ -23,7 +23,7 @@
  *
  * @return	Boolean indicating if the parsed data is valid
  */
-t_bool	validate_parse(t_list *entry, t_minishell *minishell)
+static t_bool	validate_parse(t_list *entry)
 {
 	t_pipe_type	prev_pipe;
 	t_pipe_type	cur_pipe;
@@ -110,7 +110,7 @@ t_list	**parse(char *input, t_minishell *minishell)
 		return (NULL);
 	if (parse_into_data(&data, head, minishell) == true)
 	{
-		if (validate_parse(*head, minishell) == true)
+		if (validate_parse(*head) == true)
 			return (head);
 		else
 			free_argument_list(head);

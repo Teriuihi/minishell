@@ -34,7 +34,7 @@ static void	skip_space(t_parse_data *data)
  *
  * @return	A boolean indicating success
  */
-static t_bool	pipe_in_string_skip(t_parse_data *data, t_minishell *minishell)
+static t_bool	pipe_in_string_skip(t_parse_data *data)
 {
 	int		len;
 
@@ -71,8 +71,7 @@ static t_bool	pipe_in_string_skip(t_parse_data *data, t_minishell *minishell)
  *
  * @return	A boolean indicating success
  */
-t_bool	store_normal_arg(t_parse_data *data, t_list **head,
-			t_minishell *minishell)
+t_bool	store_normal_arg(t_parse_data *data, t_list **head)
 {
 	if (data->has_data)
 	{
@@ -85,7 +84,7 @@ t_bool	store_normal_arg(t_parse_data *data, t_list **head,
 	skip_space(data);
 	if (is_pipe(data->input[data->pos]))
 	{
-		if (pipe_in_string_skip(data, minishell) == false)
+		if (pipe_in_string_skip(data) == false)
 			return (false);
 		data->string = safe_add_to_list(head, data->string, data->is_literal);
 		if (data->string == NULL)

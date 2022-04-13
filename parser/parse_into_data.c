@@ -108,7 +108,7 @@ t_bool	parse_into_data(t_parse_data *data, t_list **head,
 		else if (ft_iswhite_space(data->input[data->pos])
 			|| is_pipe(data->input[data->pos]))
 		{
-			if (store_normal_arg(data, head, minishell) == false)
+			if (store_normal_arg(data, head) == false)
 				return (false);
 		}
 		else if (data->input[data->pos] == '$')

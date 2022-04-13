@@ -12,7 +12,6 @@
 
 #include "../headers/functions.h"
 #include "internal_create_commands.h"
-#include <fcntl.h>
 
 /**
  * Send an error indicating the file specified in the command was not found
@@ -60,7 +59,7 @@ static t_exit_state	file_output(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 	chdir(minishell->cur_wd);
 	if (access(cmd_data->output.file, F_OK) != 0)
 	{
-		if (create_file(cmd_data, minishell) == false)
+		if (create_file(cmd_data) == false)
 			return (ERROR);
 	}
 	cmd_get->cur_arg = entry;

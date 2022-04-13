@@ -35,5 +35,5 @@ t_bool	is_pipe(char c)
 t_bool	parse_error(char near)
 {
 	return (new_set_exit_status(258,
-			"some shell: syntax error near unexpected token `%c", near));
+			"some shell: syntax error near unexpected token `%c'\n", near));
 }
