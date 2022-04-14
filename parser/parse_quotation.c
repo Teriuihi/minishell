@@ -15,18 +15,22 @@
 #include "internal_parser.h"
 #include "../headers/functions.h"
 
-/**TODO comment
+/**
+ * Parse an environment variable when pos is on a $
+ * 	and we're in a part of the string where these variables
+ * 	should be parsed
  *
- * @param data
- * @param minishell
- * @return
+ * @param	data		Data used for parsing
+ * @param	minishell	Data for minishell
+ *
+ * @return	Boolean indicating success
  */
 t_bool	handle_env_variable(t_parse_data *data, t_minishell *minishell)
 {
-	if (append_content(data, minishell) == false)
+	if (append_content(data) == false)
 		return (false);
 	if (data->string == NULL)
-		return (set_exit_status(minishell, 1, "some shell: Out of memory."));
+		return (new_set_exit_status(1, "some shell: Out of memory."));
 	data->pos++;
 	data->start = data->pos;
 	if (parse_env_variable(data, minishell) == false)
@@ -35,15 +39,14 @@ t_bool	handle_env_variable(t_parse_data *data, t_minishell *minishell)
 	return (true);
 }
 
-/** todo update
+/**
  * Parse string between quotes
  *
- * @param	input	Input to append from
- * @param	start	Start pos in input
- * @param	quote	Quotation character that ends this quote
- * @param	arg		Current argument we're appending to
+ * @param	data		Data used for parsing
+ * @param	quote		Quotation character that ends this quote
+ * @param	minishell	Data for minishell
  *
- * @return	String we appended too (could have a different address now)
+ * @return	Boolean indicating success
  */
 t_bool	parse_quotation(t_parse_data *data, char quote, t_minishell *minishell)
 {
@@ -58,7 +61,7 @@ t_bool	parse_quotation(t_parse_data *data, char quote, t_minishell *minishell)
 		{
 			if (data->pos != data->start)
 			{
-				if (append_content(data, minishell) == false)
+				if (append_content(data) == false)
 					return (false);
 			}
 			data->start = ++data->pos;

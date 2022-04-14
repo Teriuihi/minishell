@@ -18,7 +18,7 @@
  * @return	true if if export or correct variable assignment is present,
  			false otherwise
 */
-static t_bool	is_input_correct(char *command, int *count)
+t_bool	is_input_correct(char *command, int *count)
 {
 	int	i;
 	int	equal_found;
@@ -33,12 +33,15 @@ static t_bool	is_input_correct(char *command, int *count)
 			equal_found++;
 			if (i == 0)
 				return (false);
-			if (command[i + 1] == '=' && equal_found == 1)
-				return (false);
+			//if (command[i + 1] == '=' && equal_found == 1)
+			//	return (false);
 		}
 		i++;
-	}	
-	return (true);
+	}
+	if (equal_found != 0)
+		return (true);
+	else
+		return (false);
 }
 
 /**
@@ -54,10 +57,11 @@ t_bool	env_variable_found(t_command *command_t)
 	command = command_t->command;
 	count = 0;
 	if (!command)
-		return (false);
-	if (ft_streq(command, "export"))
 	{
-		//one if this is the only argument
+		return (false);
+	}
+	if (ft_streq(command, "export") && command_t->args_len != 1)
+	{
 		command_t->export_found = true;
 		return (true);
 	}
@@ -82,9 +86,11 @@ t_bool	is_builtin(t_command *command)
 	int			i;
 	const char	*builtins[6] = {"echo", "cd", "pwd", "export", "unset", "env"};
 
-	if (!command)
-		return (false);
 	i = 0;
+	if (!command)
+	{
+		return (false);
+	}
 	if (env_variable_found(command) == true)
 	{
 		return (true);
@@ -92,7 +98,9 @@ t_bool	is_builtin(t_command *command)
 	while (i < 6)
 	{
 		if (ft_streq(command->command, builtins[i]))
+		{
 			return (true);
+		}
 		i++;
 	}
 	return (false);

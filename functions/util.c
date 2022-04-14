@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        ::::::::            */
-/*   string.c                                             :+:    :+:            */
+/*                                                       ::::::::             */
+/*   functions.c                                        :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
@@ -25,6 +25,7 @@
 #include "../headers/functions.h"
 #include <stdio.h>
 #include <errno.h>
+#include <stdarg.h>
 
 t_pipe_type	command_separator_type(char *str)
 {
@@ -93,7 +94,6 @@ size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 	return (dst_len + ft_strlen(src));
 }
 
-
 void	free_splitted(char **splitted)
 {
 	int	i;
@@ -111,26 +111,37 @@ void	free_splitted(char **splitted)
 	free(splitted);
 }
 
-
-void	free_command(void *content)
+/**
+ * Free's a command
+ *
+ * @param	cmd_data	The command to free
+ */
+void	free_cmd(t_cmd_data *cmd_data)
 {
-	t_cmd_data	*cmd_data;
-	t_command	*command;
-	int			i;
-
-	if (!content)
-		return ;
-	cmd_data = (t_cmd_data *)content;
-	command = cmd_data->command;
-	i = 0;
-	while (command->args[i])
+	if (cmd_data->command != NULL)
 	{
-		free(command->args[i]);
-		i++;
+		free(cmd_data->command->command);
+		while (cmd_data->command->args_len)
+		{
+			free(cmd_data->command->args[cmd_data->command->args_len - 1]);
+			cmd_data->command->args_len--;
+		}
+		free(cmd_data->command->args);
+		free(cmd_data->command);
 	}
 	free(cmd_data->input.file);
 	free(cmd_data->output.file);
 	free(cmd_data);
+}
+
+void	free_command(void *content)
+{
+	t_cmd_data	*cmd_data;
+
+	if (!content)
+		return ;
+	cmd_data = (t_cmd_data *)content;
+	free_cmd(cmd_data);
 }
 
 void	free_commands(t_list **head)
@@ -151,10 +162,30 @@ void	free_char_arr(char **args)
 	free(tmp);
 }
 
-t_bool	set_exit_status(t_minishell *minishell, int status, char *message)
+t_bool	new_set_exit_status(int status, const char *str, ...)
+{
+	va_list	ap;
+
+	g_signal.exit_status = status;
+	if (str != NULL)
+	{
+		g_signal.print_basic_error = false;
+		va_start(ap, str);
+		if (status != 0)
+			ft_printf_va(2, str, ap);
+		else
+			ft_printf_va(1, str, ap);
+	}
+	if (status == 0)
+		return (true);
+	else
+		return (false);
+}
+
+t_bool	set_exit_status(t_minishell *minishell, int status, char *message,
+			t_bool should_free)
 {
 	g_signal.exit_status = status;
-	//if there is a message, sthat means we just have to
 	if (message != NULL)
 	{
 		g_signal.print_basic_error = false;
@@ -163,7 +194,8 @@ t_bool	set_exit_status(t_minishell *minishell, int status, char *message)
 			ft_printf(2, "%s\n", message); //if error then to stderr
 		else
 			ft_printf(1, "%s\n", message);
-		free(message);
+		if (should_free == true)
+			free(message);
 	}
 	if (status == 0)
 	{
@@ -175,21 +207,38 @@ t_bool	set_exit_status(t_minishell *minishell, int status, char *message)
 	}
 }
 
-int interruptible_getc(void)
+int interruptible_getc(void) //crtl \ -> errno = 4, -1 r , //crtl D -> errno = 2, 1 r
 {	
 	int		r;
 	char	c;
 
-//	if (g_signal.interrupted == true)
-//	{
-//		return EOF;
-//	}
 	r = read(0, &c, 1);
-	//crtl \ -> errno = 4, -1 r
-	//crtl D -> errno = 2, 1 r
-	if (r == -1 && errno == EINTR && g_signal.sigint != 1) //then this is sigint (crtl c here)
+	if (r == -1 && errno == EINTR && g_signal.sigint != 1)
 	{
 		return (0);
 	}
-	return (r == 1 ? c : EOF); //if we use signals this we always return EOF
+	if (c == 4)
+	{
+		g_signal.veof = 1;
+	}
+	return (r == 1 ? c : EOF);
+}
+
+/**
+ * Safely get pipe type from argument
+ *
+ * @param	arg	arg to get pipe type from
+ *
+ * @return	pipe_type of arg or NONE if arg is literal
+ */
+t_pipe_type	pipe_type_from_arg(t_arg *arg)
+{
+	t_pipe_type	pipe_type;
+
+	if (arg->literal)
+		return (NONE);
+	pipe_type = command_separator_type(arg->arg->s);
+	if (pipe_type == NONE)
+		return (NONE);
+	return (pipe_type);
 }

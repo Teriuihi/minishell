@@ -48,7 +48,7 @@ void	tmp_print_command(t_cmd_data *cmd_data)
 	count++;
 }
 
-void	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2], t_minishell *minishell)
+t_bool	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2], t_minishell *minishell)
 {
 	char		*input;
 
@@ -56,19 +56,24 @@ void	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2], t_minishell *minish
 	(void)minishell;
 	if (old_pid[0] != -1)
 	{
-		close(old_pid[0]);
-		close(old_pid[1]);
+		if (close(old_pid[0]) == -1)
+			return (set_exit_status(minishell, 1, NULL, false));
+		if (close(old_pid[1]) == -1)
+			return (set_exit_status(minishell, 1, NULL, false));
 	}
 	input = readline("heredoc> ");
-	signal_check(input, minishell);
+	if (signal_check(input, minishell) == false)
+		return (set_exit_status(minishell, 1, NULL, false));
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
 		free(input);
 		input = readline("heredoc> ");
-		signal_check(input, minishell);
+		if (signal_check(input, minishell) == false)
+			return (set_exit_status(minishell, 1, NULL, false));
 	}
 	free(input);
 	g_signal.heredoc = false;
+	return (true);
 }
 
 /**
@@ -92,18 +97,24 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	while (entry)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
-		tmp_print_command(cmd_data);
-		if (cmd_data->command->command == NULL)
+		//tmp_print_command(cmd_data);
+		if (cmd_data->command->command == NULL) //maybe separate checking condition?
 		{
 			if (cmd_data->input.type == DELIMITER_INPUT)
-				heredoc_no_output(cmd_data, old_pid, minishell);
+			{
+				if (heredoc_no_output(cmd_data, old_pid, minishell) == false)
+					break ;
+			}
 			entry = entry->next;
 			continue ;
 		}
 		if (cur_pid[0] > -1)
 			copy_pid(cur_pid, old_pid);
 		if (cmd_data->output.type)
-			pipe(cur_pid);
+		{
+			if (pipe(cur_pid) == -1) //should
+				break ;
+		}
 		exec_command(cmd_data, old_pid, cur_pid,
 			is_builtin(cmd_data->command), minishell);
 		entry = entry->next;
@@ -157,23 +168,25 @@ void	start_program_loop(t_minishell *minishell)
 	{
 		g_signal.command = true;
 		input = prompt();
-		signal_check(input, minishell);
+		if (signal_check(input, minishell) == false)
+			break ; //reset stuff?
 		if (should_use(input) == true)
 		{
 			add_history(input);
 			parse_results = parse(input, minishell); //TODO free
 			if (parse_results == NULL)
 			{
-				ft_printf(2, "some shell: Out of memory.");
-				exit(1);
+				continue ;
 			}
 			chdir(minishell->cur_wd);
 			head = find_commands(parse_results, minishell); //TODO free
 			if (head == NULL)
 			{
-				signal_check(NULL, minishell);
 				g_signal.command = false;
-				return ;
+				if (signal_check(NULL, minishell) == false)
+					break ;
+				else
+					return ; //y tho
 			}
 			g_signal.command = false;
 			run_commands(head, minishell);

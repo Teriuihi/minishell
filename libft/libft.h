@@ -13,6 +13,7 @@
 #ifndef LIBFT_H
 # define LIBFT_H
 # include <stdlib.h>
+# include <zconf.h>
 # include "../headers/bool.h"
 
 char	*ft_memset(void *b, int c, size_t len);
@@ -27,6 +28,7 @@ int		ft_putnbr_fd(long n, int fd);
 size_t	ft_strlen(const char *c);
 char	*ft_itoa(long n);
 int		ft_atoi(const char *str, t_bool *success);
+int		ft_printf_va(int fd, const char *str, va_list ap);
 int		ft_printf(int fd, const char *str, ...);
 char	*ft_strtrim(char const *s1, char const *set);
 char	*ft_strrchr(const char *s, int c);

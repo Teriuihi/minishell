@@ -24,9 +24,14 @@ typedef struct s_parse_data {
 	t_string	*string;
 }	t_parse_data;
 
-t_bool		append_content(t_parse_data *data, t_minishell *minishell);
+t_bool		append_content(t_parse_data *data);
 t_bool		parse_env_variable(t_parse_data *data, t_minishell *minishell);
 t_bool		parse_quotation(t_parse_data *data, char quote,
 				t_minishell *minishell);
 t_string	*safe_add_to_list(t_list **head, t_string *string, t_bool literal);
+t_bool		is_pipe(char c);
+t_bool		store_normal_arg(t_parse_data *data, t_list **head);
+t_bool		parse_into_data(t_parse_data *data, t_list **head,
+				t_minishell *minishell);
+t_bool		parse_error(char near);
 #endif

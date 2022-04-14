@@ -43,6 +43,27 @@ char	*get_path_from_arg(char	*dir_arg, t_minishell *minishell)
 	}
 }
 
+t_bool	set_single_cd_command(t_command *command, t_minishell *minishell)
+{
+	char	**args;
+
+	args = ft_calloc(3, sizeof(char *));
+	if (!args)
+		return (false);
+	if (ft_get_env_val("HOME", minishell->env) == NULL) //this doesnt work yet perfectly
+	{
+		ft_printf(2, "%s", "some shell: cd: HOME not set\n");
+		g_signal.print_basic_error = false; //maybe?
+		return (false);
+	}
+	args[0] = command->args[0];
+	args[1] = ft_strdup(minishell->home); //TODO error checking
+	free(command->args);
+	command->args = args;
+	command->args_len = 2;
+	return (true);
+}
+
 /**
  * Changes directory and updates pwd on success
  *
@@ -54,65 +75,42 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 {
 	void	*tmp;
 	char	*dir;
-	t_bool	result;
 	char	**args;
+	t_bool	result;
 
 	if (command->args_len == 1)
 	{
-		args = ft_calloc(3, sizeof(char *));
-		if (!args)
-			return (set_exit_status(minishell, 1, NULL));
-		//check if HOME is not unset
-		if (ft_get_env_val("HOME", minishell->env) == NULL)
-		{
-			char *message = ft_strjoin("some shell: cd: ", "HOME not set\n");
-			if (!message)
-				return (set_exit_status(minishell, 1, NULL));
-			return (set_exit_status(minishell, 1, message));
-		}
-		args[0] = command->args[0];
-		args[1] = ft_strdup(minishell->home); //TODO error checking
-		free(command->args);
-		command->args = args;
-		command->args_len = 2;
+		if (set_single_cd_command(command, minishell) == false)
+			return (set_exit_status(minishell, 1, NULL, false));
 	}
 	if (command->args_len != 2)
 	{
-		char *message = ft_strjoin("some shell: cd: ", ft_strjoin(command->args[1], ": No such file or directory\n"));
-		if (!message)
-			return (set_exit_status(minishell, 1, NULL));
-		return (set_exit_status(minishell, 1, message));
+		g_signal.print_basic_error = false;
+		ft_printf(2, "%s%s%s\n", "some shell: cd: ", command->args[1], ": No such file or directory");
+		return (set_exit_status(minishell, 1, NULL, false));
 	}
-	if (command->args[1] == NULL)
-	{
-		char *message = ft_strjoin("some shell: cd: ", "HOME not set\n");
-		if (!message)
-			return (set_exit_status(minishell, 1, NULL));
-		return (set_exit_status(minishell, 1, message));
-	}
-	dir = get_path_from_arg(command->args[1], minishell);
-	if (dir == NULL)
-		return (set_exit_status(minishell, 1, NULL));
+	dir = get_path_from_arg(command->args[1], minishell); //dont even have to check for this one, tmp does it
 	tmp = opendir(dir);
 	if (!tmp)
 	{
-		char *message = ft_strjoin("some shell: cd: ", ft_strjoin(command->args[1], ": No such file or directory\n"));
-		if (!message)
-			return (set_exit_status(minishell, 1, NULL));
-		return (set_exit_status(minishell, 1, message));
+		g_signal.print_basic_error = false;
+		ft_printf(2, "%s%s%s\n", "some shell: cd: ", command->args[1], ": No such file or directory");
+		return (set_exit_status(minishell, 1, NULL, false));
 	}
 	result = tmp != NULL;
 	free(tmp);
-	ft_set_env("OLDPWD", get_pwd(minishell), get_hash_table(), true); //TODO error checking
+	//enter to the directory function from here
+	if (ft_set_env("OLDPWD", get_pwd(minishell), get_hash_table(), true) == false)
+		return (set_exit_status(minishell, 1, NULL, false));
 	if (result == false)
-		return (set_exit_status(minishell, 1, NULL));
-	if (chdir(dir) == -1) //what if chdir fails? this is technically a sys call
-		return (set_exit_status(minishell, 1, NULL));
+		return (set_exit_status(minishell, 1, NULL, false));
+	if (chdir(dir) == -1)
+		return (set_exit_status(minishell, 1, NULL, false));
 	if (dir != command->args[1])
 		free(dir);
 	result = set_pwd(getcwd(NULL, 0), minishell);
 	if (result == true)
-		return (set_exit_status(minishell, 0, NULL));
+		return (set_exit_status(minishell, 0, NULL, false));
 	else
-		return (set_exit_status(minishell, 1, NULL));
+		return (set_exit_status(minishell, 1, NULL, false));
 }
