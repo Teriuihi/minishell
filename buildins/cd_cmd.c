@@ -46,11 +46,12 @@ char	*get_path_from_arg(char	*dir_arg, t_minishell *minishell)
 t_bool	set_single_cd_command(t_command *command, t_minishell *minishell)
 {
 	char	**args;
+	t_bool	success;
 
 	args = ft_calloc(3, sizeof(char *));
 	if (!args)
 		return (false);
-	if (ft_get_env_val("HOME", minishell->env) == NULL) //this doesnt work yet perfectly
+	if (ft_get_env_val("HOME", minishell->env, &success) == NULL) //this doesnt work yet perfectly
 	{
 		ft_printf(2, "%s", "some shell: cd: HOME not set\n");
 		g_signal.print_basic_error = false; //maybe?
