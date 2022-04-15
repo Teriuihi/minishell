@@ -52,12 +52,22 @@ t_entry	*create_hash_table_pair(char *key, char *val, t_bool is_exported)
 	entry = (t_entry *)ft_calloc(1, sizeof(t_entry));
 	if (!entry)
 		exit(1);
-	entry->key = (char *)ft_calloc((ft_strlen(key) + 1), 1);
-	entry->val = (char *)ft_calloc((ft_strlen(val) + 1), 1);
-	if (entry->val == NULL || entry->key == NULL)
-		exit(1);
-	entry->key = ft_strncpy(entry->key, (char *)key, ft_strlen((char *)key));
-	entry->val = ft_strncpy(entry->val, (char *)val, ft_strlen((char *)val));
+	if (key != NULL)
+	{
+		entry->key = ft_strdup(key);
+		if (entry->key == NULL)
+			exit(1);
+	}
+	else
+		entry->key = NULL;
+	if (val != NULL)
+	{
+		entry->val = ft_strdup(val);
+		if (entry->val == NULL)
+			exit(1);
+	}
+	else
+		entry->val = NULL;
 	entry->is_exported = is_exported;
 	entry->next = NULL;
 	return (entry);

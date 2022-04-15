@@ -11,8 +11,6 @@
 /* ************************************************************************** */
 
 #include "../headers/functions.h"
-#include "../headers/structs.h"
-#include "../libft/libft.h"
 
 extern char	**environ;
 
@@ -22,53 +20,31 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 	unsigned int	hashkey;
 	t_entry			*current;
 	t_entry			*prev;
-	t_entry			*head;
 
 	if (!key || !h_table || !minishell)
-	{
 		return (set_exit_status(minishell, 1, NULL, false));
-	}
 	hashkey = hash(key, "", h_table->size);
 	current = h_table->entries[hashkey];
-	if (current != NULL)
-	{
-		prev = (t_entry *)malloc(sizeof(t_entry));
-		if (!prev)
-		{
-			//exit(1);
-		}
-		prev = NULL;
-	}
+	prev = NULL;
 	while (current != NULL)
 	{
-		if (ft_strncmp(key, current->key,
-				ft_strlen(key)) == 0)
+		if (ft_strlen(key) == ft_strlen(current->key)
+			&& ft_strncmp(key, current->key, ft_strlen(key)) == 0)
 		{
 			if (prev == NULL)
-			{
-				prev = current->next;
-				if (current->next)
-				{
-					prev->next = current->next->next;
-				}
-				head = prev;
-			}
+				h_table->entries[hashkey] = current->next;
 			else
-			{
-				head = prev;
 				prev->next = current->next;
-			}
 			free(current->val);
 			current->val = NULL;
 			free(current->key);
 			current->key = NULL;
+			free(current);
 			return (set_exit_status(minishell, 0, NULL, false));
 		}
 		prev = current;
 		current = current->next;
 	}
-	prev = NULL;
-	free(prev);
 	return (set_exit_status(minishell, 0, NULL, false));
 }
 
@@ -136,8 +112,8 @@ char	**get_envp(t_hash_table *h_table)
 		{
 			while (curr != NULL)
 			{
-				current_env = (char *)malloc((ft_strlen(curr->key)
-							+ ft_strlen(curr->val) + 2) * sizeof(char)); //why + 2?
+				current_env = (char *)ft_calloc((ft_strlen(curr->key)
+							+ ft_strlen(curr->val) + 2), sizeof(char)); //why + 2?
 				if (!current_env)
 					exit(1);
 				if (curr->key)
