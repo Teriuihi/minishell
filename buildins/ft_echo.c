@@ -16,8 +16,10 @@
 static t_bool	is_it_an_edge_case(t_command *command, int fd,
 				t_minishell *minishell)
 {
+	int		i;
 	char	**args;
 
+	i = 1;
 	args = command->args;
 	if (command->args_len == 1 && ft_streq(args[0], "echo"))
 	{
@@ -31,20 +33,46 @@ static t_bool	is_it_an_edge_case(t_command *command, int fd,
 	return (false);
 }
 
-void	print_leftover(int i, char **args, t_bool get_rid_of_space,
-						t_command *command)
+static void	print_leftover(t_command *command, int i, t_bool get_rid_of_space)
 {
-	while (i != command->args_len) //why argslen + 1?
+	char	**args;
+
+	args = command->args;
+	while (i != command->args_len)
 	{
 		if (i != 1)
 		{
 			if (get_rid_of_space == true)
 				get_rid_of_space = false;
-			else if (i != command->args_len - 1)
+			else if (i != command->args_len)
 				write(1, " ", 1);
 		}
 		write(1, args[i], ft_strlen(args[i]));
 		i++;
+	}
+}
+
+static void	skip_n_flags(t_command *command, int *i, t_bool *get_rid_of_space)
+{
+	int		j;
+	int		args_len;
+	char	**args;
+
+	args = command->args;
+	args_len = command->args_len;
+	if (ft_streq(args[*i], "-n") == 1)
+	{
+		while (*i < args_len - 1 && (ft_strncmp(args[*i], "-n", 2) == 0))
+		{
+			j = 1;
+			while (args[*i][j] == 'n')
+				j++;
+			if (args[*i][j] == 0)
+				(*i)++;
+			else
+				break ;
+		}
+		*get_rid_of_space = true;
 	}
 }
 
@@ -61,39 +89,23 @@ void	print_leftover(int i, char **args, t_bool get_rid_of_space,
 */
 t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 {
-	t_bool	get_rid_of_space;
 	int		i;
-	int		j;
 	char	c;
-	char	**args;
+	t_bool	get_rid_of_space;
 
-	//echo can have multiple inputs with -n. eg :-n -n -nnnn
-	args = command->args;
 	i = 1;
-	get_rid_of_space = false;
 	c = '\0';
+	get_rid_of_space = false;
 	if (is_it_an_edge_case(command, fd, minishell) == true)
 	{
 		return (true);
 	}
-	//set initial contidions, TODO FUNCTION, //why is the second condition there in the while loop
-	if (ft_streq(args[i], "-n") == 1)
+	skip_n_flags(command, &i, &get_rid_of_space);
+	if (i == 1)
 	{
-		while (i < command->args_len - 1 && (ft_streq(args[i], "-n") == 1) == 1)
-		{
-			j = 1;
-			while (args[i][j] == 'n')
-				j++;
-			if (args[i][j] == 0)
-				i++;
-			else
-				break ;
-		}
-		get_rid_of_space = true;
-	}
-	else
 		c = '\n';
-	print_leftover(i, args, get_rid_of_space, command);
+	}
+	print_leftover(command, i, get_rid_of_space);
 	write(1, &c, 1);
 	return (set_exit_status(minishell, 0, NULL, false));
 }
