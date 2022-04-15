@@ -92,6 +92,7 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 {
 	char	**splitted;
+	t_bool	success;
 
 	if (!command || !minishell)
 		return (set_exit_status(minishell, 2, NULL, false));
@@ -100,7 +101,7 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 	splitted = ft_split(command->command, '=');
 	if (!splitted)
 		return (set_exit_status(minishell, 1, NULL, false));
-	if (ft_get_env_val(splitted[0], minishell->env) != NULL)
+	if (ft_get_env_val(splitted[0], minishell->env, &success) != NULL)
 	{
 		if (succesful_insert(minishell->env, splitted[0], splitted[1], true) == true)
 			return (set_exit_status(minishell, 0, NULL, false));

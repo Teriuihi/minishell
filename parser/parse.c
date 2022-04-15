@@ -108,7 +108,7 @@ t_list	**parse(char *input, t_minishell *minishell)
 
 	if (init_parse(&data, input, &head, minishell) == false)
 		return (NULL);
-	if (parse_into_data(&data, head, minishell) == true)
+	if (parse_into_data(&data, head) == true)
 	{
 		if (validate_parse(*head) == true)
 			return (head);
