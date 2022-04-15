@@ -101,10 +101,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, int *old_pid,
 	t_command	*command;
 
 	command = cmd_data->command;
-	control_pipes(cmd_data, (int *)old_pid, (int *)cur_pid, minishell);
-	
-	//if no slash before then 127
-	if (cmd_data->executable_found == false)
+	if (init_child(old_pid, cur_pid, cmd_data->output.type, minishell) == false)
 	{
 		ft_printf(1, "it was false cuz init child in child execute non builtin\n");
 		exit(1);
@@ -121,14 +118,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, int *old_pid,
 	}
 	else
 	{
-		if (WIFSIGNALED(status)) 
-		{
-			g_signal.exit_status = WTERMSIG(status) + 128;
-		}
-		else
-		{
-			g_signal.exit_status = WEXITSTATUS(status);
-		}
+		execute_with_access_check(command, minishell, (char *)old_pid);
 	}
 }
 
@@ -141,41 +131,8 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, int *old_pid,
  * @param	cur_pid		PIDs used by the current process
  * @param	minishell	Data for minishell
  */
-t_bool	should_be_child(t_command *command)
-{
-	if (ft_streq(command->command, "export") == 1 && command->args_len == 1)
-		return (true);
-	if (env_variable_found(command) == true)
-		return (false);
-	if (ft_streq(command->command, "cd"))
-		return (false);
-	if (ft_streq(command->command, "unset"))
-		return (false);
-	if (ft_streq(command->command, "env"))
-		return (false);
-	return (true);
-}
-
-static t_bool	assign_path_to_command(char *executable, t_bool should_path_extend, t_command *command)
-{
-	if (should_path_extend == true)
-	{
-		free(*command->args);
-		*command->args = ft_strdup(command->command);
-		command->command = ft_strdup(executable);
-		free(executable);
-		return (true);
-	}
-	else
-	{
-		free(*command->args);
-		*command->args = ft_strdup(command->command);
-		return (true);
-	}
-}
-
-static t_bool	search_executable(t_cmd_data *cmd_data,
-				t_minishell *minishell)
+void	child_execute_built_in(t_cmd_data *cmd_data, int *old_pid,
+			int *cur_pid, t_minishell *minishell)
 {
 	t_command	*command;
 
@@ -211,27 +168,8 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	t_command	*command;
 
 	command = cmd_data->command;
-	if (ft_streq(command->command, "exit"))
+	if (pre_fork_check(cmd_data, old_pid, cur_pid, is_built_in, minishell) == false)
 	{
-		if (cmd_data->input.type == NONE) // && cmd_data->output.type == NONE)
-			exit(0);
-		else
-			return ;
-	}
-	if (check_input_pipes(cmd_data, old_pid, cur_pid, minishell) == false)
-	{
-		return ;
-	}
-	if (is_built_in == false)
-	{
-		cmd_data->executable_found = search_executable(cmd_data, minishell);
-	}
-	if (should_be_child(command) == false)
-	{
-		if (execute_non_forked_builtin(command, minishell) == false && g_signal.print_basic_error == true)
-			ft_printf(2, "command not found: %s\n", command->command);
-		if (g_signal.print_basic_error == true)
-			g_signal.print_basic_error = false;
 		return ;
 	}
 	g_signal.pid = fork();

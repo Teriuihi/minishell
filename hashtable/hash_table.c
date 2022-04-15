@@ -25,10 +25,10 @@ t_hash_table	*init_hash_table(int size)
 	t_hash_table	*hash_table;
 	int				i;
 
-	hash_table = (t_hash_table *)malloc(sizeof(t_hash_table));
+	hash_table = (t_hash_table *)ft_calloc(1, sizeof(t_hash_table));
 	if (!hash_table)
 		exit(1);
-	hash_table->entries = (t_entry **)malloc(size * sizeof(t_entry *));
+	hash_table->entries = (t_entry **)ft_calloc(size, sizeof(t_entry *));
 	if (!hash_table->entries)
 	{
 		free(hash_table);
@@ -49,7 +49,7 @@ t_entry	*create_hash_table_pair(char *key, char *val, t_bool is_exported)
 {
 	t_entry	*entry;
 
-	entry = (t_entry *)malloc(sizeof(t_entry));
+	entry = (t_entry *)ft_calloc(1, sizeof(t_entry));
 	if (!entry)
 		exit(1);
 	entry->key = (char *)ft_calloc((ft_strlen(key) + 1), 1);
@@ -60,7 +60,6 @@ t_entry	*create_hash_table_pair(char *key, char *val, t_bool is_exported)
 	entry->val = ft_strncpy(entry->val, (char *)val, ft_strlen((char *)val));
 	entry->is_exported = is_exported;
 	entry->next = NULL;
-
 	return (entry);
 }
 
@@ -84,21 +83,14 @@ t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val,
 	}
 	while (entry != NULL)
 	{
-		if (ft_strncmp(entry->key, key, ft_strlen(entry->key)) == 0)
+		if (ft_strlen(entry->key) == ft_strlen(key)
+			&& ft_strncmp(entry->key, key, ft_strlen(entry->key)) == 0)
 		{
-			if (entry->val == NULL)
-			{
-				entry->val = (char *)ft_calloc((ft_strlen(val) + 1), 1);
-				if (!entry->val) //ft_strncpy doesnt malloc, can happen that one of them doesnt exist
-				{
-					//SHOULD NOT EXIT, SOMETIMES THERE IS NO KEY? OR ENTRY VAL?
-					//exit(1);
-				}
-				entry->val = ft_strncpy(entry->val, (char *)val, ft_strlen((char *)val));
-				return (true);
-			}
-			free(entry->val);
+			if (entry->val != NULL)
+				free(entry->val);
 			entry->val = ft_strdup(val);
+			if (!entry->is_exported)
+				entry->is_exported = is_exported;
 			return (true);
 		}
 		prev = entry;

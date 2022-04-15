@@ -158,7 +158,7 @@ t_bool	export(void *minishell)
 	t_list			*names;
 	t_list			*curr;
 	char			*val;
-	t_bool			success;
+	t_bool			status;
 
 	if (!minishell)
 		return (set_exit_status((t_minishell *)minishell, 1, NULL, false));
@@ -169,16 +169,12 @@ t_bool	export(void *minishell)
 	sort_by_name(names);
 	curr = names;
 	if (!curr)
-	{
-		return ;
-	}
-	curr = names;
-	val = NULL;
+		return (set_exit_status(minishell, 1, NULL, false));
 	while (curr != NULL)
 	{
 		if (curr->content != NULL) //this can be uninitialized soms
 		{
-			val = ft_get_env_val((char *)curr->content, h_table, &success);
+			val = ft_get_env_val((char *)curr->content, h_table, &status);
 			if (val != NULL)
 			{
 				ft_printf(1, "declare -x %s=\"%s\"\n",(char *)curr->content, val);
@@ -186,8 +182,5 @@ t_bool	export(void *minishell)
 		}
 		curr = curr->next;
 	}
-<<<<<<< HEAD
-=======
 	return (set_exit_status(minishell, 0, NULL, false));
->>>>>>> adc0d5f49eef0832a4b3ca4ad30265e559cd60f6
 }

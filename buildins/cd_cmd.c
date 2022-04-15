@@ -47,8 +47,9 @@ static t_bool	set_single_cd_command(t_command *command,
 										t_minishell *minishell)
 {
 	char	**args;
+	t_bool	success;
 
-	if (ft_get_env_val("HOME", minishell->env) == NULL)
+	if (ft_get_env_val("HOME", minishell->env, &success) == NULL)
 	{
 		ft_printf(2, "%s", "some shell: cd: HOME not set\n");
 		g_signal.print_basic_error = false;

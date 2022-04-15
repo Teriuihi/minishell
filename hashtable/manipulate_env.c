@@ -75,15 +75,9 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,
 								t_bool is_exported)
 {
-	t_bool			insert_succeeded;
-
-	insert_succeeded = false;
 	if (!key || !h_table)
-	{
 		return (false);
-	}
-	insert_succeeded = succesful_insert(h_table, key, val, is_exported);
-	return (insert_succeeded);
+	return (succesful_insert(h_table, key, val, is_exported));
 }
 
 //CHECK THIS BECAUSE IT RETURNS INCORRECTLY
