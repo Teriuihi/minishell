@@ -23,7 +23,8 @@
  *
  * @return	A boolean indicating success
  */
-static t_bool	parse_quotes(t_parse_data *data, t_list **head)
+static t_bool	parse_quotes(t_parse_data *data, t_list **head,
+					t_minishell *minishell)
 {
 	if (data->pos != 0 && data->pos != data->start)
 	{
@@ -32,7 +33,7 @@ static t_bool	parse_quotes(t_parse_data *data, t_list **head)
 	}
 	data->pos++;
 	data->start = data->pos;
-	if (parse_quotation(data, data->input[data->pos - 1], head) == false)
+	if (parse_quotation(data, data->input[data->pos - 1], head, minishell) == false)
 		return (false);
 	data->has_data = true;
 	data->start = data->pos;
@@ -48,7 +49,8 @@ static t_bool	parse_quotes(t_parse_data *data, t_list **head)
  *
  * @return	A boolean indicating success
  */
-static t_bool	parse_variable(t_parse_data *data, t_list **head)
+static t_bool	parse_variable(t_parse_data *data, t_list **head,
+					t_minishell *minishell)
 {
 	if (data->pos != 0 && data->pos != data->start)
 	{
@@ -57,7 +59,7 @@ static t_bool	parse_variable(t_parse_data *data, t_list **head)
 	}
 	data->pos++;
 	data->start = data->pos;
-	if (parse_env_variable(data, head) == false)
+	if (parse_env_variable(data, head, minishell) == false)
 		return (false);
 	data->start = data->pos;
 	data->has_data = true;
@@ -92,13 +94,13 @@ static t_bool	finalize(t_parse_data *data, t_list **head)
  *
  * @return	A boolean indicating success
  */
-t_bool	parse_into_data(t_parse_data *data, t_list **head)
+t_bool	parse_into_data(t_parse_data *data, t_list **head, t_minishell *minishell)
 {
 	while (data->input[data->pos])
 	{
 		if (data->input[data->pos] == '"' || data->input[data->pos] == '\'')
 		{
-			if (parse_quotes(data, head) == false)
+			if (parse_quotes(data, head, minishell) == false)
 				return (false);
 		}
 		else if (ft_iswhite_space(data->input[data->pos])
@@ -109,7 +111,7 @@ t_bool	parse_into_data(t_parse_data *data, t_list **head)
 		}
 		else if (data->input[data->pos] == '$')
 		{
-			if (parse_variable(data, head) == false)
+			if (parse_variable(data, head, minishell) == false)
 				return (false);
 		}
 		else

@@ -25,7 +25,8 @@
  *
  * @return	Boolean indicating success
  */
-t_bool	handle_env_variable(t_parse_data *data, t_list **head)
+t_bool	handle_env_variable(t_parse_data *data, t_list **head,
+			t_minishell *minishell)
 {
 	if (append_content(data) == false)
 		return (false);
@@ -33,7 +34,7 @@ t_bool	handle_env_variable(t_parse_data *data, t_list **head)
 		return (new_set_exit_status(1, "some shell: Out of memory."));
 	data->pos++;
 	data->start = data->pos;
-	if (parse_env_variable(data, head) == false)
+	if (parse_env_variable(data, head, minishell) == false)
 		return (false);
 	data->start = data->pos;
 	return (true);
@@ -48,13 +49,14 @@ t_bool	handle_env_variable(t_parse_data *data, t_list **head)
  *
  * @return	Boolean indicating success
  */
-t_bool	parse_quotation(t_parse_data *data, char quote, t_list **head)
+t_bool	parse_quotation(t_parse_data *data, char quote, t_list **head,
+			t_minishell *minishell)
 {
 	while (data->input[data->pos])
 	{
 		if (quote == '"' && data->input[data->pos] == '$')
 		{
-			if (handle_env_variable(data, head) == false)
+			if (handle_env_variable(data, head, minishell) == false)
 				return (false);
 		}
 		else if (data->input[data->pos] == quote)
