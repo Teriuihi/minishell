@@ -87,16 +87,16 @@ t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,
 }
 
 //CHECK THIS BECAUSE IT RETURNS INCORRECTLY
-char	*ft_get_env_val(char *key, t_hash_table *h_table)
+char	*ft_get_env_val(char *key, t_hash_table *h_table, t_bool *success)
 {
 	unsigned int	slot;
 	char			*env_val;
 	t_entry			*current;
 
+	*success = false;
 	if (!key || !h_table)
-	{
 		return (NULL);
-	}
+	*success = true;
 	slot = hash(key, "", h_table->size);
 	current = h_table->entries[slot];
 	while (current != NULL)
