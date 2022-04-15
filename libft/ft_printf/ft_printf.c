@@ -12,7 +12,6 @@
 
 #include "../libft.h"
 #include "internal.h"
-#include <stdarg.h>
 
 /**
  * Prints the argument as a string (part 2)
@@ -75,24 +74,13 @@ void	handle_else(const char **str, int *total_len)
 	(*total_len)++;
 }
 
-/**
- * Print a string to the standard output along with any specified arguments
- * 	at specified locations
- *
- * @param	str	The string to print
- * @param	...	Any arguments that are requested to be printed
- *
- * @return	amount of characters printed or negative numbers on failure
- */
-int	ft_printf(int fd, const char *str, ...)
+int	ft_printf_va(int fd, const char *str, va_list ap)
 {
-	va_list	ap;
 	int		len;
 	int		total_len;
 
 	len = 0;
 	total_len = len;
-	va_start(ap, str);
 	while (*str && len != -1)
 	{
 		if (*str == '%')
@@ -110,4 +98,21 @@ int	ft_printf(int fd, const char *str, ...)
 			handle_else(&str, &total_len);
 	}
 	return (total_len);
+}
+
+/**
+ * Print a string to the standard output along with any specified arguments
+ * 	at specified locations
+ *
+ * @param	str	The string to print
+ * @param	...	Any arguments that are requested to be printed
+ *
+ * @return	amount of characters printed or negative numbers on failure
+ */
+int	ft_printf(int fd, const char *str, ...)
+{
+	va_list	ap;
+
+	va_start(ap, str);
+	return (ft_printf_va(fd, str, ap));
 }

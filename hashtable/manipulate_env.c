@@ -26,7 +26,7 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 
 	if (!key || !h_table || !minishell)
 	{
-		return (set_exit_status(minishell, 1, NULL));
+		return (set_exit_status(minishell, 1, NULL, false));
 	}
 	hashkey = hash(key, "", h_table->size);
 	current = h_table->entries[hashkey];
@@ -44,7 +44,7 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 		if (ft_strncmp(key, current->key,
 				ft_strlen(key)) == 0)
 		{
-			if (prev == NULL) //if the current is the first node in chain
+			if (prev == NULL)
 			{
 				prev = current->next;
 				if (current->next)
@@ -53,21 +53,23 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 				}
 				head = prev;
 			}
-			else //otherwise
+			else
 			{
 				head = prev;
 				prev->next = current->next;
 			}
 			free(current->val);
+			current->val = NULL;
 			free(current->key);
-			return (set_exit_status(minishell, 0, NULL));
+			current->key = NULL;
+			return (set_exit_status(minishell, 0, NULL, false));
 		}
 		prev = current;
 		current = current->next;
 	}
 	prev = NULL;
 	free(prev);
-	return (set_exit_status(minishell, 0, NULL));
+	return (set_exit_status(minishell, 0, NULL, false));
 }
 
 t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,
@@ -85,25 +87,28 @@ t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,
 }
 
 //CHECK THIS BECAUSE IT RETURNS INCORRECTLY
-char	*ft_get_env_val(char *key, t_hash_table *h_table)
+char	*ft_get_env_val(char *key, t_hash_table *h_table, t_bool *success)
 {
 	unsigned int	slot;
 	char			*env_val;
 	t_entry			*current;
 
+	*success = false;
 	if (!key || !h_table)
-	{
 		return (NULL);
-	}
+	*success = true;
 	slot = hash(key, "", h_table->size);
 	current = h_table->entries[slot];
 	while (current != NULL)
 	{
-		if (ft_strncmp(key, current->key,
-				ft_strlen(key)) == 0)
+		if (current->key != NULL)
 		{
-			env_val = ft_strdup(current->val);
-			return (env_val);
+			if (ft_strncmp(key, current->key,
+					ft_strlen(key)) == 0)
+			{
+				env_val = ft_strdup(current->val);
+				return (env_val);
+			}
 		}
 		current = current->next;
 	}
@@ -138,7 +143,7 @@ char	**get_envp(t_hash_table *h_table)
 			while (curr != NULL)
 			{
 				current_env = (char *)malloc((ft_strlen(curr->key)
-							+ ft_strlen(curr->val) + 2) * sizeof(char));
+							+ ft_strlen(curr->val) + 2) * sizeof(char)); //why + 2?
 				if (!current_env)
 					exit(1);
 				if (curr->key)

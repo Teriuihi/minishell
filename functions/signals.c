@@ -71,7 +71,8 @@ void	sigquit_handler(int this_signal)
 
 void	init_signal(void)
 {
-	g_signal.shell_level = 2;
+	//g_signal.shell_level = 2;
+	//get shlvl val, add 1
 	g_signal.exit_status = 0;
 	g_signal.minishell_exec_found = 0;
 	g_signal.sigint = 0;
