@@ -31,7 +31,7 @@ static t_cmd_data	*store_command(t_cmd_data *cmd_data, t_list **head)
 	if (new == NULL)
 	{
 		free_cmd(cmd_data);
-		return (err_ptr_return("Not enough memory.", NULL));
+		return (NULL);
 	}
 	ft_lstadd_back(head, new);
 	return (cmd_data);
@@ -50,10 +50,10 @@ t_cmd_data	*create_new_cmd(t_list **head)
 
 	cmd_data = ft_calloc(1, sizeof(t_cmd_data));
 	if (!cmd_data)
-		return (err_ptr_return("Not enough memory.", NULL));
+		return (NULL);
 	cmd_data->command = ft_calloc(1, sizeof(t_command));
 	if (!cmd_data->command)
-		return (err_ptr_return("Not enough memory.", NULL));
+		return (NULL);
 	cmd_data->command->command = NULL;
 	return (store_command(cmd_data, head));
 }
