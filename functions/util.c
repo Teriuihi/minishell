@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdarg.h>
+#include "free_functions.h"
 
 t_pipe_type	command_separator_type(char *str)
 {
@@ -44,33 +45,15 @@ t_pipe_type	command_separator_type(char *str)
 	return (NONE);
 }
 
-void	err_exit(char *err, int status)
-{
-	ft_putstr_fd(err, STDERR_FILENO);
-	ft_putstr_fd("\n", STDERR_FILENO);
-	exit(status);
-}
-
-int	err_int_return(char *err, int status)
-{
-	ft_putstr_fd(err, STDERR_FILENO);
-	ft_putstr_fd("\n", STDERR_FILENO);
-	return (status);
-}
-
-void	*err_ptr_return(char *err, void *ptr)
-{
-	ft_putstr_fd(err, STDERR_FILENO);
-	ft_putstr_fd("\n", STDERR_FILENO);
-	return (ptr);
-}
-
 size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 {
 	size_t	dst_len;
 	size_t	i;
 
-	dst_len = ft_strlen(dst) >= dstsize ? dstsize : ft_strlen(dst);
+	if (ft_strlen(dst) >= dstsize)
+		dst_len = dstsize;
+	else
+		dst_len = ft_strlen(dst);
 	i = 0;
 	if (dstsize == dst_len || dstsize == 0)
 		return (dstsize + ft_strlen(src));
@@ -92,74 +75,6 @@ size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
 	}
 	dst[dst_len + i] = '\0';
 	return (dst_len + ft_strlen(src));
-}
-
-void	free_splitted(char **splitted)
-{
-	int	i;
-
-	i = 0;
-	if (!splitted)
-	{
-		return ;
-	}
-	while (splitted[i])
-	{
-		free(splitted[i]);
-		i++;
-	}
-	free(splitted);
-}
-
-/**
- * Free's a command
- *
- * @param	cmd_data	The command to free
- */
-void	free_cmd(t_cmd_data *cmd_data)
-{
-	if (cmd_data->command != NULL)
-	{
-		free(cmd_data->command->command);
-		while (cmd_data->command->args_len)
-		{
-			free(cmd_data->command->args[cmd_data->command->args_len - 1]);
-			cmd_data->command->args_len--;
-		}
-		free(cmd_data->command->args);
-		free(cmd_data->command);
-	}
-	free(cmd_data->input.file);
-	free(cmd_data->output.file);
-	free(cmd_data);
-}
-
-void	free_command(void *content)
-{
-	t_cmd_data	*cmd_data;
-
-	if (!content)
-		return ;
-	cmd_data = (t_cmd_data *)content;
-	free_cmd(cmd_data);
-}
-
-void	free_commands(t_list **head)
-{
-	ft_lstclear(head, free_command);
-}
-
-void	free_char_arr(char **args)
-{
-	char	**tmp;
-
-	tmp = args;
-	while (args && *args)
-	{
-		free(*args);
-		args++;
-	}
-	free(tmp);
 }
 
 t_bool	new_set_exit_status(int status, const char *str, ...)
@@ -189,9 +104,8 @@ t_bool	set_exit_status(t_minishell *minishell, int status, char *message,
 	if (message != NULL)
 	{
 		g_signal.print_basic_error = false;
-		//if status != 0 then send it to err
 		if (status != 0)
-			ft_printf(2, "%s\n", message); //if error then to stderr
+			ft_printf(2, "%s\n", message);
 		else
 			ft_printf(1, "%s\n", message);
 		if (should_free == true)
@@ -207,7 +121,7 @@ t_bool	set_exit_status(t_minishell *minishell, int status, char *message,
 	}
 }
 
-int interruptible_getc(void) //crtl \ -> errno = 4, -1 r , //crtl D -> errno = 2, 1 r
+int	interruptible_getc(void)
 {	
 	int		r;
 	char	c;
@@ -221,24 +135,12 @@ int interruptible_getc(void) //crtl \ -> errno = 4, -1 r , //crtl D -> errno = 2
 	{
 		g_signal.veof = 1;
 	}
-	return (r == 1 ? c : EOF);
-}
-
-/**
- * Safely get pipe type from argument
- *
- * @param	arg	arg to get pipe type from
- *
- * @return	pipe_type of arg or NONE if arg is literal
- */
-t_pipe_type	pipe_type_from_arg(t_arg *arg)
-{
-	t_pipe_type	pipe_type;
-
-	if (arg->literal)
-		return (NONE);
-	pipe_type = command_separator_type(arg->arg->s);
-	if (pipe_type == NONE)
-		return (NONE);
-	return (pipe_type);
+	if (r == 1)
+	{
+		return (c);
+	}
+	else
+	{
+		return (EOF);
+	}
 }

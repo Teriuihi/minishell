@@ -27,10 +27,10 @@ t_bool	signal_check(char *input, t_minishell *minishell)
 	}
 	if (input == 0)
 	{
-		if (input == 0 && g_signal.sigint == 0 && g_signal.veof == 0) //if it was crtl c or crtl d then its fine, otherwise error
+		if (input == 0 && g_signal.sigint == 0 && g_signal.veof == 0)
 		{
 			return (false);
-;		}
+		}
 		if (g_signal.heredoc == true)
 		{
 			g_signal.heredoc = false;
@@ -71,8 +71,8 @@ void	sigquit_handler(int this_signal)
 
 void	init_signal(void)
 {
-	//g_signal.shell_level = 2;
-	//get shlvl val, add 1
+	signal(SIGINT, sigquit_handler);
+	signal(SIGQUIT, sigquit_handler);
 	g_signal.exit_status = 0;
 	g_signal.minishell_exec_found = 0;
 	g_signal.sigint = 0;
