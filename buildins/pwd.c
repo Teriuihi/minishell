@@ -20,6 +20,8 @@
  */
 char	*get_pwd(t_minishell *minishell)
 {
+	if (!minishell)
+		return (NULL);
 	return (minishell->cur_wd);
 }
 
@@ -33,11 +35,16 @@ char	*get_pwd(t_minishell *minishell)
  */
 t_bool	update_pwd(char *path, t_minishell *minishell)
 {
-	ft_set_env("PWD", path, get_hash_table(), true);
+	if (ft_set_env("PWD", path, get_hash_table(), true) == false)
+	{
+		return (false);
+	}
 	free(minishell->cur_wd);
 	minishell->cur_wd = ft_strdup(path);
 	if (minishell->cur_wd == NULL)
+	{
 		return (false);
+	}
 	return (true);
 }
 
