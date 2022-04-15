@@ -40,7 +40,11 @@ static t_string	*get_value_from_key(char *key, t_bool *success)
 			return (NULL);
 	}
 	else
-		value = ft_get_env_val(key, table); //TODO add boolean flag?
+	{
+		value = ft_get_env_val(key, table, success);
+		if (*success == false)
+			return (NULL);
+	}
 	result = init_string(value);
 	free(value);
 	*success = true;
@@ -74,28 +78,22 @@ static t_string	*get_string_from_var(t_parse_data *data)
 	return (result);
 }
 
-/**
- * When the end of a string is reached this function parses the variable we were
- *	reading and ensures the pos and start are set past it
- *
- * @param	data		Data used for parsing
- * @param	minishell	Data for minishell
- *
- * @return	Boolean indicating success
- */
-static t_bool	parse_env_variable_end_string(t_parse_data *data,
-												t_minishell *minishell)
+static t_bool	handle_env_variable_in_string_prt2(t_parse_data *data,
+					t_list **head)
 {
 	t_string	*result;
+	t_list		*tmp;
 
-	if (data->start == data->pos)
+	tmp = ft_lstlast(*head);
+	if (tmp != NULL && pipe_type_from_arg(tmp->content) == DELIMITER_INPUT)
 	{
-		data->string = append_char_array(data->string, "$");
-		if (data->string == NULL)
-			return (new_set_exit_status(1, "some shell: Out of memory."));
+		data->start--;
+		if (append_content(data) == false)
+			return (false);
 		return (true);
 	}
-	result = get_string_from_var(data);
+	else
+		result = get_string_from_var(data);
 	if (result == NULL)
 		return (new_set_exit_status(1, "some shell: Out of memory."));
 	data->string = join_strings(data->string, result);
@@ -108,15 +106,13 @@ static t_bool	parse_env_variable_end_string(t_parse_data *data,
  * When the end of a variable is reached this function parses it and ensures the
  * 	pos and start are set past it
  *
- * @param	data		Data used for parsing
- * @param	minishell	Data for minishell
+ * @param	data	Data used for parsing
+ * @param	head	List containing previous arguments
  *
  * @return	Boolean indicating success
  */
-static t_bool	handle_env_variable_in_string(t_parse_data *data)
+static t_bool	handle_env_variable_in_string(t_parse_data *data, t_list **head)
 {
-	t_string	*result;
-
 	if (data->pos == data->start && data->input[data->pos] == '?')
 		data->pos++;
 	else if (data->pos == data->start)
@@ -126,13 +122,7 @@ static t_bool	handle_env_variable_in_string(t_parse_data *data)
 			return (new_set_exit_status(1, "some shell: Out of memory."));
 		return (true);
 	}
-	result = get_string_from_var(data);
-	if (result == NULL)
-		return (new_set_exit_status(1, "some shell: Out of memory."));
-	data->string = join_strings(data->string, result);
-	if (data->string == NULL)
-		return (new_set_exit_status(1, "some shell: Out of memory."));
-	return (true);
+	return (handle_env_variable_in_string_prt2(data, head));
 }
 
 /**
@@ -140,18 +130,19 @@ static t_bool	handle_env_variable_in_string(t_parse_data *data)
  * Parse the variable and swap it with its value
  *
  * @param	data	A struct containing data related to current env variable
+ * @param	head	List containing previous arguments
  *
  * @return	boolean to indicate success
  */
-t_bool	parse_env_variable(t_parse_data *data, t_minishell *minishell)
+t_bool	parse_env_variable(t_parse_data *data, t_list **head)
 {
 	while (data->input[data->pos])
 	{
 		if (!ft_isalnum(data->input[data->pos]) && data->pos != '_')
 		{
-			return (handle_env_variable_in_string(data));
+			return (handle_env_variable_in_string(data, head));
 		}
 		data->pos++;
 	}
-	return (parse_env_variable_end_string(data, minishell));
+	return (handle_env_variable_in_string(data, head));
 }

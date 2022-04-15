@@ -18,12 +18,12 @@
 /**
  * Parse data found between quotes
  *
- * @param	data		Data for parsing
- * @param	minishell	Data for minishell
+ * @param	data	Data for parsing
+ * @param	head	List containing all previous arguments
  *
  * @return	A boolean indicating success
  */
-static t_bool	parse_quotes(t_parse_data *data, t_minishell *minishell)
+static t_bool	parse_quotes(t_parse_data *data, t_list **head)
 {
 	if (data->pos != 0 && data->pos != data->start)
 	{
@@ -32,7 +32,7 @@ static t_bool	parse_quotes(t_parse_data *data, t_minishell *minishell)
 	}
 	data->pos++;
 	data->start = data->pos;
-	if (parse_quotation(data, data->input[data->pos - 1], minishell) == false)
+	if (parse_quotation(data, data->input[data->pos - 1], head) == false)
 		return (false);
 	data->has_data = true;
 	data->start = data->pos;
@@ -43,12 +43,12 @@ static t_bool	parse_quotes(t_parse_data *data, t_minishell *minishell)
 /**
  * Parse an environment variable
  *
- * @param	data		Data for parsing
- * @param	minishell	Data for minishell
+ * @param	data	Data for parsing
+ * @param	head	List containing all previous arguments
  *
  * @return	A boolean indicating success
  */
-static t_bool	parse_variable(t_parse_data *data, t_minishell *minishell)
+static t_bool	parse_variable(t_parse_data *data, t_list **head)
 {
 	if (data->pos != 0 && data->pos != data->start)
 	{
@@ -57,7 +57,7 @@ static t_bool	parse_variable(t_parse_data *data, t_minishell *minishell)
 	}
 	data->pos++;
 	data->start = data->pos;
-	if (parse_env_variable(data, minishell) == false)
+	if (parse_env_variable(data, head) == false)
 		return (false);
 	data->start = data->pos;
 	data->has_data = true;
@@ -67,9 +67,8 @@ static t_bool	parse_variable(t_parse_data *data, t_minishell *minishell)
 /**
  * Finalize parsing through the user input (store the leftovers)
  *
- * @param	data		Data for parsing
- * @param	head		Start of the argument list
- * @param	minishell	Data for minishell
+ * @param	data	Data for parsing
+ * @param	head	Start of the argument list
  *
  * @return	A boolean indicating success
  */
@@ -88,20 +87,18 @@ static t_bool	finalize(t_parse_data *data, t_list **head)
 /**
  * Read through the input and store each argument in the parse data
  *
- * @param	data		Data for parsing
- * @param	head		Start of the argument list
- * @param	minishell	Data for minishell
+ * @param	data	Data for parsing
+ * @param	head	Start of the argument list
  *
  * @return	A boolean indicating success
  */
-t_bool	parse_into_data(t_parse_data *data, t_list **head,
-			t_minishell *minishell)
+t_bool	parse_into_data(t_parse_data *data, t_list **head)
 {
 	while (data->input[data->pos])
 	{
 		if (data->input[data->pos] == '"' || data->input[data->pos] == '\'')
 		{
-			if (parse_quotes(data, minishell) == false)
+			if (parse_quotes(data, head) == false)
 				return (false);
 		}
 		else if (ft_iswhite_space(data->input[data->pos])
@@ -110,10 +107,9 @@ t_bool	parse_into_data(t_parse_data *data, t_list **head,
 			if (store_normal_arg(data, head) == false)
 				return (false);
 		}
-		else if (data->input[data->pos] == '$' && pipe_type_from_arg(
-				ft_lstlast(*head)->content) != DELIMITER_INPUT)
+		else if (data->input[data->pos] == '$')
 		{
-			if (parse_variable(data, minishell) == false)
+			if (parse_variable(data, head) == false)
 				return (false);
 		}
 		else

@@ -33,8 +33,9 @@ char	*search_in_path(char *command, t_minishell *minishell)
 	char		*path;
 	char		**split_path;
 	struct stat	sb;
+	t_bool		success;
 
-	path = ft_get_env_val("PATH", minishell->env);
+	path = ft_get_env_val("PATH", minishell->env, &success);
 	if (path == NULL)
 		return (NULL);
 	split_path = ft_split(path, ':');
@@ -68,7 +69,6 @@ char	*search_in_path(char *command, t_minishell *minishell)
 	free_splitted(split_path);
 	return (NULL);
 }
-
 
 char	*search_in_folder(char *command, t_minishell *minishell)
 {

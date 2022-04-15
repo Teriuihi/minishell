@@ -47,6 +47,7 @@ static t_bool	set_single_cd_command(t_command *command,
 										t_minishell *minishell)
 {
 	char	**args;
+	t_bool	success;
 
 	if (ft_get_env_val("HOME", minishell->env) == NULL)
 	{

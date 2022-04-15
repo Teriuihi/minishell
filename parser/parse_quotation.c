@@ -20,12 +20,12 @@
  * 	and we're in a part of the string where these variables
  * 	should be parsed
  *
- * @param	data		Data used for parsing
- * @param	minishell	Data for minishell
+ * @param	data	Data used for parsing
+ * @param	head	List containing all previous arguments
  *
  * @return	Boolean indicating success
  */
-t_bool	handle_env_variable(t_parse_data *data, t_minishell *minishell)
+t_bool	handle_env_variable(t_parse_data *data, t_list **head)
 {
 	if (append_content(data) == false)
 		return (false);
@@ -33,7 +33,7 @@ t_bool	handle_env_variable(t_parse_data *data, t_minishell *minishell)
 		return (new_set_exit_status(1, "some shell: Out of memory."));
 	data->pos++;
 	data->start = data->pos;
-	if (parse_env_variable(data, minishell) == false)
+	if (parse_env_variable(data, head) == false)
 		return (false);
 	data->start = data->pos;
 	return (true);
@@ -42,19 +42,19 @@ t_bool	handle_env_variable(t_parse_data *data, t_minishell *minishell)
 /**
  * Parse string between quotes
  *
- * @param	data		Data used for parsing
- * @param	quote		Quotation character that ends this quote
- * @param	minishell	Data for minishell
+ * @param	data	Data used for parsing
+ * @param	quote	Quotation character that ends this quote
+ * @param	head	List containing all previous arguments
  *
  * @return	Boolean indicating success
  */
-t_bool	parse_quotation(t_parse_data *data, char quote, t_minishell *minishell)
+t_bool	parse_quotation(t_parse_data *data, char quote, t_list **head)
 {
 	while (data->input[data->pos])
 	{
 		if (quote == '"' && data->input[data->pos] == '$')
 		{
-			if (handle_env_variable(data, minishell) == false)
+			if (handle_env_variable(data, head) == false)
 				return (false);
 		}
 		else if (data->input[data->pos] == quote)

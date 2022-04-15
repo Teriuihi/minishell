@@ -40,9 +40,7 @@ void			free_splitted(char **splitted);
 t_bool			ft_remove_exported_var(char *key, t_hash_table *h_table,
 					t_minishell *minishell);
 t_bool			signal_check(char *input, t_minishell *minishell);
-t_bool			set_exit_status(t_minishell *minishell, int status,
-					char *message, t_bool should_free);
-t_bool			new_set_exit_status(int status, const char *str, ...);
+t_bool			set_exit_status(t_minishell *minishell, int status, char *message, t_bool should_free);
 void			check_status(t_minishell *minishell);
 char			*search_folder(char *command, t_minishell *minishell);
 int				interruptible_getc(void);
