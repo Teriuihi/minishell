@@ -39,7 +39,8 @@ t_bool			succesful_insert(t_hash_table *h_table, char *key, char *val,
 t_bool			all_args_inserted(t_hash_table *h_table, char *key, char *val);
 t_hash_table	*create_env_h_table(void);
 void			destroy_hash_table(t_hash_table *hash_table, int size);
-char			*ft_get_env_val(char *key, t_hash_table *h_table, t_bool *success);
+char			*ft_get_env_val(char *key, t_hash_table *h_table,
+					t_bool *success);
 t_bool			ft_set_env(char *key, char *val, t_hash_table *h_table,
 					t_bool is_exported);
 void			free_key_value(t_entry *entry);

@@ -27,15 +27,13 @@ void	free_key_value(t_entry *entry)
 	if (entry->key != NULL)
 	{
 		free(entry->key);
+		entry->key = NULL;
 	}
 	if (entry->val != NULL)
 	{
 		free(entry->val);
+		entry->val = NULL;
 	}
-	ft_printf(2, "%p is entry next\n", entry->next);
-	entry = entry->next;
-	ft_printf(2, "%p is entry now\n", entry);
-
 }
 
 void	destroy_entry(t_entry *entry)

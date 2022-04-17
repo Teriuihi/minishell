@@ -35,11 +35,7 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 				h_table->entries[hashkey] = current->next;
 			else
 				prev->next = current->next;
-			free(current->val);
-			current->val = NULL;
-			free(current->key);
-			current->key = NULL;
-			free(current);
+			free_key_value(current);
 			return (set_exit_status(minishell, 0, NULL, false));
 		}
 		prev = current;
@@ -85,13 +81,42 @@ char	*ft_get_env_val(char *key, t_hash_table *h_table, t_bool *success)
 	return (NULL);
 }
 
+/* var1=hi var2=hoi var3=hello, clear doesnt yet work */
+static void	loop_and_concat(char **envp, t_hash_table *h_table)
+{
+	int		i;
+	int		env_i;
+	char	*current_env;
+	t_entry	*curr;
+
+	i = 0;
+	env_i = 0;
+	while (i < h_table->size)
+	{
+		curr = h_table->entries[i];
+		while (curr != NULL)
+		{
+			current_env = (char *)ft_calloc((ft_strlen(curr->key)
+						+ ft_strlen(curr->val) + 2), sizeof(char));
+			if (!current_env)
+				exit(1);
+			if (curr->key)
+				current_env = ft_strjoin(curr->key, "=");
+			if (curr->val)
+				current_env = ft_strjoin(current_env, curr->val);
+			envp[env_i] = current_env;
+			env_i++;
+			curr = curr->next;
+		}
+		i++;
+	}
+}
+
 char	**get_envp(t_hash_table *h_table)
 {
 	t_entry	*curr;
 	char	*current_env;
 	char	**envp;
-	int		env_i;
-	int		i;
 
 	if (!h_table)
 	{
@@ -103,29 +128,6 @@ char	**get_envp(t_hash_table *h_table)
 		return (NULL);
 	}
 	envp[h_table->size] = NULL;
-	i = 0;
-	env_i = 0;
-	while (i < h_table->size)
-	{
-		curr = h_table->entries[i];
-		if (curr != NULL)
-		{
-			while (curr != NULL)
-			{
-				current_env = (char *)ft_calloc((ft_strlen(curr->key)
-							+ ft_strlen(curr->val) + 2), sizeof(char)); //why + 2?
-				if (!current_env)
-					exit(1);
-				if (curr->key)
-					current_env = ft_strjoin(curr->key, "=");
-				if (curr->val)
-					current_env = ft_strjoin(current_env, curr->val);
-				envp[env_i] = current_env;
-				env_i++;
-				curr = curr->next;
-			}
-		}
-		i++;
-	}
+	loop_and_concat(envp, h_table);
 	return (envp);
 }

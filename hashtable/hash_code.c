@@ -59,45 +59,14 @@ unsigned int	hash(const char *key, char *val, unsigned long int table_size)
 	return (value);
 }
 
-t_bool	print_h_table(t_hash_table *h_table)
-{
-	int		i;
-	t_entry	*curr;
-
-	if (!h_table)
-	{
-		return (false);
-	}
-	i = 0;
-	while (i < h_table->size)
-	{
-		curr = h_table->entries[i];
-		while (curr != NULL)
-		{
-			if (curr->key && curr->val && curr->is_exported)
-			{
-				ft_printf(1, "%s=%s\n", curr->key, curr->val);
-			}
-			curr = curr->next;
-		}
-		i++;
-	}
-	return (true);
-}
-
-//get only names from htable
 t_list	*get_names(t_hash_table *h_table)
 {
 	t_entry	*curr;
 	t_list	*head;
-	char	*current_env;
-	char	**envp;
 	int		env_i;
 	int		i;
 
-	if (!h_table)
-		return (NULL);
-	head = (t_list *)malloc(sizeof(t_list));
+	head = (t_list *)ft_calloc(1, sizeof(t_list));
 	if (!head)
 		return (NULL);
 	i = 0;
@@ -110,9 +79,7 @@ t_list	*get_names(t_hash_table *h_table)
 			while (curr != NULL)
 			{
 				if (curr->key != NULL)
-				{
 					ft_lstadd_front(&head, ft_lstnew(curr->key));
-				}
 				curr = curr->next;
 			}
 		}
@@ -121,25 +88,23 @@ t_list	*get_names(t_hash_table *h_table)
 	return (head);
 }
 
-void	sort_by_name(t_list *names) //this sorts in place
+void	sort_by_name(t_list *names)
 {
 	t_list	*curr;
 	t_list	*index;
 	void	*tmp;
 
 	if (!names)
-	{
 		return ;
-	}
 	curr = names;
 	while (curr->next != NULL)
 	{
-		t_list *index = curr->next;
-		while (index != NULL)
+		index = curr->next;
+		while (index->content != NULL)
 		{
 			if (index->content != NULL && curr->content != NULL)
 			{
-				if (strcmp((char *)curr->content, (char *)index->content) > 0)
+				if (ft_streq((char *)curr->content, (char *)index->content))
 				{
 					tmp = curr->content;
 					curr->content = index->content;
@@ -160,8 +125,6 @@ t_bool	export(void *minishell)
 	char			*val;
 	t_bool			status;
 
-	if (!minishell)
-		return (set_exit_status((t_minishell *)minishell, 1, NULL, false));
 	h_table = ((t_minishell *)minishell)->env;
 	names = get_names(h_table);
 	if (!names)
@@ -172,13 +135,11 @@ t_bool	export(void *minishell)
 		return (set_exit_status(minishell, 1, NULL, false));
 	while (curr != NULL)
 	{
-		if (curr->content != NULL) //this can be uninitialized soms
+		if (curr->content != NULL)
 		{
 			val = ft_get_env_val((char *)curr->content, h_table, &status);
 			if (val != NULL)
-			{
-				ft_printf(1, "declare -x %s=\"%s\"\n",(char *)curr->content, val);
-			}
+				ft_printf(1, "declare -x %s=\"%s\"\n", (char *)curr->content, val);
 		}
 		curr = curr->next;
 	}

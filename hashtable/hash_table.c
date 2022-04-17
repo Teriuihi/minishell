@@ -12,14 +12,9 @@
 
 #include "../headers/structs.h"
 #include "../headers/functions.h"
-//
+
 extern char	**environ;
 
-//export TERM=linux has to be added still
-
-/**
- * Creates a hashtable where we will store env and other variables
-*/
 t_hash_table	*init_hash_table(int size)
 {
 	t_hash_table	*hash_table;
@@ -139,4 +134,30 @@ t_hash_table	*create_env_h_table(void)
 		i++;
 	}
 	return (h_table);
+}
+
+t_bool	print_h_table(t_hash_table *h_table)
+{
+	int		i;
+	t_entry	*curr;
+
+	if (!h_table)
+	{
+		return (false);
+	}
+	i = 0;
+	while (i < h_table->size)
+	{
+		curr = h_table->entries[i];
+		while (curr != NULL)
+		{
+			if (curr->key && curr->val && curr->is_exported)
+			{
+				ft_printf(1, "%s=%s\n", curr->key, curr->val);
+			}
+			curr = curr->next;
+		}
+		i++;
+	}
+	return (true);
 }
