@@ -78,17 +78,17 @@ static t_bool	enter_dir(char *dir, t_command *command, t_minishell *minishell,
 	if (ft_set_env("OLDPWD", get_pwd(minishell), get_hash_table(), true) == false)
 	{
 		free(dir);
-		return (set_exit_status(minishell, 1, NULL, false));
+		return (new_set_exit_status(1, NULL));
 	}
 	if (result == false)
 	{
 		free(dir);
-		return (set_exit_status(minishell, 1, NULL, false));
+		return (new_set_exit_status(1, NULL));
 	}
 	if (chdir(dir) == -1)
 	{
 		free(dir);
-		return (set_exit_status(minishell, 1, NULL, false));
+		return (new_set_exit_status(1, NULL));
 	}
 	if (dir != command->args[1])
 	{
@@ -96,9 +96,9 @@ static t_bool	enter_dir(char *dir, t_command *command, t_minishell *minishell,
 	}
 	result = set_pwd(getcwd(NULL, 0), minishell);
 	if (result == true)
-		return (set_exit_status(minishell, 0, NULL, false));
+		return (new_set_exit_status(0, NULL));
 	else
-		return (set_exit_status(minishell, 1, NULL, false));
+		return (new_set_exit_status(1, NULL));
 }
 
 /**
