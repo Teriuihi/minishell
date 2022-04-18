@@ -38,5 +38,6 @@ void			check_status(void);
 int				interruptible_getc(void);
 t_pipe_type		pipe_type_from_arg(t_arg *arg);
 t_bool			is_input_correct(char *command, int *count);
+t_bool			enter_curdir(t_minishell *minishell);
 
 #endif
