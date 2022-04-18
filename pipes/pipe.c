@@ -37,7 +37,7 @@ void	execute_with_access_check(t_command *command, t_minishell *minishell,
 {
 	if (access(command->command, (F_OK)) == 0)
 	{
-		if (access(command->command, X_OK) == -1) //close(old_pid[0]); do we need this? inside?
+		if (access(command->command, X_OK) == -1)
 		{
 			if (ft_printf(2, "%s%s%s\n", "some shell: ", command->command, ": Permission denied") == -1)
 			{
@@ -49,8 +49,9 @@ void	execute_with_access_check(t_command *command, t_minishell *minishell,
 			}
 		}
 		else if (execve(command->command, command->args,
-						get_envp(minishell->env)) < 0) //close(old_pid[0]); //do we need this inside?
+				get_envp(minishell->env)) < 0)
 		{
+			//close(old_pid[0]); //do we need this inside?
 			exit(126);
 		}
 	}
@@ -103,17 +104,18 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, int *old_pid,
 	command = cmd_data->command;
 	if (init_child(old_pid, cur_pid, cmd_data->output.type, minishell) == false)
 	{
-		ft_printf(1, "it was false cuz init child in child execute non builtin\n");
+		ft_printf(1, "false init child in child execute non builtin\n");
 		exit(1);
 	}
 	if (control_pipes(cmd_data, old_pid, cur_pid, minishell) == false)
 	{
-		ft_printf(1, "it was false cuz control pipes in child execute non builtin\n");
+		ft_printf(1, "false init child in child execute non builtin\n");
 		exit(1);
 	}
 	if (cmd_data->executable_found == false)
 	{
-		ft_printf(2, "some shell: %s: No such file or directory\n", command->command);
+		ft_printf(2, "some shell: %s: No such file or directory\n",
+			command->command);
 		exit(127);
 	}
 	else
