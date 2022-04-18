@@ -52,7 +52,6 @@ t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,
 	return (succesful_insert(h_table, key, val, is_exported));
 }
 
-//CHECK THIS BECAUSE IT RETURNS INCORRECTLY
 char	*ft_get_env_val(char *key, t_hash_table *h_table, t_bool *success)
 {
 	unsigned int	slot;
@@ -81,53 +80,71 @@ char	*ft_get_env_val(char *key, t_hash_table *h_table, t_bool *success)
 	return (NULL);
 }
 
-/* var1=hi var2=hoi var3=hello, clear doesnt yet work */
-static void	loop_and_concat(char **envp, t_hash_table *h_table)
+static char	**loop_and_concat(char **envp, t_hash_table *h_table)
 {
 	int		i;
-	int		env_i;
 	char	*current_env;
+	size_t	key_size;
+	size_t	val_size;
 	t_entry	*curr;
 
 	i = 0;
-	env_i = 0;
 	while (i < h_table->size)
 	{
 		curr = h_table->entries[i];
 		while (curr != NULL)
 		{
-			current_env = (char *)ft_calloc((ft_strlen(curr->key)
-						+ ft_strlen(curr->val) + 2), sizeof(char));
+			key_size = ft_strlen(curr->key);
+			val_size = ft_strlen(curr->val);
+			current_env = (char *)ft_calloc(key_size
+					+ val_size + 2, sizeof(char));
 			if (!current_env)
-				exit(1);
+				return (NULL);
 			if (curr->key)
-				current_env = ft_strjoin(curr->key, "=");
+			{	
+				ft_strlcpy(current_env, curr->key, ft_strlen(curr->key) + 1);
+				ft_strlcpy(current_env + ft_strlen(curr->key), "=", 2);
+			}
 			if (curr->val)
-				current_env = ft_strjoin(current_env, curr->val);
-			envp[env_i] = current_env;
-			env_i++;
+			{
+				ft_strlcpy(current_env + ft_strlen(curr->key) + 1, curr->val,
+					ft_strlen(curr->val) + 1);
+			}
+			*envp = current_env;
+			envp++;
 			curr = curr->next;
 		}
 		i++;
 	}
+    return (envp);
 }
 
 char	**get_envp(t_hash_table *h_table)
 {
 	t_entry	*curr;
+	int		i;
+	int		current_size;
 	char	*current_env;
 	char	**envp;
 
 	if (!h_table)
-	{
 		return (NULL);
+	i = 0;
+	current_size = 0;
+	while (i < h_table->size)
+	{
+		curr = h_table->entries[i];
+		while (curr != NULL)
+		{
+			current_size++;
+			curr = curr->next;
+		}
+		i++;
 	}
-	envp = (char **)ft_calloc(h_table->size + 1, sizeof(char *));
+	envp = (char **)ft_calloc(current_size + 1, sizeof(char *));
 	if (!envp)
-	{
 		return (NULL);
-	}
-	envp[h_table->size] = NULL;
-	loop_and_concat(envp, h_table);
+	if (loop_and_concat(envp, h_table) == NULL)
+		free(envp);
 	return (envp);
 }

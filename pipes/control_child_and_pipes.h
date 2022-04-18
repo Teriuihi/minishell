@@ -26,7 +26,7 @@
 
 t_bool	init_child(int *old_pid, int *cur_pid, t_pipe_type type,
 			t_minishell *minishell);
-t_bool	exec_dup_close_sequence(int *pid_to_dup, int fd, int *pid1_to_close,
+t_bool	exec_dup_close(int *pid_to_dup, int fd, int *pid1_to_close,
 			int *pid2_to_close);
 t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			t_minishell *minishell);
