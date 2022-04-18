@@ -104,12 +104,12 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, int *old_pid,
 	command = cmd_data->command;
 	if (init_child(old_pid, cur_pid, cmd_data->output.type, minishell) == false)
 	{
-		ft_printf(1, "false init child in child execute non builtin\n");
+		ft_printf(1, "false init child in child execute non builtin1\n");
 		exit(1);
 	}
 	if (control_pipes(cmd_data, old_pid, cur_pid, minishell) == false)
 	{
-		ft_printf(1, "false init child in child execute non builtin\n");
+		ft_printf(1, "false init child in child execute non builtin2\n");
 		exit(1);
 	}
 	if (cmd_data->executable_found == false)
@@ -142,6 +142,11 @@ void	child_execute_built_in(t_cmd_data *cmd_data, int *old_pid,
 	if (init_child(old_pid, cur_pid, cmd_data->output.type, minishell) == false)
 	{
 		ft_printf(1, "it was false cuz init child in child_execute_built_in\n");
+		exit(1);
+	}
+	if (control_pipes(cmd_data, old_pid, cur_pid, minishell) == false)
+	{
+		ft_printf(1, "false init child in child execute non builtin\n");
 		exit(1);
 	}
 	if (execute_builtin(command, minishell) == false)

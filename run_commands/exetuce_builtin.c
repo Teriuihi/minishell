@@ -38,8 +38,8 @@ static int	split_len(char **splitted)
 	return (i);
 }
 
-static t_exit_state	func2(t_command *command, int i, char **splitted,
-					t_minishell *minishell)
+static t_exit_state	splitter2(t_command *command, int i, char **splitted,
+								 t_minishell *minishell)
 {
 	int	was_there_equal;
 	int	k;
@@ -61,7 +61,7 @@ static t_exit_state	func2(t_command *command, int i, char **splitted,
 	return (CONTINUE);
 }
 
-static t_bool	func(int *i, t_command *command, t_minishell *minishell)
+static t_bool	splitter(int *i, t_command *command, t_minishell *minishell)
 {
 	char	**splitted;
 
@@ -70,9 +70,14 @@ static t_bool	func(int *i, t_command *command, t_minishell *minishell)
 		splitted = ft_split(command->args[*i + 1], '=');
 		if (splitted == NULL)
 			return (false);
+		if (splitted[2] != 0)
+		{
+			ft_printf(2, "YOU DIDNT STOP AFTER THE FIRST EQUALS SIGN\n"); //TODO fix
+			return (true);
+		}
 		if (split_len(splitted) == 1)
 		{
-			if (func2(command, *i, splitted, minishell) == RETURN)
+			if (splitter2(command, *i, splitted, minishell) == RETURN)
 				return (true);
 		}
 		ft_set_env(splitted[0], splitted[1], minishell->env, true);
@@ -99,7 +104,7 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 			i++;
 			continue ;
 		}
-		if (func(&i, command, minishell) == false)
+		if (splitter(&i, command, minishell) == false)
 			return (false);
 		return (true);
 	}

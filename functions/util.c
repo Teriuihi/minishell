@@ -125,7 +125,8 @@ t_bool	enter_curdir(t_minishell *minishell)
 	}
 	if (chdir(cur_dir) == -1)
 	{
-		return (set_exit_status(minishell, 1, NULL, false));
+		if (chdir(minishell->home) == -1)
+			return (set_exit_status(minishell, 1, NULL, false));
 	}
 	return (true);
 }
