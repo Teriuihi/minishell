@@ -75,7 +75,7 @@ static t_bool	set_single_cd_command(t_command *command,
 static t_bool	enter_dir(char *dir, t_command *command, t_minishell *minishell,
 										t_bool result)
 {
-	if (ft_set_env("OLDPWD", get_pwd(minishell), get_hash_table(), true) == false)
+	if (ft_set_env("OLDPWD", get_pwd(minishell), minishell->env, true) == false)
 	{
 		free(dir);
 		return (set_exit_status(minishell, 1, NULL, false));

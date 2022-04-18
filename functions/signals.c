@@ -18,7 +18,7 @@
 #include <readline/readline.h>
 #include <errno.h>
 
-t_bool	signal_check(char *input, t_minishell *minishell)
+t_bool	signal_check(const char *input, t_minishell *minishell)
 {
 	if (g_signal.sigquit == 1)
 	{
@@ -40,7 +40,7 @@ t_bool	signal_check(char *input, t_minishell *minishell)
 	return (true);
 }
 
-void	check_status(t_minishell *minishell)
+void	check_status(void)
 {
 	if (g_signal.veof == 1)
 	{

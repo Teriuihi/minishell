@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "free_functions.h"
-#include "../parser/parser.h"
 
 void	free_splitted(char **splitted)
 {

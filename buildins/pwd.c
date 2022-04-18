@@ -35,7 +35,7 @@ char	*get_pwd(t_minishell *minishell)
  */
 t_bool	update_pwd(char *path, t_minishell *minishell)
 {
-	if (ft_set_env("PWD", path, get_hash_table(), true) == false)
+	if (ft_set_env("PWD", path, minishell->env, true) == false)
 	{
 		return (false);
 	}

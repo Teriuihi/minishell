@@ -26,7 +26,6 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdarg.h>
-#include "free_functions.h"
 
 t_pipe_type	command_separator_type(char *str)
 {
@@ -43,38 +42,6 @@ t_pipe_type	command_separator_type(char *str)
 	if (ft_streq(str, ">>"))
 		return (APPEND_OUTPUT);
 	return (NONE);
-}
-
-size_t	ft_strlcat(char *dst, const char *src, size_t dstsize)
-{
-	size_t	dst_len;
-	size_t	i;
-
-	if (ft_strlen(dst) >= dstsize)
-		dst_len = dstsize;
-	else
-		dst_len = ft_strlen(dst);
-	i = 0;
-	if (dstsize == dst_len || dstsize == 0)
-		return (dstsize + ft_strlen(src));
-	if (ft_strlen(src) >= dstsize - dst_len)
-	{
-		while (i < dstsize - dst_len - 1)
-		{
-			dst[dst_len + i] = src[i];
-			i++;
-		}
-	}
-	else
-	{
-		while (src[i] && i < dstsize - dst_len)
-		{
-			dst[dst_len + i] = src[i];
-			i++;
-		}
-	}
-	dst[dst_len + i] = '\0';
-	return (dst_len + ft_strlen(src));
 }
 
 t_bool	new_set_exit_status(int status, const char *str, ...)

@@ -25,9 +25,9 @@
 
 t_signal	g_signal;
 
-t_hash_table	*get_hash_table(void)
+static t_hash_table	*get_hash_table(void)
 {
-	static t_hash_table	*table;
+	t_hash_table	*table;
 
 	table = create_env_h_table();
 	if (table == NULL)
@@ -69,26 +69,18 @@ t_bool	init_succeeded(t_minishell *minishell)
 
 	cur_dir = getcwd(NULL, 0);
 	if (cur_dir == NULL)
-	{
 		return (false);
-	}
 	rl_getc_function = (int (*)(FILE *)) interruptible_getc;
 	minishell->cur_wd = cur_dir;
 	minishell->env = get_hash_table();
 	if (minishell->env == NULL)
-	{
 		return (false);
-	}
 	if (set_pwd(ft_strdup(cur_dir), minishell) == false)
-	{
 		return (false);
-	}
 	increase_shell_level(minishell);
 	minishell->home = ft_get_env_val("HOME", minishell->env, &success);
 	if (success == false)
-	{
 		return (false);
-	}
 	return (true);
 }
 
@@ -107,63 +99,7 @@ int	main(void)
 		{
 			start_program_loop(&minishell);
 		}
-		check_status(&minishell);
+		check_status();
 	}
 	return (0);
 }
-
-/*
-
-void	init_keyboard()
-{
-	//tcgetattr(g_signal.terminal_descriptor, &g_signal.old_termios); //get initial setups
-	//tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.new_termios);
-
-	g_signal.new_termios = g_signal.old_termios;
-	tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.new_termios);
-
-	//g_signal.new_termios.c_cc[VMIN] = 1;
-	//g_signal.new_termios.c_cc[VMIN] = 0;
-	//g_signal.new_termios.c_lflag |= (ICANON | ISIG | ECHO);
-	//g_signal.new_termios.c_cc[VINTR] = 3;
-	//g_signal.new_termios.c_cc[VEOF] = 4;
-	//g_signal.new_termios.c_lflag &= ~ISIG;
-	//g_signal.new_termios.c_cc[VQUIT] = 15;
-
-	//g_signal.old_termios.c_lflag |= (ICANON | ECHO);
-	//g_signal.old_termios.c_cc[VINTR] = 3;
-	//g_signal.old_termios.c_cc[VEOF] = 4;
-	//g_signal.old_termios.c_cc[VQUIT] = 2;
-
-	signal(SIGINT, sigquit_handler); //this is important for crtlc
-	signal(SIGQUIT, SIG_IGN);
-
-}
-void	init_termios(void)
-{
-	g_signal.old_termios.c_lflag |= ISIG;
-
-	if (isatty(STDERR_FILENO))
-		g_signal.terminal_descriptor = STDERR_FILENO;
-	if (isatty(STDIN_FILENO))
-		g_signal.terminal_descriptor = STDIN_FILENO;
-	if (isatty(STDOUT_FILENO))
-		g_signal.terminal_descriptor = STDOUT_FILENO;
-	
-	//g_signal.old_termios.c_cc[VMIN] = 1;
-	//g_signal.old_termios.c_cc[VMIN] = 0;
-	//g_signal.old_termios.c_lflag |= (ICANON | ECHO);
-
-	//g_signal.old_termios.c_cc[VINTR] = 3;
-	//g_signal.old_termios.c_cc[VEOF] = 4;
-	if (tcgetattr(g_signal.terminal_descriptor, &g_signal.old_termios)
-		|| tcgetattr(g_signal.terminal_descriptor, &g_signal.new_termios))
-	{
-		exit(1);
-	}
-	tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.new_termios);
-	//tcsetattr(g_signal.terminal_descriptor, TCSANOW, &g_signal.new_termios);
-
-}
-
-*/

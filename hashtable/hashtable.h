@@ -29,7 +29,6 @@ typedef struct entry_table
 	int			amount_of_keys;
 }	t_hash_table;
 
-t_hash_table	*get_hash_table(void);
 t_hash_table	*init_hash_table(int size);
 unsigned int	hash(const char *key, char *val, unsigned long int table_size);
 t_entry			*create_hash_table_pair(char *key, char *val,
