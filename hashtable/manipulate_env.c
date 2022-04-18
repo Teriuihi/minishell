@@ -80,6 +80,34 @@ char	*ft_get_env_val(char *key, t_hash_table *h_table, t_bool *success)
 	return (NULL);
 }
 
+char	*ft_get_exported_env(char *key, t_hash_table *h_table, t_bool *success)
+{
+	unsigned int	slot;
+	char			*env_val;
+	t_entry			*current;
+
+	*success = false;
+	if (!key || !h_table)
+		return (NULL);
+	*success = true;
+	slot = hash(key, "", h_table->size);
+	current = h_table->entries[slot];
+	while (current != NULL)
+	{
+		if (current->key != NULL && current->is_exported == true)
+		{
+			if (ft_strncmp(key, current->key,
+				ft_strlen(key)) == 0)
+			{
+				env_val = ft_strdup(current->val);
+				return (env_val);
+			}
+		}
+		current = current->next;
+	}
+	return (NULL);
+}
+
 static char	**loop_and_concat(char **envp, t_hash_table *h_table)
 {
 	int		i;

@@ -136,11 +136,16 @@ t_hash_table	*create_env_h_table(void)
 	return (h_table);
 }
 
-t_bool	print_h_table(t_hash_table *h_table)
+t_bool	print_h_table(t_hash_table *h_table, int len)
 {
 	int		i;
 	t_entry	*curr;
 
+	if (len != 1)
+	{
+		new_set_exit_status(127, "some shell: too many arguments\n");
+		exit(127);
+	}
 	if (!h_table)
 	{
 		return (false);

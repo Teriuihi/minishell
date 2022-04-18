@@ -149,7 +149,7 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 	else if (ft_streq(command->command, "pwd"))
 		return (ft_pwd(cur_dir, minishell));
 	else if (ft_streq(command->command, "env"))
-		return (print_h_table(minishell->env));
+		return (print_h_table(minishell->env, command->args_len));
 	else
 		return (set_exit_status(minishell, 1, NULL, false));
 }

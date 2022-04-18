@@ -104,7 +104,8 @@ void	sort_by_name(t_list *names)
 		{
 			if (index->content != NULL && curr->content != NULL)
 			{
-				if (ft_streq((char *)curr->content, (char *)index->content))
+				if (ft_strcmp((char *)curr->content,
+					(char *)index->content) > 0)
 				{
 					tmp = curr->content;
 					curr->content = index->content;
@@ -137,9 +138,11 @@ t_bool	export(void *minishell)
 	{
 		if (curr->content != NULL)
 		{
-			val = ft_get_env_val((char *)curr->content, h_table, &status);
+			val = ft_get_exported_env((char *)curr->content, h_table, &status);
 			if (val != NULL)
 				ft_printf(1, "declare -x %s=\"%s\"\n", (char *)curr->content, val);
+			else
+				ft_printf(1, "declare -x %s\n", (char *)curr->content);
 		}
 		curr = curr->next;
 	}
