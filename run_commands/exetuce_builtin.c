@@ -13,8 +13,7 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include "../buildins/buildins.h"
-#include "../headers/minishell.h"
-#include "../headers/functions.h"
+#include "run_commands_internal.h"
 
 /**
  * Takes an array of arrays (user input)
@@ -39,10 +38,52 @@ static int	split_len(char **splitted)
 	return (i);
 }
 
-//CHECK THIS TOMORROW
-static t_bool	export_found(t_command *command, t_minishell *minishell)
+static t_exit_state	func2(t_command *command, int i, char **splitted,
+					t_minishell *minishell)
+{
+	int	was_there_equal;
+	int	k;
+
+	was_there_equal = 0;
+	k = 0;
+	while (command->args[i + 1][k] != '\0')
+	{
+		if (command->args[i + 1][k] == '=')
+			was_there_equal = 1;
+		k++;
+	}
+	if (was_there_equal == 1)
+	{
+		ft_set_env(splitted[0], "", minishell->env, true);
+		free_splitted(splitted);
+		return (RETURN);
+	}
+	return (CONTINUE);
+}
+
+static t_bool	func(int *i, t_command *command, t_minishell *minishell)
 {
 	char	**splitted;
+
+	while (*i < command->args_len - 1)
+	{
+		splitted = ft_split(command->args[*i + 1], '=');
+		if (splitted == NULL)
+			return (false);
+		if (split_len(splitted) == 1)
+		{
+			if (func2(command, *i, splitted, minishell) == RETURN)
+				return (true);
+		}
+		ft_set_env(splitted[0], splitted[1], minishell->env, true);
+		free_splitted(splitted);
+		(*i)++;
+	}
+	return (true);
+}
+
+static t_bool	export_found(t_command *command, t_minishell *minishell)
+{
 	int		i;
 
 	i = 0;
@@ -51,40 +92,16 @@ static t_bool	export_found(t_command *command, t_minishell *minishell)
 		return (false);
 	}
 	command->export_found = false;
-	while (command->args[i] != NULL) //maybe check if more args not just the first one?
+	while (command->args[i] != NULL)
 	{
-		if (ft_streq(command->args[i], "export")) //the problem is that its export and it enters and stops here, not gonna go further
+		if (!ft_streq(command->args[i], "export"))
 		{
-			while (i + 1 < command->args_len)
-			{
-				splitted = ft_split(command->args[i + 1], '=');
-				if (!splitted)
-					return (false);
-				if (split_len(splitted) == 1)
-				{
-					int was_there_equal = 0;
-					int k = 0;
-					while (command->args[i + 1][k] != '\0')
-					{
-						if (command->args[i + 1][k] == '=')
-							was_there_equal = 1; //we could ++, and 3 lines below check if its 1, or more equals?
-						k++;
-					}
-					if (was_there_equal == 1)
-					{
-						//ft_printf(1, "%d is equal signs\n", was_there_equal);
-						ft_set_env(splitted[0], "", minishell->env, true);
-						free_splitted(splitted);
-						return (true);
-					}
-				}
-				ft_set_env(splitted[0], splitted[1], minishell->env, true);
-				free_splitted(splitted);
-				i++;
-			}
-			return (true);
+			i++;
+			continue ;
 		}
-		i++;
+		if (func(&i, command, minishell) == false)
+			return (false);
+		return (true);
 	}
 	return (false);
 }
@@ -103,20 +120,14 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 		return (set_exit_status(minishell, 1, NULL, false));
 	if (ft_get_env_val(splitted[0], minishell->env, &success) != NULL)
 	{
-		if (succesful_insert(minishell->env, splitted[0], splitted[1], true) == true)
+		if (succesful_insert(minishell->env, splitted[0], splitted[1], true)
+			== true)
 			return (set_exit_status(minishell, 0, NULL, false));
 		else
 			return (set_exit_status(minishell, 1, NULL, false));
 	}
-	else if (ft_set_env(splitted[0], splitted[1], minishell->env, false) == false)
-		return (set_exit_status(minishell, 1, NULL, false));
-	else
-		return (set_exit_status(minishell, 0, NULL, false));
-}
-
-t_bool	ft_env(t_hash_table *h_table, t_minishell *minishell)
-{
-	if (print_h_table(h_table) == false)
+	else if (ft_set_env(splitted[0], splitted[1], minishell->env, false)
+		== false)
 		return (set_exit_status(minishell, 1, NULL, false));
 	else
 		return (set_exit_status(minishell, 0, NULL, false));
@@ -129,9 +140,9 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 	cur_dir = get_pwd(minishell);
 	if (!command->command || !minishell || !cur_dir)
 		return (set_exit_status(minishell, 1, NULL, false));
-	if(ft_streq(command->command, "export") == 1 && command->args_len == 1)
+	if (ft_streq(command->command, "export") == 1 && command->args_len == 1)
 		return (export((void *)minishell));
-	else if (env_variable_found(command) == true) //env_var_added(command, minishell) == true)
+	else if (env_variable_found(command) == true)
 		return (env_var_added(command, minishell));
 	else if (ft_streq(command->command, "echo"))
 		return (ft_echo(command, 1, minishell));
@@ -147,15 +158,15 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 {
 	char	*cur_dir;
 
-	cur_dir = get_pwd(minishell); //what is !minishell
+	cur_dir = get_pwd(minishell);
 	if (!command->command || !minishell || !cur_dir)
 		return (set_exit_status(minishell, 1, NULL, false));
 	else if (ft_streq(command->command, "unset"))
 		return (ft_remove_exported_var(command->args[1], minishell->env,
-									   minishell));
+				minishell));
 	else if (ft_streq(command->command, "cd"))
 		return (cd(command, minishell));
-	else if (env_variable_found(command) == true) //env_var_added(command, minishell) == true) //this also calls and checks for commands?
+	else if (env_variable_found(command) == true)
 		return (env_var_added(command, minishell));
 	else
 		return (set_exit_status(minishell, 1, NULL, false));
