@@ -16,11 +16,13 @@
 /**
  * Check if a command should be executed in a child process
  *
- * @param	executable	the complete absolute path of the executable
- * @param	should_path_extend	boolean to check if the executable root has to be extended
- * @param	command	Command to check
+ * @param	executable			the complete absolute path of the executable
+ * @param	should_path_extend	boolean to check if the
+ * 				executable root has to be extended
+ * @param	command				Command to check
  *
- * @return	True if it should be executed in a child process, false if something fails
+ * @return	True if it should be executed in a child process,
+ * 	false if something fails
  */
 static t_bool	assign_path_to_command(char *executable,
 						t_bool should_path_extend, t_command *command)
@@ -44,11 +46,14 @@ static t_bool	assign_path_to_command(char *executable,
 }
 
 /**
- * Search for executable either from PATH or in the current working directory/folder
+ * Search for executable either from PATH or in the current
+ * 	working directory/folder
  *
  * @param	cmd_data	struct containing information about the typed in command
  * @param	minishell	minishell struct
- * @return	True if executable found and assigned/extended, false if executable not found or assignment failed
+ *
+ * @return	True if executable found and assigned/extended,
+ * 	false if executable not found or assignment failed
  */
 static t_bool	search_executable(t_cmd_data *cmd_data,
 				t_minishell *minishell)
@@ -97,20 +102,25 @@ t_bool	should_be_child(t_command *command)
 }
 
 /**
- * Checking function before forking. Also calls execute nonforked builtin in case the command shouldn't be forked
+ * Checking function before forking. Also calls execute non-forked builtin
+ * 	in case the command shouldn't be forked
+ *
  * @param	cmd_data	struct containing information about the typed in command
- * @param	old_pid	prevous pipe fds
- * @param	cur_pid	current pipe fds
- * @param	is_built_in	boolean to check whether a command is builtin or not, and to be forked or not
+ * @param	old_pid		previous pipe fds
+ * @param	cur_pid		current pipe fds
  * @param	minishell	minishell struct
- * @return	true if it everiythng went according to expectations, all functions returned true (succeeded), false otherwise
+ *
+ * @return	true if it everythng went according to expectations,
+ * 	all functions returned true (succeeded), false otherwise
  */
 t_bool	pre_fork_check(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
-			t_bool is_built_in, t_minishell *minishell)
+			t_minishell *minishell)
 {
 	t_command	*command;
 	t_bool		succeeded;
+	t_bool		is_built_in;
 
+	is_built_in = is_builtin(cmd_data->command);
 	command = cmd_data->command;
 	succeeded = true;
 	if (ft_streq(command->command, "exit"))
@@ -137,15 +147,19 @@ t_bool	pre_fork_check(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 }
 
 /**
- * Checking function before forking. Also calls execute nonforked builtin in case the command shouldn't be forked
+ * Checking function before forking. Also calls execute non-forked
+ * 	builtin in case the command shouldn't be forked
+ *
  * @param	cmd_data	struct containing information about the typed in command
- * @param	old_pid	prevous pipe fds
- * @param	cur_pid	current pipe fds
+ * @param	old_pid		prevous pipe fds
+ * @param	cur_pid		current pipe fds
  * @param	minishell	minishell struct
- * @return	true if it everiythng went according to expectations or there was no input redirection, false if redirection failed for any reason
+ *
+ * @return	true if it everiythng went according to expectations or there
+ * 	was no input redirection, false if redirection failed for any reason
  */
 t_bool	check_input_redir(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
-							t_minishell *minishell)
+			t_minishell *minishell)
 {
 	if (cmd_data->input.type == REDIRECT_INPUT)
 	{

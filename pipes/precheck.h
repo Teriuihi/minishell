@@ -23,7 +23,7 @@
 # include <errno.h>
 
 t_bool	pre_fork_check(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
-			t_bool is_built_in, t_minishell *minishell);
+			t_minishell *minishell);
 t_bool	check_input_redir(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			t_minishell *minishell);
 t_bool	should_be_child(t_command *command);

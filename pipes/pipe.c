@@ -163,19 +163,16 @@ void	child_execute_built_in(t_cmd_data *cmd_data, int *old_pid,
  * @param	minishells	Data for minishell
  */
 void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
-			t_bool is_built_in, t_minishell *minishell)
+			t_minishell *minishell)
 {
-	t_command	*command;
-
-	command = cmd_data->command;
-	if (pre_fork_check(cmd_data, old_pid, cur_pid, is_built_in, minishell) == false)
+	if (pre_fork_check(cmd_data, old_pid, cur_pid, minishell) == false)
 	{
 		return ;
 	}
 	g_signal.pid = fork();
 	if (g_signal.pid == 0)
 	{
-		if (is_built_in == true)
+		if (is_builtin(cmd_data->command) == true)
 			child_execute_built_in(cmd_data, old_pid, cur_pid, minishell);
 		else
 			child_execute_non_builtin(cmd_data, old_pid, cur_pid, minishell);

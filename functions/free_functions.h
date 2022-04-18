@@ -23,7 +23,6 @@
 void	free_splitted(char **splitted);
 void	free_cmd(t_cmd_data *cmd_data);
 void	free_command(void *content);
-void	free_commands(t_list **head);
-void	free_char_arr(char **args);
+void	free_parse_and_commands(t_list **commands, t_list **parse_results);
 
 #endif

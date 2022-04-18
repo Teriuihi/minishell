@@ -65,7 +65,7 @@ t_list	**find_commands(t_list **args, t_minishell *minishell)
 		return (NULL);
 	if (find_commands_in_args(&cmd_get, minishell) == false)
 	{
-		free_commands(cmd_get.head);
+		free_parse_and_commands(cmd_get.head, NULL);
 		return (NULL);
 	}
 	return (cmd_get.head);

@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "free_functions.h"
+#include "../parser/parser.h"
 
 void	free_splitted(char **splitted)
 {
@@ -62,20 +63,18 @@ void	free_command(void *content)
 	free_cmd(cmd_data);
 }
 
-void	free_commands(t_list **head)
+void	free_parse(void *content)
 {
-	ft_lstclear(head, free_command);
+	t_arg	*arg;
+
+	arg = content;
+	free_string(arg->arg);
 }
 
-void	free_char_arr(char **args)
+void	free_parse_and_commands(t_list **commands, t_list **parse_results)
 {
-	char	**tmp;
-
-	tmp = args;
-	while (args && *args)
-	{
-		free(*args);
-		args++;
-	}
-	free(tmp);
+	if (commands != NULL)
+		ft_lstclear(commands, free_command);
+	if (parse_results != NULL)
+		ft_lstclear(parse_results, free_parse);
 }
