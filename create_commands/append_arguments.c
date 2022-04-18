@@ -23,7 +23,7 @@ t_bool	set_command(t_command *command, t_list *entry)
 	return (true);
 }
 
-/**
+/** TODO free things before return false
  * Append len given arguments to given command
  *
  * @param	cmd		Command to append arguments to

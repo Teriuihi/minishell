@@ -13,6 +13,19 @@
 #include "internal_create_commands.h"
 #include "../headers/functions.h"
 
+static t_bool	is_assignment(char *str)
+{
+	if (str == NULL)
+		return (false);
+	while (*str)
+	{
+		if (*str == '=')
+			return (true);
+		str++;
+	}
+	return (false);
+}
+
 /**
  * Check if we find a pipe type, if not increase command length
  * 	if we do find it create the command
@@ -33,8 +46,12 @@ static t_bool	check_pipe_make_command(t_pipe_type pipe_type,
 	if (pipe_type == OUTPUT_TO_COMMAND)
 		return (output_pipe_command(cmd_get, pipe_type));
 	else if (pipe_type == NONE)
+	{
+		if (is_assignment(cmd_get->cur_cmd->command->command) == true)
+			cmd_get->cur_cmd = create_new_cmd(cmd_get->head);
 		return (append_arguments_to_command(cmd_get->cur_cmd->command,
 				cmd_get->cur_arg, cmd_get));
+	}
 	else
 		return (pipe_command(cmd_get, cmd_get->cur_arg, minishell));
 }
