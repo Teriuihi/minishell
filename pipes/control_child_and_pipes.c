@@ -20,29 +20,34 @@ t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 
 	if (cmd_data->input.type == OUTPUT_TO_COMMAND)
 	{
-		if (exec_dup_close_sequence(&cur_pid[0], STDIN_FILENO, &cur_pid[0], &cur_pid[1]) == false)
+		if (exec_dup_close(&cur_pid[0], STDIN_FILENO, &cur_pid[0], &cur_pid[1])
+			== false)
 			ft_printf(1, "OUTPUTCOMMANDproblem\n");
 	}
 	if (cmd_data->input.type == DELIMITER_INPUT)
 	{
-		if (exec_dup_close_sequence(&cur_pid[0], STDIN_FILENO, &cur_pid[0], &cur_pid[1]) == false)
+		if (exec_dup_close(&cur_pid[0], STDIN_FILENO, &cur_pid[0], &cur_pid[1])
+			== false)
 			ft_printf(1, "DELIMETERproblem\n");
 	}
 	if (cmd_data->input.type == REDIRECT_INPUT)
 	{
-		if (exec_dup_close_sequence(&old_pid[0], STDIN_FILENO, &old_pid[0], NULL) == false)
+		if (exec_dup_close(&old_pid[0], STDIN_FILENO, &old_pid[0], NULL)
+			== false)
 			ft_printf(1, "REDIRECTproblem\n");
 	}
 	if (cmd_data->output.type == OUTPUT_TO_COMMAND)
 	{
 		if (old_pid[0] > -1)
 		{
-			if (exec_dup_close_sequence(&old_pid[0], STDIN_FILENO, &old_pid[0], &old_pid[1]) == false)
+			if (exec_dup_close(&old_pid[0], STDIN_FILENO, &old_pid[0], &old_pid[1])
+				== false)
 				ft_printf(1, "REDIRECTproblem\n");
 		}
 		if (cur_pid[0] > -1)
 		{
-			if (exec_dup_close_sequence(&cur_pid[1], STDOUT_FILENO, &cur_pid[0], &cur_pid[1]) == false)
+			if (exec_dup_close(&cur_pid[1], STDOUT_FILENO, &cur_pid[0], &cur_pid[1])
+				== false)
 				ft_printf(1, "REDIRECTproblem\n");
 		}
 	}
@@ -107,7 +112,7 @@ t_bool	init_child(int *old_pid, int *cur_pid, t_pipe_type type,
 		return (set_exit_status(minishell, 0, NULL, false));
 }
 
-t_bool	exec_dup_close_sequence(int *pid_to_dup, int fd, int *pid1_to_close,
+t_bool	exec_dup_close(int *pid_to_dup, int fd, int *pid1_to_close,
 									int *pid2_to_close)
 {
 	if (*pid_to_dup != -1)
