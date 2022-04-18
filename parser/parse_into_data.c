@@ -33,7 +33,8 @@ static t_bool	parse_quotes(t_parse_data *data, t_list **head,
 	}
 	data->pos++;
 	data->start = data->pos;
-	if (parse_quotation(data, data->input[data->pos - 1], head, minishell) == false)
+	if (parse_quotation(data, data->input[data->pos - 1],
+			head, minishell) == false)
 		return (false);
 	data->has_data = true;
 	data->start = data->pos;
@@ -94,7 +95,8 @@ static t_bool	finalize(t_parse_data *data, t_list **head)
  *
  * @return	A boolean indicating success
  */
-t_bool	parse_into_data(t_parse_data *data, t_list **head, t_minishell *minishell)
+t_bool	parse_into_data(t_parse_data *data, t_list **head,
+			t_minishell *minishell)
 {
 	while (data->input[data->pos])
 	{
