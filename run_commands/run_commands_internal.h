@@ -18,7 +18,8 @@ typedef enum e_exit_state
 	ERROR,
 	CONTINUE,
 	RETURN,
-	BREAK
+	BREAK,
+	NOTHING
 }	t_exit_state;
 
 #endif

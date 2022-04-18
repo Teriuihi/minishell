@@ -11,12 +11,12 @@
 /* ************************************************************************** */
 
 #include "../headers/functions.h"
-#include <readline/history.h>
 #include <readline/readline.h>
 #include "run_commands.h"
 #include "../buildins/buildins.h"
 #include "../parser/parser.h"
-#include <errno.h>
+#include "run_commands_internal.h"
+#include "../functions/free_functions.h"
 
 /**
  * Copies cur_pid to old_pid
@@ -30,30 +30,12 @@ void	copy_pid(const int *cur_pid, int *old_pid)
 	old_pid[1] = cur_pid[1];
 }
 
-void	tmp_print_command(t_cmd_data *cmd_data)
-{
-	static int	count;
-	int			i;
-
-	i = 0;
-	ft_printf(2, "\033[1;32mCommand %i: \033[1;31m%s\n", count, cmd_data->command->command);
-	ft_printf(2, "\033[1;32mArgs: \033[1;31m%i\n", cmd_data->command->args_len);
-	while (i < cmd_data->command->args_len)
-		ft_printf(2, "  [%s]\n", cmd_data->command->args[i++]);
-	ft_printf(2, "\033[1;32mInput type: \033[1;31m%i\033[0m - \033[1;32mInput file: \033[1;31m%s\n",
-		cmd_data->input.type, cmd_data->input.file);
-	ft_printf(2, "\033[1;32mOutput type: \033[1;31m%i\033[0m - \033[1;32mOutput file: \033[1;31m%s\n",
-		cmd_data->output.type, cmd_data->output.file);
-	ft_printf(2, "\033[0m\n");
-	count++;
-}
-
-t_bool	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2], t_minishell *minishell)
+t_bool	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2],
+			t_minishell *minishell)
 {
 	char		*input;
 
 	g_signal.heredoc = true;
-	(void)minishell;
 	if (old_pid[0] != -1)
 	{
 		if (close(old_pid[0]) == -1)
@@ -76,6 +58,45 @@ t_bool	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2], t_minishell *mini
 	return (true);
 }
 
+void	init_run_commands(t_list **entry, t_list **head, int *cur_pid,
+			int *old_pid)
+{
+	*entry = *head;
+	cur_pid[0] = -1;
+	old_pid[0] = -1;
+	cur_pid[1] = -1;
+	old_pid[1] = -1;
+}
+
+t_exit_state	handle_null_command(t_cmd_data *cmd_data, int *old_pid,
+					t_minishell *minishell)
+{
+	if (cmd_data->command->command == NULL)
+	{
+		if (cmd_data->input.type == DELIMITER_INPUT)
+		{
+			if (heredoc_no_output(cmd_data, old_pid, minishell) == false)
+				return (BREAK);
+		}
+		return (CONTINUE);
+	}
+	return (NOTHING);
+}
+
+t_exit_state	handle_command(t_cmd_data *cmd_data, int *cur_pid, int *old_pid,
+					t_minishell *minishell)
+{
+	if (cur_pid[0] > -1)
+		copy_pid(cur_pid, old_pid);
+	if (cmd_data->output.type)
+	{
+		if (pipe(cur_pid) == -1)
+			return (BREAK);
+	}
+	exec_command(cmd_data, old_pid, cur_pid, minishell);
+	return (CONTINUE);
+}
+
 /**
  * Run all commands in given list
  *
@@ -84,39 +105,27 @@ t_bool	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2], t_minishell *mini
  */
 void	run_commands(t_list **head, t_minishell *minishell)
 {
-	int			cur_pid[2];
-	int			old_pid[2];
-	t_cmd_data	*cmd_data;
-	t_list		*entry;
+	int				cur_pid[2];
+	int				old_pid[2];
+	t_cmd_data		*cmd_data;
+	t_list			*entry;
+	t_exit_state	exit_state;
 
-	entry = *head;
-	cur_pid[0] = -1;
-	old_pid[0] = -1;
-	cur_pid[1] = -1;
-	old_pid[1] = -1;
+	init_run_commands(&entry, head, cur_pid, old_pid);
 	while (entry)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
-		//tmp_print_command(cmd_data);
-		if (cmd_data->command->command == NULL) //maybe separate checking condition?
+		exit_state = handle_null_command(cmd_data, old_pid, minishell);
+		if (exit_state == RETURN)
+			return ;
+		if (exit_state == CONTINUE)
 		{
-			if (cmd_data->input.type == DELIMITER_INPUT)
-			{
-				if (heredoc_no_output(cmd_data, old_pid, minishell) == false)
-					break ;
-			}
 			entry = entry->next;
 			continue ;
 		}
-		if (cur_pid[0] > -1)
-			copy_pid(cur_pid, old_pid);
-		if (cmd_data->output.type)
-		{
-			if (pipe(cur_pid) == -1) //should
-				break ;
-		}
-		exec_command(cmd_data, old_pid, cur_pid,
-			is_builtin(cmd_data->command), minishell);
+		exit_state = handle_command(cmd_data, cur_pid, old_pid, minishell);
+		if (exit_state == BREAK)
+			break ;
 		entry = entry->next;
 	}
 }
@@ -142,7 +151,7 @@ char	*prompt(void)
 {
 	char	*input;
 
-	if (g_signal.sigquit == 1 && g_signal.exit_status != 0) //cuz it was registered in this process
+	if (g_signal.sigquit == 1 && g_signal.exit_status != 0)
 	{
 		if (g_signal.exit_status == 131)
 			ft_printf(1, "Quit: 3\n");
@@ -150,6 +159,51 @@ char	*prompt(void)
 	}
 	input = readline("some shell>");
 	return (input);
+}
+
+t_exit_state	handle_input(char *input, t_minishell *minishell)
+{
+	t_list	**commands;
+	t_list	**parse_results;
+
+	add_history(input);
+	parse_results = parse(input, minishell);
+	free(input);
+	if (parse_results == NULL)
+		return (CONTINUE);
+	chdir(minishell->cur_wd);
+	commands = find_commands(parse_results, minishell);
+	if (commands == NULL)
+	{
+		g_signal.command = false;
+		signal_check(NULL, minishell);
+		free_parse_and_commands(NULL, parse_results);
+		return (BREAK);
+	}
+	g_signal.command = false;
+	run_commands(commands, minishell);
+	free_parse_and_commands(commands, parse_results);
+	return (NOTHING);
+}
+
+t_exit_state	program_loop(t_minishell *minishell)
+{
+	char			*input;
+	t_exit_state	exit_state;
+
+	g_signal.command = true;
+	input = prompt();
+	exit_state = CONTINUE;
+	if (signal_check(input, minishell) == false)
+	{
+		free(input);
+		return (BREAK);
+	}
+	if (should_use(input) == true)
+		exit_state = handle_input(input, minishell);
+	else
+		free(input);
+	return (exit_state);
 }
 
 /**
@@ -160,40 +214,13 @@ char	*prompt(void)
  */
 void	start_program_loop(t_minishell *minishell)
 {
-	char		*input;
-	t_list		**head;
-	t_list		**parse_results;
+	t_exit_state	exit_state;
 
-	while (g_signal.sigint != 1 && g_signal.veof != 1) //input
+	while (g_signal.sigint != 1 && g_signal.veof != 1)
 	{
-		g_signal.command = true;
-		input = prompt();
-		if (signal_check(input, minishell) == false)
-			break ; //reset stuff?
-		if (should_use(input) == true)
-		{
-			add_history(input);
-			parse_results = parse(input, minishell); //TODO free
-			if (parse_results == NULL)
-			{
-				continue ;
-			}
-			chdir(minishell->cur_wd);
-			head = find_commands(parse_results, minishell); //TODO free
-			if (head == NULL)
-			{
-				g_signal.command = false;
-				if (signal_check(NULL, minishell) == false)
-					break ;
-				else
-					return ; //y tho
-			}
-			g_signal.command = false;
-			run_commands(head, minishell);
-			free_commands(head);
-		}
+		exit_state = program_loop(minishell);
+		if (exit_state == BREAK)
+			break ;
 	}
 	g_signal.command = false;
-	if (input != NULL)
-		free(input);
 }
