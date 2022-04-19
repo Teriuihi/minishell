@@ -101,5 +101,44 @@ int	main(void)
 		}
 		check_status();
 	}
-	return (0);
+	return (g_signal.exit_status);
 }
+
+/* functions for the tester
+int	ret_main(char *argv)
+{
+	t_minishell		minishell;
+
+	if (init_succeeded(&minishell) == false)
+	{
+		exit(1);
+	}
+	init_signal();
+	//while (g_signal.veof != 1 && g_signal.shell_level >= 0)
+	//{
+	//	while (g_signal.sigint != 1 && g_signal.veof != 1)
+	//	{
+			start_program_loop(&minishell, argv);
+	//	}
+		check_status();
+	//}
+	return (g_signal.exit_status);
+}
+
+int main(int argc, char **argv)
+{
+  // Your code...
+  	//ft_printf(1, "%s is argv 1\n", argv[1]);
+  //if (argc >= 3 && !ft_strncmp(argv[1], "-c", 3))
+    int exit_status = ret_main(argv[1]);
+    ft_printf(1, " exit code : %d\n", exit_status);
+	return (0);
+	//exit(exit_status);
+    // Above this is the function that normally launch your minishell, instead 
+    // of reading line with a get_next_line or a read() on fd 0, you just have to get
+    // the argv[2] (which contains the content) and execute it.
+    // Your function should return the good exit status otherwise the tests may be considered as false.
+  // Your code ...
+}
+
+*/

@@ -69,10 +69,12 @@ static t_bool	splitter(int *i, t_command *command, t_minishell *minishell)
 	{
 		splitted = ft_split(command->args[*i + 1], '=');
 		if (splitted == NULL)
-			return (false);
-		if (splitted[2] != 0)
 		{
-			ft_printf(2, "YOU DIDNT STOP AFTER THE FIRST EQUALS SIGN\n"); //TODO fix
+			return (false);
+		}
+		if (split_len(splitted) > 2 && splitted[2] != 0)
+		{
+			ft_printf(2, "YOU DIDNT STOPFIRST EQUALS SIGN\n");
 			return (true);
 		}
 		if (split_len(splitted) == 1)

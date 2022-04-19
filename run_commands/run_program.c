@@ -168,7 +168,7 @@ t_exit_state	handle_input(char *input, t_minishell *minishell)
 
 	add_history(input);
 	parse_results = parse(input, minishell);
-	free(input);
+	//free(input); DONT FORGET TO CHECK THIS ONE!
 	if (parse_results == NULL)
 		return (CONTINUE);
 	chdir(minishell->cur_wd);
@@ -224,3 +224,39 @@ void	start_program_loop(t_minishell *minishell)
 	}
 	g_signal.command = false;
 }
+
+/* functions for shell script testing
+
+t_exit_state	program_loop(t_minishell *minishell, char *argv)
+{
+	char			*input;
+	t_exit_state	exit_state;
+
+	g_signal.command = true;
+	input = argv;//prompt();
+	exit_state = CONTINUE;
+	if (signal_check(input, minishell) == false)
+	{
+		free(input);
+		return (BREAK);
+	}
+	if (should_use(input) == true)
+		exit_state = handle_input(input, minishell);
+	else
+		free(input);
+	return (exit_state);
+}
+
+void	start_program_loop(t_minishell *minishell, char *argv)
+{
+	t_exit_state	exit_state;
+
+	while (g_signal.sigint != 1 && g_signal.veof != 1)
+	{
+		exit_state = program_loop(minishell, argv);
+		if (exit_state == BREAK)
+			break ;
+	}
+	g_signal.command = false;
+}
+*/

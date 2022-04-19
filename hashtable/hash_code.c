@@ -78,7 +78,7 @@ t_list	*get_names(t_hash_table *h_table)
 		{
 			while (curr != NULL)
 			{
-				if (curr->key != NULL)
+				if (curr->key != NULL && curr->is_exported == true)
 					ft_lstadd_front(&head, ft_lstnew(curr->key));
 				curr = curr->next;
 			}
@@ -105,7 +105,7 @@ void	sort_by_name(t_list *names)
 			if (index->content != NULL && curr->content != NULL)
 			{
 				if (ft_strcmp((char *)curr->content,
-					(char *)index->content) > 0)
+						(char *)index->content) > 0)
 				{
 					tmp = curr->content;
 					curr->content = index->content;
@@ -125,6 +125,7 @@ t_bool	export(void *minishell)
 	t_list			*curr;
 	char			*val;
 	t_bool			status;
+	unsigned int	slot;
 
 	h_table = ((t_minishell *)minishell)->env;
 	names = get_names(h_table);

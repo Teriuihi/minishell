@@ -39,7 +39,8 @@ void	execute_with_access_check(t_command *command, t_minishell *minishell,
 	{
 		if (access(command->command, X_OK) == -1)
 		{
-			if (ft_printf(2, "%s%s%s\n", "some shell: ", command->command, ": Permission denied") == -1)
+			if (ft_printf(2, "%s%s%s\n", "some shell: ", command->command,
+					": Permission denied") == -1)
 			{
 				exit(1);
 			}
@@ -51,7 +52,6 @@ void	execute_with_access_check(t_command *command, t_minishell *minishell,
 		else if (execve(command->command, command->args,
 				get_envp(minishell->env)) < 0)
 		{
-			//close(old_pid[0]); //do we need this inside?
 			exit(126);
 		}
 	}
@@ -114,7 +114,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, int *old_pid,
 	}
 	if (cmd_data->executable_found == false)
 	{
-		ft_printf(2, "some shell: %s: No such file or directory\n",
+		ft_printf(2, "some shell: %s: command not found\n",
 			command->command);
 		exit(127);
 	}

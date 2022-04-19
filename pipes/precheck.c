@@ -63,6 +63,8 @@ static t_bool	search_executable(t_cmd_data *cmd_data,
 
 	executable = NULL;
 	command = cmd_data->command;
+	if (ft_streq(command->command, "..") == 1)
+		return (false);
 	if (command->command != NULL && command->command[0] == '/')
 	{
 		return (assign_path_to_command(executable, false, command));

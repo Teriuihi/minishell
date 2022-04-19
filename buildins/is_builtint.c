@@ -13,6 +13,15 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 
+static t_bool	is_special_char(char c)
+{
+	return (c == '~' || c == '#' || c == '$' || c == '#'
+		|| c == '&' || c == '*' || c == '(' || c == ')'
+		|| c == '|' || c == '[' || c == ']' || c == '{'
+		|| c == '}' || c == ';' || c == '>' || c == '<'
+		|| c == '/' || c == '?' || c == '!');
+}
+
 /**
  * Checks whether assignment is in a correct form.
  * @return	true if if export or correct variable assignment is present,
@@ -27,14 +36,16 @@ t_bool	is_input_correct(char *command, int *count)
 	equal_found = 0;
 	while (command[i])
 	{
+		if (is_special_char(command[i]) == true)
+		{
+			return (false);
+		}
 		if (command[i] == '=')
 		{
 			*count = *count + 1;
 			equal_found++;
 			if (i == 0)
 				return (false);
-			//if (command[i + 1] == '=' && equal_found == 1)
-			//	return (false);
 		}
 		i++;
 	}
