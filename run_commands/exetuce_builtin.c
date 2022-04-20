@@ -95,6 +95,22 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 		return (set_exit_status(minishell, 1, NULL, false));
 }
 
+t_bool	remove_all_exported_vars(char **args, t_minishell *minishell)
+{
+	t_bool	res;
+	int		i;
+
+	i = 1;
+	while (args[i])
+	{
+		res = ft_remove_exported_var(args[i], minishell->env, minishell);
+		if (res == false)
+			return (res);
+		i++;
+	}
+	return (true);
+}
+
 t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 {
 	char	*cur_dir;
@@ -103,8 +119,8 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 	if (!command->command || !minishell || !cur_dir)
 		return (set_exit_status(minishell, 1, NULL, false));
 	else if (ft_streq(command->command, "unset"))
-		return (ft_remove_exported_var(command->args[1], minishell->env,
-				minishell));
+		return (remove_all_exported_vars(
+				command->args, minishell));
 	else if (ft_streq(command->command, "cd"))
 		return (cd(command, minishell));
 	else if (env_variable_found(command) == true)

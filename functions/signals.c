@@ -34,6 +34,8 @@ t_bool	signal_check(const char *input, t_minishell *minishell)
 		if (g_signal.heredoc == true)
 		{
 			g_signal.heredoc = false;
+			g_signal.veof = 0;
+			g_signal.exit_status = 0;
 			ft_printf(1, "\b\b");
 		}
 	}
