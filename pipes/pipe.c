@@ -50,7 +50,7 @@ void	execute_with_access_check(t_command *command, t_minishell *minishell,
 			}
 		}
 		else if (execve(command->command, command->args,
-				get_envp(minishell->env)) < 0)
+				get_envp(minishell->env, 0, 0)) < 0)
 		{
 			exit(126);
 		}

@@ -47,7 +47,7 @@ t_bool			ft_set_env(char *key, char *val, t_hash_table *h_table,
 void			free_key_value(t_entry *entry);
 void			destroy_entry(t_entry *entry);
 t_bool			print_h_table(t_hash_table *h_table, int len);
-char			**get_envp(t_hash_table *h_table);
+char			**get_envp(t_hash_table *h_table, int i, int current_size);
 void			set_to_exported(t_hash_table *h_table);
 t_bool			export(void *minishell);
 

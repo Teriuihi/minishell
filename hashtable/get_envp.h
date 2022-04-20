@@ -14,6 +14,6 @@
 # define GET_ENVP_H
 # include "../headers/functions.h"
 
-char	**get_envp(t_hash_table *h_table);
+char	**get_envp(t_hash_table *h_table, int i, int current_size);
 
 #endif

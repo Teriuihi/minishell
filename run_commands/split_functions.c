@@ -51,21 +51,42 @@ t_exit_state	splitter2(t_command *command, int i, char **splitted,
 	return (CONTINUE);
 }
 
+char	**split_arg(char *str)
+{
+	char	**res;
+	int		first_eq;
+
+	first_eq = 0;
+	while (str[first_eq] && str[first_eq] != '=')
+		first_eq++;
+	if (str[first_eq] != '=')
+		return (NULL);
+	res = ft_calloc(3, sizeof(char *));
+	if (res == NULL)
+		return (NULL);
+	res[0] = ft_calloc(first_eq, sizeof(char));
+	res[1] = ft_strdup(str + first_eq + 1);
+	if (res[0] == NULL || res[1] == NULL)
+	{
+		free(res[0]);
+		free(res[1]);
+		free(res);
+		return (NULL);
+	}
+	ft_strncpy(res[0], str, first_eq);
+	return (res);
+}
+
 t_bool	splitter(int *i, t_command *command, t_minishell *minishell)
 {
 	char	**splitted;
 
 	while (*i < command->args_len - 1)
 	{
-		splitted = ft_split(command->args[*i + 1], '=');
+		splitted = split_arg(command->args[*i + 1]);
 		if (splitted == NULL)
 		{
 			return (false);
-		}
-		if (split_len(splitted) > 2 && splitted[2] != 0)
-		{
-			ft_printf(2, "YOU DIDNT STOP FIRST EQUALS SIGN\n");//TODO FIX
-			return (true);
 		}
 		if (split_len(splitted) == 1)
 		{

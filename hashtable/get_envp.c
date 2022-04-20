@@ -61,17 +61,13 @@ static char	**loop_and_concat(char **envp, t_hash_table *h_table)
 	return (envp);
 }
 
-char	**get_envp(t_hash_table *h_table)
+char	**get_envp(t_hash_table *h_table, int i, int current_size)
 {
 	t_entry	*curr;
-	int		i;
-	int		current_size;
 	char	**envp;
 
 	if (!h_table)
 		return (NULL);
-	i = 0;
-	current_size = 0;
 	while (i < h_table->size)
 	{
 		curr = h_table->entries[i];
@@ -88,7 +84,7 @@ char	**get_envp(t_hash_table *h_table)
 	if (loop_and_concat(envp, h_table) == NULL)
 	{
 		free(envp);
-		return (NULL); //TODO made this return NULL but idk if it should
+		return (NULL);
 	}
 	return (envp);
 }
