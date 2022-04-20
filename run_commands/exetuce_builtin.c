@@ -56,7 +56,7 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 		return (set_exit_status(minishell, 2, NULL, false));
 	if (command->export_found == true)
 		return (export_found(command, minishell));
-	splitted = ft_split(command->command, '=');
+	splitted = ft_split_first(command->command, '=');
 	if (!splitted)
 		return (set_exit_status(minishell, 1, NULL, false));
 	if (ft_get_env_val(splitted[0], minishell->env, &success) != NULL)

@@ -45,6 +45,7 @@ int		ft_isalpha(int c);
 int		ft_isdigit(int c);
 int		ft_isalnum(int c);
 int		ft_strcmp(char *str1, char *str2);
+char	**ft_split_first(char *str, char c);
 
 typedef struct s_list
 {
