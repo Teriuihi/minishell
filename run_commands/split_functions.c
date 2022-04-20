@@ -51,13 +51,32 @@ t_exit_state	splitter2(t_command *command, int i, char **splitted,
 	return (CONTINUE);
 }
 
+char	**create_array_with_one_arg(char *str)
+{
+	char	**arr;
+
+	arr = ft_calloc(2, sizeof(char *));
+	if (arr == NULL)
+		return (NULL);
+	arr[0] = ft_strdup(str);
+	if (arr[0] == NULL)
+	{
+		free (arr);
+		return (NULL);
+	}
+	return (arr);
+}
+
 t_bool	splitter(int *i, t_command *command, t_minishell *minishell)
 {
 	char	**splitted;
 
 	while (*i < command->args_len - 1)
 	{
-		splitted = ft_split_first(command->args[*i + 1], '=');
+		if (!ft_contains(command->args[*i + 1], '='))
+			splitted = create_array_with_one_arg(command->args[*i + 1]);
+		else
+			splitted = ft_split_first(command->args[*i + 1], '=');
 		if (splitted == NULL)
 		{
 			return (false);
