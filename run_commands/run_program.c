@@ -115,6 +115,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	while (entry)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
+		g_signal.cur_cmd = cmd_data;
 		exit_state = handle_null_command(cmd_data, old_pid, minishell);
 		if (exit_state == RETURN)
 			return ;
@@ -168,7 +169,6 @@ t_exit_state	handle_input(char *input, t_minishell *minishell)
 
 	add_history(input);
 	parse_results = parse(input, minishell);
-	//free(input); DONT FORGET TO CHECK THIS ONE!
 	if (parse_results == NULL)
 		return (CONTINUE);
 	chdir(minishell->cur_wd);
@@ -201,8 +201,7 @@ t_exit_state	program_loop(t_minishell *minishell)
 	}
 	if (should_use(input) == true)
 		exit_state = handle_input(input, minishell);
-	else
-		free(input);
+	free(input);
 	return (exit_state);
 }
 

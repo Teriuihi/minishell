@@ -34,6 +34,7 @@ typedef struct s_signal
 	volatile sig_atomic_t	sigquit;
 	t_bool					heredoc;
 	t_bool					command;
+	t_cmd_data				*cur_cmd;
 }				t_signal;
 
 typedef struct s_minishell

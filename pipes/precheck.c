@@ -103,6 +103,27 @@ t_bool	should_be_child(t_command *command)
 	return (true);
 }
 
+t_bool	pre_fork_check_2(t_cmd_data *cmd_data, t_bool is_built_in,
+			t_minishell *minishell)
+{
+	t_bool		succeeded;
+	t_command	*command;
+
+	command = cmd_data->command;
+	if (is_built_in == false)
+		cmd_data->executable_found = search_executable(cmd_data, minishell);
+	if (should_be_child(command) == false)
+	{
+		succeeded = execute_non_forked_builtin(command, minishell);
+		if (succeeded == false && g_signal.print_basic_error == true)
+			ft_printf(2, "command not found: %s\n", command->command);
+		if (g_signal.print_basic_error == true)
+			g_signal.print_basic_error = false;
+		return (false);
+	}
+	return (true);
+}
+
 /**
  * Checking function before forking. Also calls execute non-forked builtin
  * 	in case the command shouldn't be forked
@@ -115,16 +136,14 @@ t_bool	should_be_child(t_command *command)
  * @return	true if it everythng went according to expectations,
  * 	all functions returned true (succeeded), false otherwise
  */
-t_bool	pre_fork_check(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
+t_bool	pre_fork_check(t_cmd_data *cmd_data, int *old_pid,
 			t_minishell *minishell)
 {
 	t_command	*command;
-	t_bool		succeeded;
 	t_bool		is_built_in;
 
 	is_built_in = is_builtin(cmd_data->command);
 	command = cmd_data->command;
-	succeeded = true;
 	if (ft_streq(command->command, "exit"))
 	{
 		if (cmd_data->input.type == NONE && cmd_data->output.type == NONE)
@@ -132,20 +151,9 @@ t_bool	pre_fork_check(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 		else
 			return (false);
 	}
-	if (check_input_redir(cmd_data, old_pid, cur_pid, minishell) == false)
+	if (check_input_redir(cmd_data, old_pid, minishell) == false)
 		return (false);
-	if (is_built_in == false)
-		cmd_data->executable_found = search_executable(cmd_data, minishell);
-	if (should_be_child(command) == false)
-	{
-		succeeded = execute_non_forked_builtin(command, minishell);
-		if (succeeded == false && g_signal.print_basic_error == true)
-			ft_printf(2, "command not found: %s\n", command->command);
-		if (g_signal.print_basic_error == true)
-			g_signal.print_basic_error = false;
-		return (false);
-	}
-	return (succeeded);
+	return (pre_fork_check_2(cmd_data, is_built_in, minishell));
 }
 
 /**
@@ -160,16 +168,16 @@ t_bool	pre_fork_check(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
  * @return	true if it everiythng went according to expectations or there
  * 	was no input redirection, false if redirection failed for any reason
  */
-t_bool	check_input_redir(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
+t_bool	check_input_redir(t_cmd_data *cmd_data, int *old_pid,
 			t_minishell *minishell)
 {
 	if (cmd_data->input.type == REDIRECT_INPUT)
 	{
-		return (redirect_file(cmd_data, old_pid, cur_pid, minishell));
+		return (redirect_file(cmd_data, old_pid, minishell));
 	}
 	else if (cmd_data->input.type == DELIMITER_INPUT)
 	{
-		return (read_input_write(cmd_data, old_pid, cur_pid, minishell));
+		return (read_input_write(cmd_data, old_pid, minishell));
 	}
 	return (true);
 }

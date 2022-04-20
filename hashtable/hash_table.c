@@ -68,24 +68,13 @@ t_entry	*create_hash_table_pair(char *key, char *val, t_bool is_exported)
 	return (entry);
 }
 
-t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val,
-						t_bool is_exported)
+static t_entry	*overwrite_if_exists_else_get_last(t_entry *entry,
+					t_bool is_exported, char *key, char *val)
 {
-	unsigned int	slot;
-	t_entry			*entry;
-	t_entry			*prev;
-	int				i;
+	t_entry	*prev;
+	int		i;
 
 	i = 0;
-	slot = hash(key, "", h_table->size);
-	entry = h_table->entries[slot];
-	if (entry == NULL)
-	{
-		h_table->entries[slot] = create_hash_table_pair(key, val, is_exported);
-		if (!h_table->entries[slot])
-			return (false);
-		return (true);
-	}
 	while (entry != NULL)
 	{
 		if (ft_strlen(entry->key) == ft_strlen(key)
@@ -96,14 +85,35 @@ t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val,
 			entry->val = ft_strdup(val);
 			if (!entry->is_exported)
 				entry->is_exported = is_exported;
-			return (true);
+			return (NULL);
 		}
 		prev = entry;
 		entry = prev->next;
 		i++;
 	}
-	prev->next = create_hash_table_pair(key, val, is_exported);
-	if (!prev->next)
+	return (prev);
+}
+
+t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val,
+			t_bool is_exported)
+{
+	unsigned int	slot;
+	t_entry			*entry;
+
+	slot = hash(key, "", h_table->size);
+	entry = h_table->entries[slot];
+	if (entry == NULL)
+	{
+		h_table->entries[slot] = create_hash_table_pair(key, val, is_exported);
+		if (!h_table->entries[slot])
+			return (false);
+		return (true);
+	}
+	entry = overwrite_if_exists_else_get_last(entry, is_exported, key, val);
+	if (entry == NULL)
+		return (true);
+	entry->next = create_hash_table_pair(key, val, is_exported);
+	if (!entry->next)
 		return (false);
 	return (true);
 }

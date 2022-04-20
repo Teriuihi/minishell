@@ -12,8 +12,7 @@
 
 #include "control_child_and_pipes.h"
 
-static t_bool	input_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
-						t_minishell *minishell)
+static t_bool	input_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid)
 {
 	if (cmd_data->input.type == OUTPUT_TO_COMMAND)
 	{
@@ -69,9 +68,7 @@ static t_bool	output_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 						t_minishell *minishell)
 {
-	char	*cur_dir;
-
-	if (input_pipes(cmd_data, old_pid, cur_pid, minishell) == false)
+	if (input_pipes(cmd_data, old_pid, cur_pid) == false)
 		return (false);
 	if (output_pipes(cmd_data, old_pid, cur_pid, minishell) == false)
 		return (false);
@@ -91,8 +88,6 @@ t_bool	control_pipes(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 t_bool	init_child(int *old_pid, int *cur_pid, t_pipe_type type,
 					t_minishell *minishell)
 {
-	char	*cur_dir;
-
 	if (old_pid[0] != -1)
 	{
 		if (dup2(old_pid[0], STDIN_FILENO) == -1)
@@ -120,7 +115,7 @@ t_bool	exec_dup_close(int *pid_to_dup, int *pid1_to_close,
 {
 	if (*pid_to_dup != -1)
 	{
-		if (dup2(pid_to_dup[0], STDIN_FILENO) == -1) /* ft_printf(1, "exec dup close problem\n"); */
+		if (dup2(pid_to_dup[0], STDIN_FILENO) == -1)
 		{
 			ft_printf(1, "exec dup close problem\n");
 			return (false);

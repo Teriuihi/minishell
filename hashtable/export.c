@@ -12,23 +12,17 @@
 
 #include "../libft/libft.h"
 #include "export.h"
-#include "../hashtable/hashtable.h"
-#include "../headers/minishell.h"
-#include "../headers/functions.h"
-#include <string.h>
 
 static t_list	*get_names(t_hash_table *h_table)
 {
 	t_entry	*curr;
 	t_list	*head;
-	int		env_i;
 	int		i;
 
 	head = (t_list *)ft_calloc(1, sizeof(t_list));
 	if (!head)
 		return (NULL);
 	i = 0;
-	env_i = 0;
 	while (i < h_table->size)
 	{
 		curr = h_table->entries[i];
@@ -105,8 +99,6 @@ t_bool	export_cmd(void *minishell)
 		return (set_exit_status((t_minishell *)minishell, 1, NULL, false));
 	sort_by_name(names);
 	curr = names;
-	if (!curr)
-		return (set_exit_status(minishell, 1, NULL, false));
 	print_exported(curr, h_table, &status);
 	if (status == false)
 		return (set_exit_status(minishell, 1, NULL, false));

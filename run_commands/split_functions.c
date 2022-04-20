@@ -64,7 +64,7 @@ t_bool	splitter(int *i, t_command *command, t_minishell *minishell)
 		}
 		if (split_len(splitted) > 2 && splitted[2] != 0)
 		{
-			ft_printf(2, "YOU DIDNT STOPFIRST EQUALS SIGN\n");
+			ft_printf(2, "YOU DIDNT STOP FIRST EQUALS SIGN\n");//TODO FIX
 			return (true);
 		}
 		if (split_len(splitted) == 1)

@@ -43,7 +43,7 @@ static t_bool	find_commands_in_args(t_cmd_get_struct *cmd_get,
 	return (success);
 }
 
-/** TODO if a command is NULL only do heredoc then continue
+/**
  * Finds all the commands and stores them in t_list
  *
  * @param	args	Arguments to create the commands from

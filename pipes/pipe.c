@@ -172,7 +172,7 @@ void	child_execute_built_in(t_cmd_data *cmd_data, int *old_pid,
 void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 			t_minishell *minishell)
 {
-	if (pre_fork_check(cmd_data, old_pid, cur_pid, minishell) == false)
+	if (pre_fork_check(cmd_data, old_pid, minishell) == false)
 	{
 		return ;
 	}

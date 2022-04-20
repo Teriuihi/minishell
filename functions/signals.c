@@ -81,4 +81,5 @@ void	init_signal(void)
 	g_signal.pid = getpid();
 	g_signal.heredoc = false;
 	g_signal.command = false;
+	g_signal.cur_cmd = NULL;
 }
