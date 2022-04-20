@@ -46,20 +46,20 @@ t_entry	*create_hash_table_pair(char *key, char *val, t_bool is_exported)
 
 	entry = (t_entry *)ft_calloc(1, sizeof(t_entry));
 	if (!entry)
-		exit(1);
+		return (NULL);
 	if (key != NULL)
 	{
 		entry->key = ft_strdup(key);
-		if (entry->key == NULL)
-			exit(1);
+		if (entry->key == NULL) //TODO free entry
+			return (NULL);
 	}
 	else
 		entry->key = NULL;
 	if (val != NULL)
 	{
 		entry->val = ft_strdup(val);
-		if (entry->val == NULL)
-			exit(1);
+		if (entry->val == NULL) //TODO free entry
+			return (NULL);
 	}
 	else
 		entry->val = NULL;
@@ -122,7 +122,6 @@ t_hash_table	*create_env_h_table(void)
 	h_table = init_hash_table(size);
 	if (h_table == NULL)
 		exit(1);
-	i = 0;
 	while (environ[i])
 	{
 		environs = ft_split(environ[i], '=');
@@ -142,14 +141,9 @@ t_bool	print_h_table(t_hash_table *h_table, int len)
 	t_entry	*curr;
 
 	if (len != 1)
-	{
-		new_set_exit_status(127, "some shell: too many arguments\n");
-		exit(127);
-	}
+		return (new_set_exit_status(127, "some shell: too many arguments\n"));
 	if (!h_table)
-	{
 		return (false);
-	}
 	i = 0;
 	while (i < h_table->size)
 	{

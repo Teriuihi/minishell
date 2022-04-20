@@ -122,20 +122,16 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 	}
 	if (command->args_len != 2)
 	{
-		g_signal.print_basic_error = false;
-		ft_printf(2, "%s%s%s\n", "some shell: cd: ", command->args[1],
-			": No such file or directory");
-		return (set_exit_status(minishell, 1, NULL, false));
+		return (new_set_exit_status(1,
+				"some shell: cd: %s: No such file or directory\n",
+				command->args[1]));
 	}
 	dir = get_path_from_arg(command->args[1], minishell);
 	tmp = opendir(dir);
 	if (!tmp)
-	{
-		g_signal.print_basic_error = false;
-		ft_printf(2, "%s%s%s\n", "some shell: cd: ", command->args[1],
-			": No such file or directory");
-		return (set_exit_status(minishell, 1, NULL, false));
-	}
+		return (new_set_exit_status(1,
+				"some shell: cd: %s: No such file or directory\n",
+				command->args[1]));
 	result = tmp != NULL;
 	free(tmp);
 	return (enter_dir(dir, command, minishell, result));

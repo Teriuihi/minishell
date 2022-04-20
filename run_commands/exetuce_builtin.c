@@ -14,7 +14,8 @@
 #include "../headers/functions.h"
 #include "../buildins/buildins.h"
 #include "run_commands_internal.h"
-
+#include "../hashtable/export.h"
+#include "split_functions.h"
 /**
  * Takes an array of arrays (user input)
  * Selects the function to execute based on the first argument (args[0])
@@ -22,72 +23,6 @@
  *
  * @return	void
  */
-static int	split_len(char **splitted)
-{
-	int	i;
-
-	i = 0;
-	if (!splitted)
-	{
-		return (0);
-	}
-	while (splitted[i])
-	{
-		i++;
-	}
-	return (i);
-}
-
-static t_exit_state	splitter2(t_command *command, int i, char **splitted,
-								 t_minishell *minishell)
-{
-	int	was_there_equal;
-	int	k;
-
-	was_there_equal = 0;
-	k = 0;
-	while (command->args[i + 1][k] != '\0')
-	{
-		if (command->args[i + 1][k] == '=')
-			was_there_equal = 1;
-		k++;
-	}
-	if (was_there_equal == 1)
-	{
-		ft_set_env(splitted[0], "", minishell->env, true);
-		free_splitted(splitted);
-		return (RETURN);
-	}
-	return (CONTINUE);
-}
-
-static t_bool	splitter(int *i, t_command *command, t_minishell *minishell)
-{
-	char	**splitted;
-
-	while (*i < command->args_len - 1)
-	{
-		splitted = ft_split(command->args[*i + 1], '=');
-		if (splitted == NULL)
-		{
-			return (false);
-		}
-		if (split_len(splitted) > 2 && splitted[2] != 0)
-		{
-			ft_printf(2, "YOU DIDNT STOPFIRST EQUALS SIGN\n");
-			return (true);
-		}
-		if (split_len(splitted) == 1)
-		{
-			if (splitter2(command, *i, splitted, minishell) == RETURN)
-				return (true);
-		}
-		ft_set_env(splitted[0], splitted[1], minishell->env, true);
-		free_splitted(splitted);
-		(*i)++;
-	}
-	return (true);
-}
 
 static t_bool	export_found(t_command *command, t_minishell *minishell)
 {
@@ -148,7 +83,7 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 	if (!command->command || !minishell || !cur_dir)
 		return (set_exit_status(minishell, 1, NULL, false));
 	if (ft_streq(command->command, "export") == 1 && command->args_len == 1)
-		return (export((void *)minishell));
+		return (export_cmd((void *)minishell));
 	else if (env_variable_found(command) == true)
 		return (env_var_added(command, minishell));
 	else if (ft_streq(command->command, "echo"))
@@ -177,11 +112,4 @@ t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)
 		return (env_var_added(command, minishell));
 	else
 		return (set_exit_status(minishell, 1, NULL, false));
-}
-
-t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
-{
-	ft_putstr_fd(cur_dir, 1);
-	ft_putstr_fd("\n", 1);
-	return (set_exit_status(minishell, 0, NULL, false));
 }
