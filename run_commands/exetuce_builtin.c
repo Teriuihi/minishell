@@ -51,6 +51,7 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 {
 	char	**splitted;
 	t_bool	success;
+	char	*env_val;
 
 	if (!command || !minishell)
 		return (set_exit_status(minishell, 2, NULL, false));
@@ -59,8 +60,10 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 	splitted = ft_split_first(command->command, '=');
 	if (!splitted)
 		return (set_exit_status(minishell, 1, NULL, false));
-	if (ft_get_env_val(splitted[0], minishell->env, &success) != NULL)
+	env_val = ft_get_env_val(splitted[0], minishell->env, &success);
+	if (env_val != NULL)
 	{
+		free(env_val);
 		if (succesful_insert(minishell->env, splitted[0], splitted[1], true)
 			== true)
 			return (set_exit_status(minishell, 0, NULL, false));
@@ -69,9 +72,12 @@ static t_bool	env_var_added(t_command *command, t_minishell *minishell)
 	}
 	else if (ft_set_env(splitted[0], splitted[1], minishell->env, false)
 		== false)
+	{
+		free_splitted(splitted);
 		return (set_exit_status(minishell, 1, NULL, false));
-	else
-		return (set_exit_status(minishell, 0, NULL, false));
+	}
+	free_splitted(splitted);
+	return (set_exit_status(minishell, 0, NULL, false));
 }
 
 t_bool	execute_builtin(t_command *command, t_minishell *minishell)
