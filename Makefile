@@ -1,5 +1,5 @@
 NAME=minishell
-CC=gcc
+CC=gcc -g
 CFLAGS=
 RM=rm -f
 

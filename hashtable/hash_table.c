@@ -139,7 +139,7 @@ t_hash_table	*create_env_h_table(void)
 			return (NULL);
 		if (succesful_insert(h_table, environs[0], environs[1], true) == false)
 			return (NULL);
-		free(environs);
+		free_splitted(environs);
 		i++;
 	}
 	return (h_table);

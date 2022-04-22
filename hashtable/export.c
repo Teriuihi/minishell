@@ -78,7 +78,10 @@ static void	print_exported(t_list *curr, t_hash_table *h_table, t_bool *status)
 		{
 			val = ft_get_exported_env((char *)curr->content, h_table, status);
 			if (val != NULL)
+			{
 				ft_printf(1, "declare -x %s=\"%s\"\n", (char *)curr->content, val);
+				free(val);
+			}
 			else
 				ft_printf(1, "declare -x %s\n", (char *)curr->content);
 		}
@@ -86,11 +89,15 @@ static void	print_exported(t_list *curr, t_hash_table *h_table, t_bool *status)
 	}
 }
 
+void	clear_names(void *content)
+{
+	free(content);
+}
+
 t_bool	export_cmd(void *minishell)
 {
 	t_hash_table	*h_table;
 	t_list			*names;
-	t_list			*curr;
 	t_bool			status;
 
 	h_table = ((t_minishell *)minishell)->env;
@@ -98,8 +105,8 @@ t_bool	export_cmd(void *minishell)
 	if (!names)
 		return (set_exit_status((t_minishell *)minishell, 1, NULL, false));
 	sort_by_name(names);
-	curr = names;
-	print_exported(curr, h_table, &status);
+	print_exported(names, h_table, &status);
+	ft_lstclear(&names, clear_names);
 	if (status == false)
 		return (set_exit_status(minishell, 1, NULL, false));
 	else

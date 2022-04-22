@@ -159,7 +159,7 @@ t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 			cmd_data->output.type = OUTPUT_TO_COMMAND;
 		cmd_get->cur_arg = entry->next;
 		cmd_get->cur_cmd = NULL;
-		return (RETURN);
+		return (RET);
 	}
 	entry = entry->next;
 	if (entry == NULL)

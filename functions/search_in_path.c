@@ -32,7 +32,7 @@ t_exit_state	search_in_path_2(char *command, char **split_path, int *i,
 		if (!*path)
 			return (ERROR);
 		else
-			return (RETURN);
+			return (RET);
 	}
 	(*i)++;
 	return (CONTINUE);
@@ -53,7 +53,7 @@ char	*search_in_path_1(char **split_path, char *command)
 			free_splitted(split_path);
 			return (NULL);
 		}
-		if (state == RETURN)
+		if (state == RET)
 			return (result);
 	}
 	free_splitted(split_path);

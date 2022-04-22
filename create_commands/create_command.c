@@ -83,7 +83,7 @@ static t_bool	loop_through_entries(t_list *entry, t_cmd_get_struct *cmd_get,
 		exit_state = update_pipe(cmd_data, cmd_get, minishell);
 		if (exit_state == ERROR)
 			return (false);
-		else if (exit_state == RETURN)
+		else if (exit_state == RET)
 			return (true);
 		entry = cmd_get->cur_arg;
 	}

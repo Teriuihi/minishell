@@ -12,6 +12,7 @@
 
 #include "../headers/functions.h"
 #include <readline/readline.h>
+#include <readline/history.h>
 #include "run_commands.h"
 #include "../buildins/buildins.h"
 #include "../parser/parser.h"
@@ -117,7 +118,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 		cmd_data = (t_cmd_data *)entry->content;
 		g_signal.cur_cmd = cmd_data;
 		exit_state = handle_null_command(cmd_data, old_pid, minishell);
-		if (exit_state == RETURN)
+		if (exit_state == RET)
 			return ;
 		if (exit_state == CONTINUE)
 		{
@@ -218,7 +219,6 @@ void	start_program_loop(t_minishell *minishell)
 	while (g_signal.sigint != 1 && g_signal.veof != 1)
 	{
 		exit_state = program_loop(minishell);
-		system("leaks minishell");
 		if (exit_state == BREAK)
 			break ;
 	}

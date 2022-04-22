@@ -68,12 +68,15 @@ void	free_parse(void *content)
 
 	arg = content;
 	free_string(arg->arg);
+	free(arg);
 }
 
 void	free_parse_and_commands(t_list **commands, t_list **parse_results)
 {
 	if (commands != NULL)
 		ft_lstclear(commands, free_command);
+	free(commands);
 	if (parse_results != NULL)
 		ft_lstclear(parse_results, free_parse);
+	free(parse_results);
 }

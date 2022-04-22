@@ -55,7 +55,7 @@ t_exit_state	search_in_folder3(struct stat sb, struct dirent *file,
 		if (ft_streq(command, tmp))
 		{
 			free(tmp);
-			return (RETURN);
+			return (RET);
 		}
 		free(tmp);
 	}
@@ -91,7 +91,7 @@ char	*search_in_folder(char *command, t_minishell *minishell)
 	while (file)
 	{
 		state = search_in_folder2(directory_path, file, command, &result);
-		if (state == RETURN)
+		if (state == RET)
 		{
 			closedir(directory);
 			free(directory_path);

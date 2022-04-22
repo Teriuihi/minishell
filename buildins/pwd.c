@@ -41,6 +41,7 @@ t_bool	update_pwd(char *path, t_minishell *minishell)
 	}
 	free(minishell->cur_wd);
 	minishell->cur_wd = ft_strdup(path);
+	free(path);
 	if (minishell->cur_wd == NULL)
 	{
 		return (false);

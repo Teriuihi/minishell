@@ -46,7 +46,7 @@ t_exit_state	splitter2(t_command *command, int i, char **splitted,
 	{
 		ft_set_env(splitted[0], "", minishell->env, true);
 		free_splitted(splitted);
-		return (RETURN);
+		return (RET);
 	}
 	return (CONTINUE);
 }
@@ -83,7 +83,7 @@ t_bool	splitter(int *i, t_command *command, t_minishell *minishell)
 		}
 		if (split_len(splitted) == 1)
 		{
-			if (splitter2(command, *i, splitted, minishell) == RETURN)
+			if (splitter2(command, *i, splitted, minishell) == RET)
 				return (true);
 		}
 		ft_set_env(splitted[0], splitted[1], minishell->env, true);

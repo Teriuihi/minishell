@@ -17,7 +17,7 @@ typedef enum e_exit_state
 {
 	ERROR,
 	CONTINUE,
-	RETURN,
+	RET,
 	BREAK
 }	t_exit_state;
 

@@ -59,7 +59,9 @@ t_bool	increase_shell_level(t_minishell *minishell)
 	{
 		return (false);
 	}
-	return (ft_set_env("SHLVL", increased_level, minishell->env, true));
+	success = ft_set_env("SHLVL", increased_level, minishell->env, true);
+	free(increased_level);
+	return (success);
 }
 
 t_bool	init_succeeded(t_minishell *minishell)
@@ -71,11 +73,14 @@ t_bool	init_succeeded(t_minishell *minishell)
 	if (cur_dir == NULL)
 		return (false);
 	rl_getc_function = (int (*)(FILE *)) interruptible_getc;
-	minishell->cur_wd = cur_dir;
+	minishell->cur_wd = ft_strdup(cur_dir);
+	free(cur_dir);
+	if (minishell->cur_wd == NULL)
+		return (false);
 	minishell->env = get_hash_table();
 	if (minishell->env == NULL)
 		return (false);
-	if (set_pwd(ft_strdup(cur_dir), minishell) == false)
+	if (set_pwd(ft_strdup(minishell->cur_wd), minishell) == false)
 		return (false);
 	increase_shell_level(minishell);
 	minishell->home = ft_get_env_val("HOME", minishell->env, &success);

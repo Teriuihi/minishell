@@ -77,12 +77,15 @@ static t_bool	parse_variable(t_parse_data *data, t_list **head,
  */
 static t_bool	finalize(t_parse_data *data, t_list **head)
 {
+	t_string	*string;
 	if (data->has_data)
 	{
 		if (append_content(data) == false)
 			return (false);
-		if (safe_add_to_list(head, data->string, data->is_literal) == NULL)
+		string = safe_add_to_list(head, data->string, data->is_literal);
+		if (string == NULL)
 			return (new_set_exit_status(1, "some shell: Out of memory."));
+		free_string(string);
 	}
 	return (true);
 }
