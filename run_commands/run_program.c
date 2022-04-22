@@ -218,6 +218,7 @@ void	start_program_loop(t_minishell *minishell)
 	while (g_signal.sigint != 1 && g_signal.veof != 1)
 	{
 		exit_state = program_loop(minishell);
+		system("leaks minishell");
 		if (exit_state == BREAK)
 			break ;
 	}

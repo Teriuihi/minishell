@@ -35,6 +35,7 @@ static t_bool	assign_path_to_command(char *executable,
 	}
 	if (should_path_extend == true)
 	{
+		free(command->command);
 		command->command = ft_strdup(executable);
 		free(executable);
 		if (!command->command)

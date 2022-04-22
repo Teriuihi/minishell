@@ -53,17 +53,21 @@ static t_bool	validate_parse(t_list *entry)
  *
  * @return	A boolean indicating success
  */
-t_bool	init_parse(t_parse_data *data, char *input, t_list ***head,
-			t_minishell *minishell)
+static t_bool	init_parse(t_parse_data *data, char *input, t_list ***head)
 {
 	data->pos = 0;
 	data->input = input;
 	data->has_data = false;
 	data->is_literal = false;
 	data->string = init_string(NULL);
-	*head = ft_calloc(1, sizeof(t_list *));
 	if (data->string == NULL)
 		return (new_set_exit_status(1, "some shell: Out of memory."));
+	*head = ft_calloc(1, sizeof(t_list *));
+	if (*head == NULL)
+	{
+		free_string(data->string);
+		return (new_set_exit_status(1, "some shell: Out of memory."));
+	}
 	while (ft_iswhite_space(input[data->pos]))
 		data->pos++;
 	data->start = data->pos;
@@ -75,7 +79,7 @@ t_bool	init_parse(t_parse_data *data, char *input, t_list ***head,
  *
  * @param	head	Start of the list
  */
-void	free_argument_list(t_list **head)
+static void	free_argument_list(t_list **head)
 {
 	t_list	*cur;
 	t_list	*last;
@@ -106,7 +110,7 @@ t_list	**parse(char *input, t_minishell *minishell)
 	t_list			**head;
 	t_parse_data	data;
 
-	if (init_parse(&data, input, &head, minishell) == false)
+	if (init_parse(&data, input, &head) == false)
 		return (NULL);
 	if (parse_into_data(&data, head, minishell) == true)
 	{

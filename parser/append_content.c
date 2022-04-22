@@ -34,6 +34,7 @@ t_bool	append_content(t_parse_data *data)
 		return (new_set_exit_status(1, "some shell: Out of memory."));
 	ft_strlcpy(to_add, data->input + data->start, data->pos - data->start + 1);
 	data->string = append_char_array(data->string, to_add);
+	free(to_add);
 	if (data->string == NULL)
 		return (new_set_exit_status(1, "some shell: Out of memory."));
 	return (true);

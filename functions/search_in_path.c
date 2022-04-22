@@ -16,7 +16,7 @@
 
 extern char	**environ;
 
-t_exit_state	search_in_path2(char *command, char **split_path, int *i,
+t_exit_state	search_in_path_2(char *command, char **split_path, int *i,
 					char **path)
 {
 	char		*tmp_path;
@@ -47,7 +47,7 @@ char	*search_in_path_1(char **split_path, char *command)
 	i = 1;
 	while (split_path[i])
 	{
-		state = search_in_path2(command, split_path, &i, &result);
+		state = search_in_path_2(command, split_path, &i, &result);
 		if (state == ERROR)
 		{
 			free_splitted(split_path);
@@ -82,5 +82,7 @@ char	*search_in_path(char *command, t_minishell *minishell)
 	free(path);
 	if (!split_path)
 		return (NULL);
-	return (search_in_path_1(split_path, command));
+	path = search_in_path_1(split_path, command);
+	free_splitted(split_path);
+	return (path);
 }

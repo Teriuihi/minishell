@@ -35,25 +35,24 @@
 void	execute_with_access_check(t_command *command, t_minishell *minishell,
 			char *old_pid)
 {
+	char	**env;
+
 	if (access(command->command, (F_OK)) == 0)
 	{
 		if (access(command->command, X_OK) == -1)
 		{
 			if (ft_printf(2, "%s%s%s\n", "some shell: ", command->command,
 					": Permission denied") == -1)
-			{
 				exit(1);
-			}
 			else
-			{
 				exit(126);
-			}
 		}
-		else if (execve(command->command, command->args,
-				get_envp(minishell->env, 0, 0)) < 0)
-		{
+		env = get_envp(minishell->env, 0, 0);
+		if (env == NULL)
+			exit(1);
+		else if (execve(command->command, command->args, env) < 0)
 			exit(126);
-		}
+		exit(g_signal.exit_status);
 	}
 }
 
