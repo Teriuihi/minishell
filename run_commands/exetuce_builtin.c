@@ -14,76 +14,23 @@
 #include "../headers/functions.h"
 #include "../buildins/buildins.h"
 #include "../hashtable/export.h"
+#include "../hashtable/hash_utils.h"
 #include "split_functions.h"
-/**
- * Takes an array of arrays (user input)
- * Selects the function to execute based on the first argument (args[0])
- * @param	args	the input given by the user
- *
- * @return	void
- */
 
-static t_bool	export_found(t_command *command, t_minishell *minishell)
+t_bool	remove_all_exported_vars(char **args, t_minishell *minishell)
 {
+	t_bool	res;
 	int		i;
 
-	i = 0;
-	if (!command->args || !command->args[i] || command->args_len <= 1)
+	i = 1;
+	while (args[i])
 	{
-		return (false);
+		res = ft_remove_exported_var(args[i], minishell->env, minishell);
+		if (res == false)
+			return (res);
+		i++;
 	}
-	command->export_found = false;
-	while (command->args[i] != NULL)
-	{
-		if (!ft_streq(command->args[i], "export"))
-		{
-			i++;
-			continue ;
-		}
-		if (splitter(&i, command, minishell) == false)
-			return (false);
-		return (true);
-	}
-	return (false);
-}
-
-static t_bool	env_var_added(t_command *command, t_minishell *minishell)
-{
-	char	**splitted;
-	t_bool	success;
-	char	*env_val;
-
-	if (!command || !minishell)
-		return (set_exit_status(minishell, 2, NULL, false));
-	if (command->export_found == true)
-		return (export_found(command, minishell));
-	splitted = ft_split_first(command->command, '=');
-	if (!splitted)
-		return (set_exit_status(minishell, 1, NULL, false));
-	env_val = ft_get_env_val(splitted[0], minishell->env, &success);
-	if (env_val != NULL)
-	{
-		free(env_val);
-		if (succesful_insert(minishell->env, splitted[0], splitted[1], true)
-			== true)
-		{
-			free_splitted(splitted);
-			return (set_exit_status(minishell, 0, NULL, false));
-		}
-		else
-		{
-			free_splitted(splitted);
-			return (set_exit_status(minishell, 1, NULL, false));
-		}
-	}
-	else if (ft_set_env(splitted[0], splitted[1], minishell->env, false)
-		== false)
-	{
-		free_splitted(splitted);
-		return (set_exit_status(minishell, 1, NULL, false));
-	}
-	free_splitted(splitted);
-	return (set_exit_status(minishell, 0, NULL, false));
+	return (true);
 }
 
 t_bool	execute_builtin(t_command *command, t_minishell *minishell)
@@ -105,22 +52,6 @@ t_bool	execute_builtin(t_command *command, t_minishell *minishell)
 		return (print_h_table(minishell->env, command->args_len));
 	else
 		return (set_exit_status(minishell, 1, NULL, false));
-}
-
-t_bool	remove_all_exported_vars(char **args, t_minishell *minishell)
-{
-	t_bool	res;
-	int		i;
-
-	i = 1;
-	while (args[i])
-	{
-		res = ft_remove_exported_var(args[i], minishell->env, minishell);
-		if (res == false)
-			return (res);
-		i++;
-	}
-	return (true);
 }
 
 t_bool	execute_non_forked_builtin(t_command *command, t_minishell *minishell)

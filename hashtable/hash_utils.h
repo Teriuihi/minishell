@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   split_functions.h                                 :+:    :+:             */
+/*   hash_utils.h                                      :+:    :+:             */
 /*                                                     +:+                    */
 /*   By: bmajor <bmajor@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
@@ -10,17 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SPLIT_FUNCTIONS_H
-# define SPLIT_FUNCTIONS_H
+#ifndef HASH_UTILS_H
+# define HASH_UTILS_H
+# include "../pipes/redirects.h"
 # include "../libft/libft.h"
 # include "../headers/functions.h"
 # include "../buildins/buildins.h"
-# include "run_program_internal.h"
 # include "../hashtable/export.h"
+# include "../run_commands/split_functions.h"
 
-int				split_len(char **splitted);
-t_exit_state	splitter2(t_command *command, int i, char **splitted,
-					t_minishell *minishell);
-t_bool			splitter(int *i, t_command *command, t_minishell *minishell);
+t_bool	env_var_added(t_command *command, t_minishell *minishell);
+t_bool	create_key_val(t_entry *entry, char *key, char *val);
 
 #endif

@@ -12,6 +12,7 @@
 
 #include "../headers/structs.h"
 #include "../headers/functions.h"
+#include "hash_utils.h"
 
 extern char	**environ;
 
@@ -22,7 +23,7 @@ t_hash_table	*init_hash_table(int size)
 
 	hash_table = (t_hash_table *)ft_calloc(1, sizeof(t_hash_table));
 	if (!hash_table)
-		exit(1);
+		return (NULL);
 	hash_table->entries = (t_entry **)ft_calloc(size, sizeof(t_entry *));
 	if (!hash_table->entries)
 	{
@@ -47,22 +48,8 @@ t_entry	*create_hash_table_pair(char *key, char *val, t_bool is_exported)
 	entry = (t_entry *)ft_calloc(1, sizeof(t_entry));
 	if (!entry)
 		return (NULL);
-	if (key != NULL)
-	{
-		entry->key = ft_strdup(key);
-		if (entry->key == NULL) //TODO free entry
-			return (NULL);
-	}
-	else
-		entry->key = NULL;
-	if (val != NULL)
-	{
-		entry->val = ft_strdup(val);
-		if (entry->val == NULL) //TODO free entry
-			return (NULL);
-	}
-	else
-		entry->val = NULL;
+	if (create_key_val(entry, key, val) == false)
+		return (NULL);
 	entry->is_exported = is_exported;
 	entry->next = NULL;
 	return (entry);
@@ -131,7 +118,7 @@ t_hash_table	*create_env_h_table(void)
 		size++;
 	h_table = init_hash_table(size);
 	if (h_table == NULL)
-		exit(1);
+		return (NULL);
 	while (environ[i])
 	{
 		environs = ft_split(environ[i], '=');
@@ -143,30 +130,4 @@ t_hash_table	*create_env_h_table(void)
 		i++;
 	}
 	return (h_table);
-}
-
-t_bool	print_h_table(t_hash_table *h_table, int len)
-{
-	int		i;
-	t_entry	*curr;
-
-	if (len != 1)
-		return (new_set_exit_status(127, "some shell: too many arguments\n"));
-	if (!h_table)
-		return (false);
-	i = 0;
-	while (i < h_table->size)
-	{
-		curr = h_table->entries[i];
-		while (curr != NULL)
-		{
-			if (curr->key && curr->val && curr->is_exported)
-			{
-				ft_printf(1, "%s=%s\n", curr->key, curr->val);
-			}
-			curr = curr->next;
-		}
-		i++;
-	}
-	return (true);
 }

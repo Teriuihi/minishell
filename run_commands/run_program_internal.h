@@ -1,23 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   run_commands.h                                           :+:    :+:      */
+/*   run_commands_internal.h                            :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/01/26 14:36:43 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/01/26 14:36:43 by sappunn       ########   odam.nl         */
+/*   Created: 2022/04/18 14:20:29 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/04/18 14:20:29 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RUN_COMMANDS_H
-# define RUN_COMMANDS_H
-# include "../headers/minishell.h"
-# include "../headers/bool.h"
-# include "run_program_internal.h"
-# include "../functions/set_exit_status.h"
-# include "run_program_utils.h"
+#ifndef RUN_PROGRAM_INTERNAL_H
+# define RUN_PROGRAM_INTERNAL_H
 
-void	run_commands(t_list **head, t_minishell *minishell);
+typedef enum e_exit_state
+{
+	ERROR,
+	CONTINUE,
+	RET,
+	BREAK,
+	NOTHING
+}	t_exit_state;
 
 #endif

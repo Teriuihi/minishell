@@ -108,3 +108,29 @@ char	*ft_get_exported_env(char *key, t_hash_table *h_table, t_bool *success)
 	}
 	return (NULL);
 }
+
+t_bool	print_h_table(t_hash_table *h_table, int len)
+{
+	int		i;
+	t_entry	*curr;
+
+	if (len != 1)
+		return (new_set_exit_status(127, "some shell: too many arguments\n"));
+	if (!h_table)
+		return (false);
+	i = 0;
+	while (i < h_table->size)
+	{
+		curr = h_table->entries[i];
+		while (curr != NULL)
+		{
+			if (curr->key && curr->val && curr->is_exported)
+			{
+				ft_printf(1, "%s=%s\n", curr->key, curr->val);
+			}
+			curr = curr->next;
+		}
+		i++;
+	}
+	return (true);
+}

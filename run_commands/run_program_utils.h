@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   split_functions.h                                 :+:    :+:             */
+/*   run_program_utils.h                               :+:    :+:             */
 /*                                                     +:+                    */
 /*   By: bmajor <bmajor@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
@@ -10,17 +10,21 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SPLIT_FUNCTIONS_H
-# define SPLIT_FUNCTIONS_H
-# include "../libft/libft.h"
+#ifndef RUN_PROGRAM_UTILS_H
+# define RUN_PROGRAM_UTILS_H
 # include "../headers/functions.h"
+# include <readline/readline.h>
+# include <readline/history.h>
+# include "run_program.h"
 # include "../buildins/buildins.h"
+# include "../parser/parser.h"
 # include "run_program_internal.h"
-# include "../hashtable/export.h"
+# include "../functions/free_functions.h"
 
-int				split_len(char **splitted);
-t_exit_state	splitter2(t_command *command, int i, char **splitted,
-					t_minishell *minishell);
-t_bool			splitter(int *i, t_command *command, t_minishell *minishell);
+void	copy_pid(const int *cur_pid, int *old_pid);
+void	init_run_commands(t_list **entry, t_list **head, int *cur_pid,
+			int *old_pid);
+t_bool	should_use(char *input);
+char	*prompt(void);
 
 #endif

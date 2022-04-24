@@ -86,24 +86,6 @@ static t_bool	search_executable(t_cmd_data *cmd_data,
 	}
 }
 
-/**
- * Check if a command should be executed in a child process
- *
- * @param	command	Command to check
- *
- * @return	True if it should be executed in a child process, false if not
- */
-t_bool	should_be_child(t_command *command)
-{
-	if (env_variable_found(command) == true)
-		return (false);
-	if (ft_streq(command->command, "cd"))
-		return (false);
-	if (ft_streq(command->command, "unset"))
-		return (false);
-	return (true);
-}
-
 t_bool	pre_fork_check_2(t_cmd_data *cmd_data, t_bool is_built_in,
 			t_minishell *minishell)
 {

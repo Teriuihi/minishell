@@ -136,32 +136,3 @@ t_bool	redirect_file(t_cmd_data *cmd_data, int *old_pid,
 				cmd_data->input.file));
 	return (write_to_file(fd, old_pid));
 }
-
-t_bool	close_pipes(int *pid1, int *pid2)
-{
-	if (pid1 != NULL && *pid1 != -1)
-	{
-		if (close(*pid1) == -1)
-		{
-			*pid1 = -1;
-			return (new_set_exit_status(1, "close error pid1\n"));
-		}
-		else
-		{
-			*pid1 = -1;
-		}
-	}
-	if (pid2 != NULL && *pid2 != -1)
-	{
-		if (close(*pid2) == -1)
-		{
-			*pid2 = -1;
-			return (new_set_exit_status(1, "close error pid2\n"));
-		}
-		else
-		{
-			*pid2 = -1;
-		}
-	}
-	return (true);
-}

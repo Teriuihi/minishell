@@ -1,25 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   run_commands_internal.h                            :+:    :+:            */
+/*   pipe_utils.h                                      :+:    :+:             */
 /*                                                     +:+                    */
-/*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
+/*   By: bmajor <bmajor@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/04/18 14:20:29 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/04/18 14:20:29 by sappunn       ########   odam.nl         */
+/*   Created: 2022/01/26 14:40:25 by bmajor        #+#    #+#                 */
+/*   Updated: 2022/01/26 14:40:25 by bmajor        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RUN_COMMANDS_INTERNAL_H
-# define RUN_COMMANDS_INTERNAL_H
+#ifndef PIPE_UTILS_H
+# define PIPE_UTILS_H
+# include "redirects.h"
 
-typedef enum e_exit_state
-{
-	ERROR,
-	CONTINUE,
-	RET,
-	BREAK,
-	NOTHING
-}	t_exit_state;
+t_bool	close_pipes(int *pid1, int *pid2);
 
 #endif

@@ -64,11 +64,13 @@ t_bool	increase_shell_level(t_minishell *minishell)
 	return (success);
 }
 
-t_bool	init_succeeded(t_minishell *minishell)
+t_bool	init_succeeded(t_minishell *minishell, char **argv)
 {
 	char	*cur_dir;
 	t_bool	success;
 
+	if (ft_streq("./minishell", argv[0]) == 0)
+		return (false);
 	cur_dir = getcwd(NULL, 0);
 	if (cur_dir == NULL)
 		return (false);
@@ -89,11 +91,11 @@ t_bool	init_succeeded(t_minishell *minishell)
 	return (true);
 }
 
-int	main(void)
+int	main(int argc, char **argv)
 {
 	t_minishell		minishell;
 
-	if (init_succeeded(&minishell) == false)
+	if (argc != 1 || init_succeeded(&minishell, argv) == false)
 	{
 		exit(1);
 	}
