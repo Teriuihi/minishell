@@ -94,12 +94,13 @@ t_bool	splitter(int *i, t_command *command, t_minishell *minishell)
 			splitted = ft_split_first(command->args[*i + 1], '=');
 		if (splitted == NULL)
 			return (false);
-		if (var_names_correct(splitted[0]) == false)
+		if (splitted[0][0] == 0 || var_names_correct(splitted[0]) == false)
 		{
 			ft_printf(2, "some shell: export: '%s': not a valid identifier\n",
 				splitted[0]);
 			(*i)++;
 			free_splitted(splitted);
+			g_signal.exit_status = 1;
 			continue ;
 		}
 		if (splitter1(i, command, minishell, splitted) == true)
