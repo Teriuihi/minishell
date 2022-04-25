@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "../builtins/builtins.h"
-#include <readline/history.h>
+#include <readline/readline.h>
 
 t_signal	g_signal;
 
