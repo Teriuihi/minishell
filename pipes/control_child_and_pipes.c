@@ -91,7 +91,7 @@ t_bool	init_child(int *old_pid, int *cur_pid, t_pipe_type type,
 	if (old_pid[0] != -1)
 	{
 		if (dup2(old_pid[0], STDIN_FILENO) == -1)
-			ft_printf(1, "DUP CHILD\n");
+			g_signal.exit_status = 1;
 		close_pipes(&old_pid[0], &old_pid[1]);
 	}
 	if (cur_pid[0] != -1)
@@ -101,7 +101,7 @@ t_bool	init_child(int *old_pid, int *cur_pid, t_pipe_type type,
 			if (cur_pid[1] != -1)
 			{
 				if (dup2(cur_pid[1], STDOUT_FILENO) == -1)
-					ft_printf(2, NULL, errno);
+					g_signal.exit_status = 1;
 			}
 			close_pipes(&cur_pid[1], NULL);
 		}
