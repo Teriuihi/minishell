@@ -1,5 +1,5 @@
 NAME=minishell
-CC=gcc -g -Wall -Wextra
+CC=gcc -g -Werror -Wall -Wextra
 CFLAGS=
 RM=rm -f
 

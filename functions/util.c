@@ -45,7 +45,7 @@ t_pipe_type	command_separator_type(char *str)
 }
 
 int	interruptible_getc(void)
-{	
+{
 	int		r;
 	char	c;
 

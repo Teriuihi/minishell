@@ -19,7 +19,7 @@ t_bool	close_pipes(int *pid1, int *pid2)
 		if (close(*pid1) == -1)
 		{
 			*pid1 = -1;
-			return (new_set_exit_status(1, "close error pid1\n"));
+			return (new_set_exit_status(1, NULL));
 		}
 		else
 		{
@@ -31,7 +31,7 @@ t_bool	close_pipes(int *pid1, int *pid2)
 		if (close(*pid2) == -1)
 		{
 			*pid2 = -1;
-			return (new_set_exit_status(1, "close error pid2\n"));
+			return (new_set_exit_status(1, NULL));
 		}
 		else
 		{

@@ -101,7 +101,7 @@ t_bool	init_child(int *old_pid, int *cur_pid, t_pipe_type type,
 			if (cur_pid[1] != -1)
 			{
 				if (dup2(cur_pid[1], STDOUT_FILENO) == -1)
-					ft_printf(2, "DUP child2, %d is ERRNO\n", errno);
+					ft_printf(2, NULL, errno);
 			}
 			close_pipes(&cur_pid[1], NULL);
 		}

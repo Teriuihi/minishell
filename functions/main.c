@@ -64,7 +64,7 @@ static t_bool	init_succeeded(t_minishell *minishell, char **argv)
 	cur_dir = getcwd(NULL, 0);
 	if (cur_dir == NULL)
 		return (false);
-	rl_getc_function = (int (*)(struct _IO_FILE *)) interruptible_getc;
+	rl_getc_function = (int (*)(FILE *)) interruptible_getc;
 	minishell->cur_wd = ft_strdup(cur_dir);
 	free(cur_dir);
 	if (minishell->cur_wd == NULL)
