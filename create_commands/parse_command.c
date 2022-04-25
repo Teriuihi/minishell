@@ -15,13 +15,22 @@
 
 static t_bool	is_assignment(char *str)
 {
+	int	i;
+
+	i = 0;
 	if (str == NULL)
 		return (false);
-	while (*str)
+	while (str[i])
 	{
-		if (*str == '=')
+		if (str[i] == '=')
+		{
+			if (i == 0)
+				return (false);
+			if (ft_iswhite_space(str[i - 1]))
+				return (false);
 			return (true);
-		str++;
+		}
+		i++;
 	}
 	return (false);
 }
