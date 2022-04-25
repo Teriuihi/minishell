@@ -40,3 +40,15 @@ t_bool	close_pipes(int *pid1, int *pid2)
 	}
 	return (true);
 }
+
+void	check_is_dir(t_command *command)
+{
+	int	i;
+
+	i = 0;
+	while (command->command[i] == '/')
+		i++;
+	if (command->command[i] == 0)
+		ft_printf(2, "some shell: %s: is a directory\n",
+			command->command);
+}

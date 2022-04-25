@@ -15,5 +15,6 @@
 # include "redirects.h"
 
 t_bool	close_pipes(int *pid1, int *pid2);
+void	check_is_dir(t_command *command);
 
 #endif

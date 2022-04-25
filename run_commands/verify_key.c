@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "../headers/bool.h"
-#include "../libft/libft.h"
 
 static t_bool	is_special_char(char c)
 {

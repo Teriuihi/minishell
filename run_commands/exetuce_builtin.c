@@ -15,6 +15,7 @@
 #include "../builtins/builtins.h"
 #include "../hashtable/hash_utils.h"
 #include "../builtins/ft_echo.h"
+#include "verify_key.h"
 
 t_bool	remove_all_exported_vars(char **args, t_minishell *minishell)
 {
@@ -24,6 +25,15 @@ t_bool	remove_all_exported_vars(char **args, t_minishell *minishell)
 	i = 1;
 	while (args[i])
 	{
+		if (args[i][0] == 0 || args[i][0] == '='
+			|| var_names_correct(args[i]) == false)
+		{
+			ft_printf(2, "some shell: export: '%s': not a valid identifier\n",
+				args[i]);
+			i++;
+			g_signal.exit_status = 1;
+			continue ;
+		}
 		res = ft_remove_exported_var(args[i], minishell->env, minishell);
 		if (res == false)
 			return (res);
