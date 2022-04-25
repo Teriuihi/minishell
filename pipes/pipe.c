@@ -65,7 +65,6 @@ void	parent(pid_t c_pid, int *old_pid)
 	waitpid(c_pid, &status, 0);
 	if (WIFEXITED(status))
 	{
-
 		if (WIFSIGNALED(status))
 		{
 			g_signal.exit_status = WTERMSIG(status) + 128;

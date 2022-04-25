@@ -26,10 +26,6 @@ static t_bool	is_input_correct(char *command, int *count)
 	equal_found = 0;
 	while (command[i])
 	{
-		//if (is_special_char(command[i]) == true && equal_found == 0)
-		//{
-		//	return (false);
-		//}
 		if (command[i] == '=')
 		{
 			*count = *count + 1;
@@ -61,7 +57,7 @@ t_bool	env_variable_found(t_command *command_t)
 	if (!command)
 	{
 		return (false);
-	}//export var1= var3 var5=
+	}
 	if (ft_streq(command, "export") && command_t->args_len != 1)
 	{
 		command_t->export_found = true;
