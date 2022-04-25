@@ -26,6 +26,7 @@ typedef struct s_signal
 	t_bool					print_basic_error;
 	t_bool					heredoc;
 	t_bool					command;
+	t_bool					stop_curr_execution;
 	t_cmd_data				*cur_cmd;
 	volatile sig_atomic_t	sigint;
 	volatile sig_atomic_t	veof;

@@ -73,6 +73,7 @@ void	init_signal(void)
 	g_signal.print_basic_error = true;
 	g_signal.heredoc = false;
 	g_signal.command = false;
+	g_signal.stop_curr_execution = false;
 	g_signal.exit_status = 0;
 	g_signal.sigint = 0;
 	g_signal.veof = 0;
