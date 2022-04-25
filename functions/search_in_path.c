@@ -57,7 +57,6 @@ char	*search_in_path_1(char **split_path, char *command)
 		if (state == RET)
 			return (result);
 	}
-	free_splitted(split_path);
 	return (NULL);
 }
 
