@@ -27,7 +27,6 @@ t_bool	var_names_correct(char *key)
 	int	j;
 
 	j = 0;
-	ft_printf(1, "%s is key\n", key);
 	while (key[j] != '\0' && is_special_char(key[j]) == false)
 	{
 		j++;
