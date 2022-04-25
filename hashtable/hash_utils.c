@@ -80,12 +80,10 @@ static t_bool	assign_new_val(char *env_val, t_minishell *minishell,
 	if (succesful_insert(minishell->env, splitted[0], splitted[1], true)
 		== true)
 	{
-		free_splitted(splitted);
 		return (new_set_exit_status(0, NULL));
 	}
 	else
 	{
-		free_splitted(splitted);
 		return (new_set_exit_status(1, NULL));
 	}
 }
