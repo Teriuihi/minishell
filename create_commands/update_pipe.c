@@ -25,7 +25,7 @@
 static t_exit_state	file_not_there(t_cmd_data *cmd_data,
 						t_cmd_get_struct *cmd_get)
 {
-	new_set_exit_status(1, "some shell: parse: %s: No such file or directory\n",
+	new_set_exit_status(1, "some shell: %s: No such file or directory\n",
 		cmd_data->input.file);
 	while (cmd_get->cur_arg != NULL
 		&& pipe_type_from_arg(cmd_get->cur_arg->content) != OUTPUT_TO_COMMAND)
