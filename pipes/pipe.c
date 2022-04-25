@@ -41,7 +41,11 @@ void	execute_with_access_check(t_command *command, t_minishell *minishell)
 		if (env == NULL)
 			exit(1);
 		else if (execve(command->command, command->args, env) < 0)
+		{
+			if (ft_streq(command->command, "/") == 1)
+				ft_printf(2, "some shell: /: is a directory\n");
 			exit(126);
+		}
 		exit(g_signal.exit_status);
 	}
 }
