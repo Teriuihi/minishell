@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   precheck.h                                        :+:    :+:             */
+/*   ft_pwd.h                                          :+:    :+:             */
 /*                                                     +:+                    */
 /*   By: bmajor <bmajor@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
@@ -10,22 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PRECHECK_H
-# define PRECHECK_H
-# include "../libft/libft.h"
-# include "../headers/functions.h"
-# include <readline/readline.h>
-# include <unistd.h>
-# include <fcntl.h>
+#ifndef FT_PWD_H
+# define FT_PWD_H
 # include "../builtins/builtins.h"
-# include "../run_commands/run_commands.h"
-# include <sys/wait.h>
-# include <errno.h>
+# include "../hashtable/export.h"
 
-t_bool	pre_fork_check(t_cmd_data *cmd_data, int *old_pid,
-			t_minishell *minishell);
-t_bool	check_input_redir(t_cmd_data *cmd_data, int *old_pid,
-			t_minishell *minishell);
-void	child_execute_non_builtin(t_cmd_data *cmd_data, int *old_pid,
-			int *cur_pid, t_minishell *minishell);
+char	*get_pwd(t_minishell *minishell);
+t_bool	ft_pwd(char *cur_dir);
+t_bool	set_pwd(char *path, t_minishell *minishell);
+
 #endif

@@ -16,8 +16,6 @@
 # include "../headers/structs.h"
 # include "../headers/minishell.h"
 # include "../headers/functions.h"
-# include <stdio.h>
-# include <errno.h>
 # include <stdarg.h>
 
 void	free_splitted(char **splitted);

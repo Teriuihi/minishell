@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   precheck.h                                        :+:    :+:             */
+/*   destroy.h                                         :+:    :+:             */
 /*                                                     +:+                    */
 /*   By: bmajor <bmajor@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
@@ -10,22 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PRECHECK_H
-# define PRECHECK_H
-# include "../libft/libft.h"
+#ifndef DESTROY_H
+# define DESTROY_H
+# include "../headers/structs.h"
 # include "../headers/functions.h"
-# include <readline/readline.h>
-# include <unistd.h>
-# include <fcntl.h>
-# include "../builtins/builtins.h"
-# include "../run_commands/run_commands.h"
-# include <sys/wait.h>
-# include <errno.h>
+# include "hash_utils.h"
 
-t_bool	pre_fork_check(t_cmd_data *cmd_data, int *old_pid,
-			t_minishell *minishell);
-t_bool	check_input_redir(t_cmd_data *cmd_data, int *old_pid,
-			t_minishell *minishell);
-void	child_execute_non_builtin(t_cmd_data *cmd_data, int *old_pid,
-			int *cur_pid, t_minishell *minishell);
+void			destroy_key_value(t_entry *entry);
+void			destroy_entry(t_entry *entry);
+void			destroy_hash_table(t_hash_table *hash_table, int size);
+
 #endif

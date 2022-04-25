@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   ft_pwd.c                                          :+:    :+:             */
+/*   ft_echo.h                                         :+:    :+:             */
 /*                                                     +:+                    */
 /*   By: bmajor <bmajor@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
@@ -10,11 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_pwd.h"
+#ifndef FT_ECHO_H
+# define FT_ECHO_H
 
-t_bool	ft_pwd(char *cur_dir, t_minishell *minishell)
-{
-	ft_putstr_fd(cur_dir, 1);
-	ft_putstr_fd("\n", 1);
-	return (set_exit_status(minishell, 0, NULL, false));
-}
+# include "builtins.h"
+
+t_bool	ft_echo(t_command *command, int fd);
+
+#endif

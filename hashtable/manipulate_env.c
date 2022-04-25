@@ -12,6 +12,7 @@
 
 #include "../headers/functions.h"
 #include "get_envp.h"
+#include "destroy.h"
 
 extern char	**environ;
 
@@ -23,7 +24,7 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 	t_entry			*prev;
 
 	if (!key || !h_table || !minishell)
-		return (set_exit_status(minishell, 1, NULL, false));
+		return (new_set_exit_status(1, NULL));
 	hashkey = hash(key, "", h_table->size);
 	current = h_table->entries[hashkey];
 	prev = NULL;
@@ -36,13 +37,13 @@ t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 				h_table->entries[hashkey] = current->next;
 			else
 				prev->next = current->next;
-			free_key_value(current);
-			return (set_exit_status(minishell, 0, NULL, false));
+			destroy_key_value(current);
+			return (new_set_exit_status(0, NULL));
 		}
 		prev = current;
 		current = current->next;
 	}
-	return (set_exit_status(minishell, 0, NULL, false));
+	return (new_set_exit_status(0, NULL));
 }
 
 t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,

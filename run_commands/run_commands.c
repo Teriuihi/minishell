@@ -12,8 +12,7 @@
 
 #include "run_commands.h"
 
-static t_bool	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2],
-			t_minishell *minishell)
+static t_bool	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2])
 {
 	char		*input;
 
@@ -21,33 +20,32 @@ static t_bool	heredoc_no_output(t_cmd_data *cmd_data, int old_pid[2],
 	if (old_pid[0] != -1)
 	{
 		if (close(old_pid[0]) == -1)
-			return (set_exit_status(minishell, 1, NULL, false));
+			return (new_set_exit_status(1, NULL));
 		if (close(old_pid[1]) == -1)
-			return (set_exit_status(minishell, 1, NULL, false));
+			return (new_set_exit_status(1, NULL));
 	}
 	input = readline("heredoc> ");
-	if (signal_check(input, minishell) == false)
-		return (set_exit_status(minishell, 1, NULL, false));
+	if (signal_check(input) == false)
+		return (new_set_exit_status(1, NULL));
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
 		free(input);
 		input = readline("heredoc> ");
-		if (signal_check(input, minishell) == false)
-			return (set_exit_status(minishell, 1, NULL, false));
+		if (signal_check(input) == false)
+			return (new_set_exit_status(1, NULL));
 	}
 	free(input);
 	g_signal.heredoc = false;
 	return (true);
 }
 
-static t_exit_state	handle_null_command(t_cmd_data *cmd_data, int *old_pid,
-					t_minishell *minishell)
+static t_exit_state	handle_null_command(t_cmd_data *cmd_data, int *old_pid)
 {
 	if (cmd_data->command->command == NULL)
 	{
 		if (cmd_data->input.type == DELIMITER_INPUT)
 		{
-			if (heredoc_no_output(cmd_data, old_pid, minishell) == false)
+			if (heredoc_no_output(cmd_data, old_pid) == false)
 				return (BREAK);
 		}
 		return (CONTINUE);
@@ -88,7 +86,7 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
 		g_signal.cur_cmd = cmd_data;
-		exit_state = handle_null_command(cmd_data, old_pid, minishell);
+		exit_state = handle_null_command(cmd_data, old_pid);
 		if (exit_state == RET)
 			return ;
 		if (exit_state == CONTINUE)

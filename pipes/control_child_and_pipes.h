@@ -18,7 +18,7 @@
 # include <readline/readline.h>
 # include <unistd.h>
 # include <fcntl.h>
-# include "../buildins/buildins.h"
+# include "../builtins/builtins.h"
 # include "../run_commands/run_commands.h"
 # include <sys/wait.h>
 # include <errno.h>

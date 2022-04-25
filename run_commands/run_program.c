@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "../headers/functions.h"
-#include "../buildins/buildins.h"
+#include "../builtins/builtins.h"
 #include "../parser/parser.h"
 #include "run_program.h"
 #include "run_program_internal.h"
@@ -32,7 +32,7 @@ t_exit_state	handle_input(char *input, t_minishell *minishell)
 	if (commands == NULL)
 	{
 		g_signal.command = false;
-		signal_check(NULL, minishell);
+		signal_check(NULL);
 		free_parse_and_commands(NULL, parse_results);
 		return (BREAK);
 	}
@@ -50,7 +50,7 @@ t_exit_state	program_loop(t_minishell *minishell)
 	g_signal.command = true;
 	input = prompt();
 	exit_state = CONTINUE;
-	if (signal_check(input, minishell) == false)
+	if (signal_check(input) == false)
 	{
 		free(input);
 		return (BREAK);

@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "../headers/functions.h"
+#include "destroy.h"
+
 /**
  * Checks if a string ends with a specific suffix
  *
@@ -18,7 +20,7 @@
  *
  * @return	void
  */
-void	free_key_value(t_entry *entry)
+void	destroy_key_value(t_entry *entry)
 {
 	if (entry == NULL)
 	{
@@ -40,7 +42,7 @@ void	destroy_entry(t_entry *entry)
 {
 	if (entry != NULL)
 	{
-		free_key_value(entry);
+		destroy_key_value(entry);
 		free(entry);
 		entry = NULL;
 	}

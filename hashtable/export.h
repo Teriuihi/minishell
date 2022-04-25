@@ -15,6 +15,7 @@
 
 # include "../libft/libft.h"
 # include "../hashtable/hashtable.h"
+# include "manipulate_env.h"
 # include "../headers/minishell.h"
 # include "../headers/functions.h"
 # include <string.h>

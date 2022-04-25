@@ -16,7 +16,7 @@
 #include "../headers/minishell.h"
 #include "../headers/functions.h"
 #include "internal_parser.h"
-
+#include "parser.h"
 /**
  * Get the value from a key from the hash table
  *

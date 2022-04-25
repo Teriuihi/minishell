@@ -81,12 +81,12 @@ static t_bool	assign_new_val(char *env_val, t_minishell *minishell,
 		== true)
 	{
 		free_splitted(splitted);
-		return (set_exit_status(minishell, 0, NULL, false));
+		return (new_set_exit_status(0, NULL));
 	}
 	else
 	{
 		free_splitted(splitted);
-		return (set_exit_status(minishell, 1, NULL, false));
+		return (new_set_exit_status(1, NULL));
 	}
 }
 
@@ -97,12 +97,12 @@ t_bool	env_var_added(t_command *command, t_minishell *minishell)
 	char	*env_val;
 
 	if (!command || !minishell)
-		return (set_exit_status(minishell, 2, NULL, false));
+		return (new_set_exit_status(2, NULL));
 	if (command->export_found == true)
 		return (export_found(command, minishell));
 	splitted = ft_split_first(command->command, '=');
 	if (!splitted)
-		return (set_exit_status(minishell, 1, NULL, false));
+		return (new_set_exit_status(1, NULL));
 	env_val = ft_get_env_val(splitted[0], minishell->env, &success);
 	if (env_val != NULL)
 		return (assign_new_val(env_val, minishell, splitted));
@@ -110,8 +110,8 @@ t_bool	env_var_added(t_command *command, t_minishell *minishell)
 		== false)
 	{
 		free_splitted(splitted);
-		return (set_exit_status(minishell, 1, NULL, false));
+		return (new_set_exit_status(1, NULL));
 	}
 	free_splitted(splitted);
-	return (set_exit_status(minishell, 0, NULL, false));
+	return (new_set_exit_status(0, NULL));
 }

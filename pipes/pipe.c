@@ -15,7 +15,7 @@
 #include <readline/readline.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include "../buildins/buildins.h"
+#include "../builtins/builtins.h"
 #include "../run_commands/run_commands.h"
 #include <sys/wait.h>
 #include <errno.h>
@@ -32,8 +32,7 @@
  * @param	minishell	minishell struct
  * @param	old_pid		the previous piped pid
  */
-void	execute_with_access_check(t_command *command, t_minishell *minishell,
-			char *old_pid)
+void	execute_with_access_check(t_command *command, t_minishell *minishell)
 {
 	char	**env;
 
@@ -64,7 +63,7 @@ void	execute_with_access_check(t_command *command, t_minishell *minishell,
  * @param	c_pid	PID of fork
  * @param	old_pid	PIDs from previous pipes
  */
-void	parent(pid_t c_pid, int *old_pid, t_minishell *minishell)
+void	parent(pid_t c_pid, int *old_pid)
 {
 	int	status;
 
@@ -117,7 +116,7 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, int *old_pid,
 		ft_printf(2, "false init child in child execute non builtin2\n");
 		exit(1);
 	}
-	execute_with_access_check(command, minishell, (char *)old_pid);
+	execute_with_access_check(command, minishell);
 }
 
 /**
@@ -183,5 +182,5 @@ void	exec_command(t_cmd_data *cmd_data, int *old_pid, int *cur_pid,
 	else if (g_signal.pid == -1)
 		exit(1);
 	else
-		parent(g_signal.pid, old_pid, minishell);
+		parent(g_signal.pid, old_pid);
 }

@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
-#include "../headers/functions.h"
+#include "builtins.h"
 
 static t_bool	is_special_char(char c)
 {
@@ -19,7 +18,7 @@ static t_bool	is_special_char(char c)
 		|| c == '&' || c == '*' || c == '(' || c == ')'
 		|| c == '|' || c == '[' || c == ']' || c == '{'
 		|| c == '}' || c == ';' || c == '>' || c == '<'
-		|| c == '/' || c == '?' || c == '!');
+		|| c == '/' || c == '?' || c == '!' || c == '-');
 }
 
 /**
@@ -27,7 +26,7 @@ static t_bool	is_special_char(char c)
  * @return	true if if export or correct variable assignment is present,
  			false otherwise
 */
-t_bool	is_input_correct(char *command, int *count)
+static t_bool	is_input_correct(char *command, int *count)
 {
 	int	i;
 	int	equal_found;
@@ -36,7 +35,7 @@ t_bool	is_input_correct(char *command, int *count)
 	equal_found = 0;
 	while (command[i])
 	{
-		if (is_special_char(command[i]) == true)
+		if (is_special_char(command[i]) == true && equal_found == 0)
 		{
 			return (false);
 		}
@@ -55,6 +54,28 @@ t_bool	is_input_correct(char *command, int *count)
 		return (false);
 }
 
+static t_bool	var_names_correct(char **args)
+{
+	int	i;
+	int	j;
+
+	i = 1;
+	while (args[i])
+	{
+		j = 0;
+		while (args[i][j] != '\0' && is_special_char(args[i][j]) == false)
+		{
+			j++;
+		}
+		if (ft_iswhite_space(args[i][j]) == 0 && (args[i][j] != '\0'))
+		{
+			return (false);
+		}
+		i++;
+	}
+	return (true);
+}
+
 /**
  * Checks whether export or an expression like "a=b" is present.
  * @return	true if if export or correct variable assignment is present,
@@ -71,7 +92,8 @@ t_bool	env_variable_found(t_command *command_t)
 	{
 		return (false);
 	}
-	if (ft_streq(command, "export") && command_t->args_len != 1)
+	if (ft_streq(command, "export") && command_t->args_len != 1
+		&& var_names_correct(command_t->args) == true)
 	{
 		command_t->export_found = true;
 		return (true);

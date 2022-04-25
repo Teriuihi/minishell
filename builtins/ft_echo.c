@@ -10,11 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
-#include "../headers/functions.h"
+#include "builtins.h"
+#include "ft_echo.h"
 
-static t_bool	is_it_an_edge_case(t_command *command, int fd,
-				t_minishell *minishell)
+static t_bool	is_it_an_edge_case(t_command *command, int fd)
 {
 	int		i;
 	char	**args;
@@ -24,11 +23,11 @@ static t_bool	is_it_an_edge_case(t_command *command, int fd,
 	if (command->args_len == 1 && ft_streq(args[0], "echo"))
 	{
 		write(fd, "\n", 1);
-		return (set_exit_status(minishell, 0, NULL, false));
+		return (new_set_exit_status(0, NULL));
 	}
 	if (command->args_len == 2 && ft_streq(args[1], "-n"))
 	{
-		return (set_exit_status(minishell, 0, NULL, false));
+		return (new_set_exit_status(0, NULL));
 	}
 	return (false);
 }
@@ -87,7 +86,7 @@ static void	skip_n_flags(t_command *command, int *i, t_bool *get_rid_of_space)
  *
  * @return	true or false depending whether execution was successful
 */
-t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
+t_bool	ft_echo(t_command *command, int fd)
 {
 	int		i;
 	char	c;
@@ -96,7 +95,7 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 	i = 1;
 	c = '\0';
 	get_rid_of_space = false;
-	if (is_it_an_edge_case(command, fd, minishell) == true)
+	if (is_it_an_edge_case(command, fd) == true)
 	{
 		return (true);
 	}
@@ -107,5 +106,5 @@ t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell)
 	}
 	print_leftover(command, i, get_rid_of_space);
 	write(1, &c, 1);
-	return (set_exit_status(minishell, 0, NULL, false));
+	return (new_set_exit_status(0, NULL));
 }

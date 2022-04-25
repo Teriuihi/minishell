@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   buildins.h                                        :+:    :+:             */
+/*   manipulate_env.h                                  :+:    :+:             */
 /*                                                     +:+                    */
 /*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
@@ -10,19 +10,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef BUILDINS_H
-# define BUILDINS_H
-
+#ifndef MANIPULATE_ENV_H
+# define MANIPULATE_ENV_H
 # include "../headers/minishell.h"
+# include "hashtable.h"
 
-char	*get_pwd(t_minishell *minishell);
-char	*get_path(void);
-t_bool	set_pwd(char *path, t_minishell *minishell);
-t_bool	cd(t_command *command, t_minishell *minishell);
-t_bool	execute_builtin(t_command *command, t_minishell *minishell);
-t_bool	ft_echo(t_command *command, int fd, t_minishell *minishell);
-t_bool	is_builtin(t_command *command);
-t_bool	env_variable_found(t_command *command);
-t_bool	ft_pwd(char *cur_dir, t_minishell *minishell);
-
+t_bool	print_h_table(t_hash_table *h_table, int len);
+char	*ft_get_exported_env(char *key, t_hash_table *h_table, t_bool *success);
+char	*ft_get_env_val(char *key, t_hash_table *h_table, t_bool *success);
+t_bool	ft_set_env(char *key, char *val, t_hash_table *h_table,
+			t_bool is_exported);
+t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
+			t_minishell *minishell);
 #endif

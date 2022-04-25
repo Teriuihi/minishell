@@ -20,21 +20,17 @@
 
 typedef struct s_signal
 {
-	t_bool					interrupted;
-	t_bool					print_basic_error;
-	pid_t					pid;
 	int						exit_status;
 	int						shell_level;
-	int						minishell_exec_found;
-	int						terminal_descriptor;
-	struct termios			old_termios;
-	struct termios			new_termios;
-	volatile sig_atomic_t	sigint;
-	volatile sig_atomic_t	veof;
-	volatile sig_atomic_t	sigquit;
+	pid_t					pid;
+	t_bool					interrupted;
+	t_bool					print_basic_error;
 	t_bool					heredoc;
 	t_bool					command;
 	t_cmd_data				*cur_cmd;
+	volatile sig_atomic_t	sigint;
+	volatile sig_atomic_t	veof;
+	volatile sig_atomic_t	sigquit;
 }				t_signal;
 
 typedef struct s_minishell

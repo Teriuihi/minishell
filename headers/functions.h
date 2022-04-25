@@ -30,14 +30,11 @@ void			init_signal(void);
 void			start_program_loop(t_minishell *minishell);
 t_bool			ft_remove_exported_var(char *key, t_hash_table *h_table,
 					t_minishell *minishell);
-t_bool			signal_check(const char *input, t_minishell *minishell);
+t_bool			signal_check(const char *input);
 t_bool			new_set_exit_status(int status, const char *str, ...);
-t_bool			set_exit_status(t_minishell *minishell, int status,
-					char *message, t_bool should_free);
 void			check_status(void);
 int				interruptible_getc(void);
 t_pipe_type		pipe_type_from_arg(t_arg *arg);
-t_bool			is_input_correct(char *command, int *count);
 t_bool			enter_curdir(t_minishell *minishell);
 t_bool			should_be_child(t_command *command);
 

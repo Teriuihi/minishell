@@ -160,7 +160,7 @@ t_bool	check_input_redir(t_cmd_data *cmd_data, int *old_pid,
 	}
 	else if (cmd_data->input.type == DELIMITER_INPUT)
 	{
-		return (read_input_write(cmd_data, old_pid, minishell));
+		return (read_input_write(cmd_data, old_pid));
 	}
 	return (true);
 }

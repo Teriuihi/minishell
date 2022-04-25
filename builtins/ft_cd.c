@@ -11,10 +11,8 @@
 /* ************************************************************************** */
 
 #include <dirent.h>
-#include "../libft/libft.h"
-#include "../headers/functions.h"
-#include "../buildins/buildins.h"
-
+#include "../builtins/builtins.h"
+#include "../hashtable/manipulate_env.h"
 /**
  * Get path to the new directory from the given argument
  *
@@ -112,13 +110,12 @@ t_bool	cd(t_command *command, t_minishell *minishell)
 {
 	void	*tmp;
 	char	*dir;
-	char	**args;
 	t_bool	result;
 
 	if (command->args_len == 1)
 	{
 		if (set_single_cd_command(command, minishell) == false)
-			return (set_exit_status(minishell, 1, NULL, false));
+			return (new_set_exit_status(1, NULL));
 	}
 	if (command->args_len != 2)
 	{

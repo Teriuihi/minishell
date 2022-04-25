@@ -1,23 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   ft_pwd.h                                          :+:    :+:             */
+/*   buildins.h                                        :+:    :+:             */
 /*                                                     +:+                    */
-/*   By: bmajor <bmajor@student.codam.nl>             +#+                     */
+/*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/01/26 14:40:25 by bmajor        #+#    #+#                 */
-/*   Updated: 2022/01/26 14:40:25 by bmajor        ########   odam.nl         */
+/*   Created: 2022/01/26 14:40:25 by sappunn       #+#    #+#                 */
+/*   Updated: 2022/01/26 14:40:25 by sappunn       ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef FT_PWD_H
-# define FT_PWD_H
-# include "../headers/minishell.h"
-# include "../libft/libft.h"
-# include "../headers/functions.h"
-# include "../buildins/buildins.h"
-# include "../hashtable/export.h"
+#ifndef FT_CD_H
+# define FT_CD_H
 
-t_bool	ft_pwd(char *cur_dir, t_minishell *minishell);
+# include "../headers/minishell.h"
+# include "ft_pwd.h"
+
+t_bool	cd(t_command *command, t_minishell *minishell);
 
 #endif

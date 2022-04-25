@@ -103,12 +103,12 @@ t_bool	export_cmd(void *minishell)
 	h_table = ((t_minishell *)minishell)->env;
 	names = get_names(h_table);
 	if (!names)
-		return (set_exit_status((t_minishell *)minishell, 1, NULL, false));
+		return (new_set_exit_status(1, NULL));
 	sort_by_name(names);
 	print_exported(names, h_table, &status);
 	ft_lstclear(&names, clear_names);
 	if (status == false)
-		return (set_exit_status(minishell, 1, NULL, false));
+		return (new_set_exit_status(1, NULL));
 	else
-		return (set_exit_status(minishell, 0, NULL, false));
+		return (new_set_exit_status(0, NULL));
 }

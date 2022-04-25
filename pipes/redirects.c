@@ -18,8 +18,7 @@
  * @param	command		Current command
  * @param	write_pid	PID to write to
  */
-t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2],
-						t_minishell *minishell)
+t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2])
 {
 	char		*input;
 
@@ -29,13 +28,13 @@ t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2],
 	if (pipe(old_pid) == -1)
 		return (new_set_exit_status(1, NULL));
 	input = readline("heredoc> ");
-	if (signal_check(input, minishell) == false)
+	if (signal_check(input) == false)
 		return (new_set_exit_status(1, NULL));
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
 		ft_putstr_fd(ft_strjoin(input, "\n"), old_pid[1]);
 		input = readline("heredoc> ");
-		if (signal_check(input, minishell) == false)
+		if (signal_check(input) == false)
 			return (new_set_exit_status(1, NULL));
 	}
 	g_signal.heredoc = false;

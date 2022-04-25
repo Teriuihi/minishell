@@ -10,18 +10,13 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
-#include "../headers/functions.h"
-#include "../buildins/buildins.h"
+#include "../builtins/builtins.h"
 #include "../hashtable/hashtable.h"
 #include "../headers/minishell.h"
+#include "../hashtable/manipulate_env.h"
 #include <readline/history.h>
 #include <readline/readline.h>
-#include <sys/stat.h>
 #include <unistd.h>
-#include <termios.h> 
-#include <stdio.h>
-#include <errno.h>
 
 t_signal	g_signal;
 
@@ -37,7 +32,7 @@ static t_hash_table	*get_hash_table(void)
 	return (table);
 }
 
-t_bool	increase_shell_level(t_minishell *minishell)
+static t_bool	increase_shell_level(t_minishell *minishell)
 {
 	int		val;
 	char	*level;
@@ -64,7 +59,7 @@ t_bool	increase_shell_level(t_minishell *minishell)
 	return (success);
 }
 
-t_bool	init_succeeded(t_minishell *minishell, char **argv)
+static t_bool	init_succeeded(t_minishell *minishell, char **argv)
 {
 	char	*cur_dir;
 	t_bool	success;

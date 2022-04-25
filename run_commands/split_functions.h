@@ -14,7 +14,7 @@
 # define SPLIT_FUNCTIONS_H
 # include "../libft/libft.h"
 # include "../headers/functions.h"
-# include "../buildins/buildins.h"
+# include "../builtins/builtins.h"
 # include "run_program_internal.h"
 # include "../hashtable/export.h"
 

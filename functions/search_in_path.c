@@ -13,6 +13,7 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include "internal_functions.h"
+#include "../hashtable/manipulate_env.h"
 
 extern char	**environ;
 

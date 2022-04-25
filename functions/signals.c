@@ -18,7 +18,7 @@
 #include <readline/readline.h>
 #include <errno.h>
 
-t_bool	signal_check(const char *input, t_minishell *minishell)
+t_bool	signal_check(const char *input)
 {
 	if (g_signal.sigquit == 1)
 	{
@@ -75,13 +75,12 @@ void	init_signal(void)
 {
 	signal(SIGINT, sigquit_handler);
 	signal(SIGQUIT, sigquit_handler);
-	g_signal.exit_status = 0;
-	g_signal.minishell_exec_found = 0;
-	g_signal.sigint = 0;
-	g_signal.veof = 0;
 	g_signal.print_basic_error = true;
-	g_signal.pid = getpid();
 	g_signal.heredoc = false;
 	g_signal.command = false;
+	g_signal.exit_status = 0;
+	g_signal.sigint = 0;
+	g_signal.veof = 0;
+	g_signal.pid = 0;
 	g_signal.cur_cmd = NULL;
 }

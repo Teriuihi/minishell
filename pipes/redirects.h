@@ -17,13 +17,12 @@
 # include <readline/readline.h>
 # include <unistd.h>
 # include <fcntl.h>
-# include "../buildins/buildins.h"
+# include "../builtins/builtins.h"
 # include "../run_commands/run_commands.h"
 # include <sys/wait.h>
 # include <errno.h>
 
-t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2],
-			t_minishell *minishell);
+t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2]);
 t_bool	redirect_output(t_cmd_data *cmd_data, t_minishell *minishell);
 t_bool	append_output(t_cmd_data *cmd_data, t_minishell *minishell);
 t_bool	redirect_file(t_cmd_data *cmd_data, int *old_pid,

@@ -31,27 +31,3 @@ t_bool	new_set_exit_status(int status, const char *str, ...)
 	else
 		return (false);
 }
-
-t_bool	set_exit_status(t_minishell *minishell, int status, char *message,
-			t_bool should_free)
-{
-	g_signal.exit_status = status;
-	if (message != NULL)
-	{
-		g_signal.print_basic_error = false;
-		if (status != 0)
-			ft_printf(2, "%s\n", message);
-		else
-			ft_printf(1, "%s\n", message);
-		if (should_free == true)
-			free(message);
-	}
-	if (status == 0)
-	{
-		return (true);
-	}
-	else
-	{
-		return (false);
-	}
-}

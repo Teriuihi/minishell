@@ -1,17 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   pwd.c                                              :+:    :+:            */
+/*   ft_pwd.c                                          :+:    :+:             */
 /*                                                     +:+                    */
-/*   By: sappunn <sappunn@student.codam.nl>           +#+                     */
+/*   By: bmajor <bmajor@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2022/02/02 15:51:30 by sappunn       #+#    #+#                 */
-/*   Updated: 2022/02/02 15:51:30 by sappunn       ########   odam.nl         */
+/*   Created: 2022/01/26 14:40:25 by bmajor        #+#    #+#                 */
+/*   Updated: 2022/01/26 14:40:25 by bmajor        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../headers/functions.h"
-#include <stdlib.h>
+#include "ft_pwd.h"
+
+t_bool	ft_pwd(char *cur_dir)
+{
+	if (ft_putstr_fd(cur_dir, 1) == -1)
+		return (new_set_exit_status(1, NULL));
+	if (ft_putstr_fd("\n", 1) == -1)
+		return (new_set_exit_status(1, NULL));
+	return (new_set_exit_status(0, NULL));
+}
 
 /**
  * Get the working directory
@@ -37,6 +45,7 @@ t_bool	update_pwd(char *path, t_minishell *minishell)
 {
 	if (ft_set_env("PWD", path, minishell->env, true) == false)
 	{
+		free(path);
 		return (false);
 	}
 	free(minishell->cur_wd);

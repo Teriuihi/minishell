@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <stdarg.h>
-#include "../buildins/buildins.h"
+#include "../builtins/builtins.h"
 
 t_pipe_type	command_separator_type(char *str)
 {
@@ -76,12 +76,12 @@ t_bool	enter_curdir(t_minishell *minishell)
 	cur_dir = get_pwd(minishell);
 	if (!cur_dir)
 	{
-		return (set_exit_status(minishell, 1, NULL, false));
+		return (new_set_exit_status(1, NULL));
 	}
 	if (chdir(cur_dir) == -1)
 	{
 		if (chdir(minishell->home) == -1)
-			return (set_exit_status(minishell, 1, NULL, false));
+			return (new_set_exit_status(1, NULL));
 	}
 	return (true);
 }
