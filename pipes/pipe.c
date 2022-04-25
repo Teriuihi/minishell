@@ -64,7 +64,7 @@ void	parent(pid_t c_pid, int *old_pid)
 
 	if (close_pipes(old_pid, (old_pid + 1)) == false)
 	{
-		ft_printf(2, "some error while trying to close the pipes in parent\n");
+		g_signal.exit_status = 1;
 	}
 	waitpid(c_pid, &status, 0);
 	if (WIFEXITED(status))

@@ -117,7 +117,6 @@ t_bool	exec_dup_close(int *pid_to_dup, int *pid1_to_close,
 	{
 		if (dup2(pid_to_dup[0], STDIN_FILENO) == -1)
 		{
-			ft_printf(1, "exec dup close problem\n");
 			return (false);
 		}
 	}

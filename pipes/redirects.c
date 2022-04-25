@@ -24,7 +24,7 @@ t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2])
 
 	g_signal.heredoc = true;
 	if (close_pipes(&old_pid[0], &old_pid[1]) == false)
-		return (new_set_exit_status(1, "close failed readinputwrite\n"));
+		return (new_set_exit_status(1, NULL));
 	if (pipe(old_pid) == -1)
 		return (new_set_exit_status(1, NULL));
 	input = readline("heredoc> ");
@@ -103,7 +103,7 @@ static t_bool	write_to_file(int fd, int *old_pid)
 			return (new_set_exit_status(1, NULL));
 	}
 	if (close_pipes(&old_pid[1], NULL) == false)
-		return (new_set_exit_status(1, "close pipe inside redirect fail\n"));
+		return (new_set_exit_status(1, NULL));
 	return (true);
 }
 
@@ -125,7 +125,7 @@ t_bool	redirect_file(t_cmd_data *cmd_data, int *old_pid,
 	if (chdir(path) == -1)
 		return (new_set_exit_status(1, NULL));
 	if (close_pipes(&old_pid[0], &old_pid[1]) == false)
-		return (new_set_exit_status(1, "close failed in redirectfile\n"));
+		return (new_set_exit_status(1, NULL));
 	if (pipe(old_pid) == -1)
 		return (new_set_exit_status(1, NULL));
 	fd = open(cmd_data->input.file, O_RDONLY);
