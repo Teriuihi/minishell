@@ -114,7 +114,7 @@ t_bool	print_h_table(t_hash_table *h_table, int len)
 	t_entry	*curr;
 
 	if (len != 1)
-		return (new_set_exit_status(127, "some shell: too many arguments\n"));
+		return (new_set_exit_status(127, NULL));
 	if (!h_table)
 		return (false);
 	i = 0;

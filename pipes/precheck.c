@@ -103,8 +103,7 @@ t_bool	pre_fork_check_2(t_cmd_data *cmd_data, t_bool is_built_in,
 			ft_printf(2, "command not found: %s\n", command->command);
 			g_signal.stop_curr_execution = true;
 		}
-		if (g_signal.print_basic_error == true)
-			g_signal.print_basic_error = false;
+		g_signal.print_basic_error = false;
 		return (false);
 	}
 	return (true);
