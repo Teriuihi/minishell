@@ -69,11 +69,12 @@ void	parent(pid_t c_pid, int *old_pid)
 
 	if (close_pipes(old_pid, (old_pid + 1)) == false)
 	{
-		ft_printf(1, "some error while trying to close the pipes in parent\n");
+		ft_printf(2, "some error while trying to close the pipes in parent\n");
 	}
 	waitpid(c_pid, &status, 0);
 	if (WIFEXITED(status))
 	{
+
 		if (WIFSIGNALED(status))
 		{
 			g_signal.exit_status = WTERMSIG(status) + 128;
@@ -81,6 +82,7 @@ void	parent(pid_t c_pid, int *old_pid)
 		else
 		{
 			g_signal.exit_status = WEXITSTATUS(status);
+			g_signal.stop_curr_execution = g_signal.exit_status == 127;
 		}
 	}
 }

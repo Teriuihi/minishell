@@ -12,15 +12,6 @@
 
 #include "builtins.h"
 
-static t_bool	is_special_char(char c)
-{
-	return (c == '~' || c == '#' || c == '$' || c == '#'
-		|| c == '&' || c == '*' || c == '(' || c == ')'
-		|| c == '|' || c == '[' || c == ']' || c == '{'
-		|| c == '}' || c == ';' || c == '>' || c == '<'
-		|| c == '/' || c == '?' || c == '!' || c == '-');
-}
-
 /**
  * Checks whether assignment is in a correct form.
  * @return	true if if export or correct variable assignment is present,
@@ -35,10 +26,10 @@ static t_bool	is_input_correct(char *command, int *count)
 	equal_found = 0;
 	while (command[i])
 	{
-		if (is_special_char(command[i]) == true && equal_found == 0)
-		{
-			return (false);
-		}
+		//if (is_special_char(command[i]) == true && equal_found == 0)
+		//{
+		//	return (false);
+		//}
 		if (command[i] == '=')
 		{
 			*count = *count + 1;
@@ -54,29 +45,8 @@ static t_bool	is_input_correct(char *command, int *count)
 		return (false);
 }
 
-static t_bool	var_names_correct(char **args)
-{
-	int	i;
-	int	j;
-
-	i = 1;
-	while (args[i])
-	{
-		j = 0;
-		while (args[i][j] != '\0' && is_special_char(args[i][j]) == false)
-		{
-			j++;
-		}
-		if (ft_iswhite_space(args[i][j]) == 0 && (args[i][j] != '\0'))
-		{
-			return (false);
-		}
-		i++;
-	}
-	return (true);
-}
-
 /**
+ * 		&& var_names_correct(command_t->args) == true)
  * Checks whether export or an expression like "a=b" is present.
  * @return	true if if export or correct variable assignment is present,
  			false otherwise
@@ -91,9 +61,8 @@ t_bool	env_variable_found(t_command *command_t)
 	if (!command)
 	{
 		return (false);
-	}
-	if (ft_streq(command, "export") && command_t->args_len != 1
-		&& var_names_correct(command_t->args) == true)
+	}//export var1= var3 var5=
+	if (ft_streq(command, "export") && command_t->args_len != 1)
 	{
 		command_t->export_found = true;
 		return (true);

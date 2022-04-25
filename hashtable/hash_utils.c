@@ -14,6 +14,27 @@
 #include "get_envp.h"
 #include "hash_utils.h"
 
+static t_bool	is_special_char(char c)
+{
+	return (c == '~' || c == '#' || c == '$'|| c == '&' 
+		|| c == '*' || c == '(' || c == ')' || c == '|'
+		|| c == '[' || c == ']' || c == '{' || c == '}'
+		|| c == ';' || c == '>' || c == '<' || c == '/'
+		|| c == '?' || c == '!' || c == '-' || c == '%');
+}
+
+static t_bool	var_names_correct(char *key) //export var1$ = hi var3 var
+{
+	int		j;
+	
+	j = 0;
+	while (key[j] != '\0' && is_special_char(key[j]) == false)
+	{
+		j++;
+	}
+	return (key[j] == 0);
+}
+
 t_bool	create_key_val(t_entry *entry, char *key, char *val)
 {
 	if (key != NULL)
@@ -103,6 +124,16 @@ t_bool	env_var_added(t_command *command, t_minishell *minishell)
 	splitted = ft_split_first(command->command, '=');
 	if (!splitted)
 		return (new_set_exit_status(1, NULL));
+	if (var_names_correct(splitted[0]) == false)
+	{
+		g_signal.print_basic_error = true;
+		//ft_printf(2, "some shell: export: '%s': nont a valid identifier\n", splitted[0]);
+		g_signal.exit_status = 127;
+		return (false);
+		//return (new_set_exit_status(127, "some shell: '%s': command not found\n", command->command));
+		//return (CONTINUE);
+	}	
+	//loop through to see if its correct input
 	env_val = ft_get_env_val(splitted[0], minishell->env, &success);
 	if (env_val != NULL)
 		return (assign_new_val(env_val, minishell, splitted));

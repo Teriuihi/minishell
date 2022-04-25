@@ -99,7 +99,10 @@ t_bool	pre_fork_check_2(t_cmd_data *cmd_data, t_bool is_built_in,
 	{
 		succeeded = execute_non_forked_builtin(command, minishell);
 		if (succeeded == false && g_signal.print_basic_error == true)
+		{
 			ft_printf(2, "command not found: %s\n", command->command);
+			g_signal.stop_curr_execution = true;
+		}
 		if (g_signal.print_basic_error == true)
 			g_signal.print_basic_error = false;
 		return (false);

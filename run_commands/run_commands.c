@@ -82,7 +82,8 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	t_exit_state	exit_state;
 
 	init_run_commands(&entry, head, cur_pid, old_pid);
-	while (entry)
+	g_signal.stop_curr_execution = false;
+	while (entry && g_signal.stop_curr_execution == false)
 	{
 		cmd_data = (t_cmd_data *)entry->content;
 		g_signal.cur_cmd = cmd_data;
