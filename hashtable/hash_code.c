@@ -10,11 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/libft.h"
 #include "../hashtable/hashtable.h"
-#include "../headers/minishell.h"
-#include "../headers/functions.h"
-#include <string.h>
 
 /**
  * Checks if a string ends with a specific suffix

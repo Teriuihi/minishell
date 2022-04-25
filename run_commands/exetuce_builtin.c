@@ -13,9 +13,7 @@
 #include "../libft/libft.h"
 #include "../headers/functions.h"
 #include "../builtins/builtins.h"
-#include "../hashtable/export.h"
 #include "../hashtable/hash_utils.h"
-#include "split_functions.h"
 #include "../builtins/ft_echo.h"
 
 t_bool	remove_all_exported_vars(char **args, t_minishell *minishell)

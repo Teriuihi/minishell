@@ -24,10 +24,8 @@
 int	ft_putstr_fd(char *s, int fd)
 {
 	int	len;
-	int	ret;
 
-	ret = 0;
 	len = ft_strlen(s);
-	ret = write(fd, s, len);
+	write(fd, s, len);
 	return (len);
 }

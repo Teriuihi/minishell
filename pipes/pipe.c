@@ -11,15 +11,6 @@
 /* ************************************************************************** */
 
 #include "../libft/libft.h"
-#include "../headers/functions.h"
-#include <readline/readline.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include "../builtins/builtins.h"
-#include "../run_commands/run_commands.h"
-#include <sys/wait.h>
-#include <errno.h>
-#include "redirects.h"
 #include "precheck.h"
 #include "control_child_and_pipes.h"
 

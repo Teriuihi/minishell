@@ -15,10 +15,8 @@
 
 static t_bool	is_it_an_edge_case(t_command *command, int fd)
 {
-	int		i;
 	char	**args;
 
-	i = 1;
 	args = command->args;
 	if (command->args_len == 1 && ft_streq(args[0], "echo"))
 	{

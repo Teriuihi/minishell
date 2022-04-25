@@ -100,36 +100,3 @@ t_string	*append_char_array(t_string *s, char *arr)
 		return (new_s);
 	}
 }
-
-/**
- * Append char to a string
- *
- * @param	s	String to append to
- * @param	c	Char to append
- *
- * @return	String with the data from s and arr or NULL on failure
- */
-t_string	*append_char(t_string *s, char c)
-{
-	t_string	*new_s;
-
-	if (s == NULL)
-		return (NULL);
-	if (s->empty >= 1)
-	{
-		ft_strlcpy(s->s + ft_strlen(s->s), &c, 2);
-		s->len += 1;
-		s->empty -= 1;
-		return (s);
-	}
-	else
-	{
-		new_s = create(s->len + 100);
-		if (new_s == NULL)
-			return (NULL);
-		new_s->len = s->len + 1;
-		ft_strlcpy(new_s->s, s->s, s->len + 1);
-		ft_strlcpy(new_s->s + s->len, &c, 2);
-		return (new_s);
-	}
-}

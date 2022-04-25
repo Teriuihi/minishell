@@ -24,9 +24,8 @@ typedef struct entry
 
 typedef struct entry_table
 {
-	t_entry		**entries;
-	int			size;
-	int			amount_of_keys;
+	t_entry	**entries;
+	int		size;
 }	t_hash_table;
 
 t_hash_table	*init_hash_table(int size);
@@ -35,11 +34,8 @@ t_entry			*create_hash_table_pair(char *key, char *val,
 					t_bool is_exported);
 t_bool			succesful_insert(t_hash_table *h_table, char *key, char *val,
 					t_bool is_exported);
-t_bool			all_args_inserted(t_hash_table *h_table, char *key, char *val);
 t_hash_table	*create_env_h_table(void);
-void			destroy_hash_table(t_hash_table *hash_table, int size);
 char			**get_envp(t_hash_table *h_table, int i, int current_size);
-void			set_to_exported(t_hash_table *h_table);
 t_bool			export(void *minishell);
 
 #endif

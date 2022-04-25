@@ -11,12 +11,7 @@
 /* ************************************************************************** */
 
 #include "../builtins/builtins.h"
-#include "../hashtable/hashtable.h"
-#include "../headers/minishell.h"
-#include "../hashtable/manipulate_env.h"
 #include <readline/history.h>
-#include <readline/readline.h>
-#include <unistd.h>
 
 t_signal	g_signal;
 

@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "../headers/functions.h"
-#include "get_envp.h"
 #include "hash_utils.h"
 
 t_bool	create_key_val(t_entry *entry, char *key, char *val)

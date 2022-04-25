@@ -44,32 +44,5 @@ void	destroy_entry(t_entry *entry)
 	{
 		destroy_key_value(entry);
 		free(entry);
-		entry = NULL;
 	}
-}
-
-void	destroy_hash_table(t_hash_table *hash_table, int size)
-{
-	t_entry	*current;
-	t_entry	*next;
-	int		i;
-
-	i = 0;
-	if (!hash_table)
-		return ;
-	while (i < size)
-	{
-		current = hash_table->entries[i];
-		while (current != NULL)
-		{
-			next = current->next;
-			destroy_entry(current);
-			current = next;
-		}
-		i++;
-	}
-	free(hash_table->entries);
-	hash_table->entries = NULL;
-	free(hash_table);
-	hash_table = NULL;
 }

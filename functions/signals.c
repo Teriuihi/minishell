@@ -12,11 +12,6 @@
 
 #include "../libft/libft.h"
 #include "../headers/functions.h"
-#include "../headers/structs.h"
-#include "../headers/minishell.h"
-#include <readline/history.h>
-#include <readline/readline.h>
-#include <errno.h>
 
 t_bool	signal_check(const char *input)
 {

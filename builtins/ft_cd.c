@@ -12,7 +12,6 @@
 
 #include <dirent.h>
 #include "../builtins/builtins.h"
-#include "../hashtable/manipulate_env.h"
 /**
  * Get path to the new directory from the given argument
  *

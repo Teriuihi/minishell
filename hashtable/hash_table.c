@@ -28,7 +28,6 @@ t_hash_table	*init_hash_table(int size)
 	if (!hash_table->entries)
 	{
 		free(hash_table);
-		hash_table = NULL;
 		return (NULL);
 	}
 	hash_table->size = size;
@@ -61,6 +60,7 @@ static t_entry	*overwrite_if_exists_else_get_last(t_entry *entry,
 	t_entry	*prev;
 	int		i;
 
+	prev = NULL;
 	i = 0;
 	while (entry != NULL)
 	{

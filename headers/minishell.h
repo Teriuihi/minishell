@@ -23,7 +23,6 @@ typedef struct s_signal
 	int						exit_status;
 	int						shell_level;
 	pid_t					pid;
-	t_bool					interrupted;
 	t_bool					print_basic_error;
 	t_bool					heredoc;
 	t_bool					command;
@@ -37,8 +36,7 @@ typedef struct s_minishell
 {
 	char			*cur_wd;
 	char			*home;
-	pid_t			current_pid;
-	t_hash_table	*env;	
+	t_hash_table	*env;
 }				t_minishell;
 
 extern t_signal	g_signal;

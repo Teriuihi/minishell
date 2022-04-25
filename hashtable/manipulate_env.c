@@ -10,8 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../headers/functions.h"
-#include "get_envp.h"
 #include "destroy.h"
 
 extern char	**environ;

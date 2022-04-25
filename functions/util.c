@@ -25,7 +25,6 @@
 #include "../headers/functions.h"
 #include <stdio.h>
 #include <errno.h>
-#include <stdarg.h>
 #include "../builtins/builtins.h"
 
 t_pipe_type	command_separator_type(char *str)

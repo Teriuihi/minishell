@@ -16,8 +16,7 @@
 # include "../headers/functions.h"
 # include "hash_utils.h"
 
-void			destroy_key_value(t_entry *entry);
-void			destroy_entry(t_entry *entry);
-void			destroy_hash_table(t_hash_table *hash_table, int size);
+void	destroy_key_value(t_entry *entry);
+void	destroy_entry(t_entry *entry);
 
 #endif

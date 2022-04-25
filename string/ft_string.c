@@ -15,28 +15,6 @@
 #include "string_internal.h"
 
 /**
- * Duplicate a string
- *
- * @param	s	String to duplicate
- *
- * @return	New string with the same data as s
- */
-t_string	*dup_string(t_string *s)
-{
-	t_string	*new;
-
-	if (s == NULL)
-		return (NULL);
-	new = create(s->len + s->empty);
-	if (new == NULL)
-		return (NULL);
-	new->len = s->len;
-	new->empty = s->empty;
-	ft_strlcpy(new->s, s->s, s->len);
-	return (new);
-}
-
-/**
  * Create a string from a char array
  *
  * @param	arr	Array to create string from

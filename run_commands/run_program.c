@@ -11,12 +11,9 @@
 /* ************************************************************************** */
 
 #include "../headers/functions.h"
-#include "../builtins/builtins.h"
-#include "../parser/parser.h"
 #include "run_program.h"
 #include "run_program_internal.h"
 #include "run_program_utils.h"
-#include "../functions/free_functions.h"
 
 t_exit_state	handle_input(char *input, t_minishell *minishell)
 {
