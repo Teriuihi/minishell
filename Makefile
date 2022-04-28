@@ -21,7 +21,8 @@ functions/free_functions.c functions/search_in_folder.c \
 hashtable/export.c hashtable/get_envp.c functions/set_exit_status.c \
 builtins/ft_pwd.c run_commands/split_functions.c pipes/pipe_utils.c \
 hashtable/hash_utils.c run_commands/run_program_utils.c \
-run_commands/run_commands.c
+run_commands/run_commands.c pipes/redirects2.c \
+create_commands/update_pipes_util.c
 FILES_OBJ=$(FILES:%.c=%.o)
 
 all: $(NAME)

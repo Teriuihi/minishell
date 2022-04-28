@@ -46,4 +46,7 @@ void			update_last_command_input(t_list **head);
 t_exit_state	update_pipe(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 					t_minishell *minishell);
 t_bool			create_file(t_cmd_data *cmd_data);
+t_exit_state	file_not_there(t_cmd_data *cmd_data,
+					t_cmd_get_struct *cmd_get);
+t_exit_state	valid_file_create_if_none(t_cmd_data *cmd_data);
 #endif

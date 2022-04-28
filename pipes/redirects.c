@@ -12,30 +12,9 @@
 
 #include "redirects.h"
 
-/**
- * Read input using readline until delimiter is found and write it to pipe
- *
- * @param	command		Current command
- * @param	write_pid	PID to write to
- */
-t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2])
+static t_bool	read_input_write_2(t_cmd_data *cmd_data, int old_pid[2],
+					char *input, t_string *tmp)
 {
-	char		*input;
-	t_string	*tmp;
-
-	g_signal.sigint = 0;
-	g_signal.heredoc = true;
-	if (close_pipes(&old_pid[0], &old_pid[1]) == false)
-		return (new_set_exit_status(1, NULL));
-	if (pipe(old_pid) == -1)
-		return (new_set_exit_status(1, NULL));
-	input = readline("heredoc> ");
-	if (signal_check(input) == false)
-	{
-		free(input);
-		return (new_set_exit_status(1, NULL));
-	}
-	tmp = init_string(NULL);
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
 		tmp = append_char_array(tmp, input);
@@ -64,47 +43,30 @@ t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2])
 }
 
 /**
- * Redirects the output to a location pointed by cmd_data->output.file
+ * Read input using readline until delimiter is found and write it to pipe
  *
- * @param	cmd_data		Current command and it's attributes
- * @param	minishell		Data for minishell
+ * @param	command		Current command
+ * @param	write_pid	PID to write to
  */
-t_bool	redirect_output(t_cmd_data *cmd_data, t_minishell *minishell)
+t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2])
 {
-	char	*path;
-	int		fd;
+	char		*input;
+	t_string	*tmp;
 
-	path = get_pwd(minishell);
-	if (path == NULL)
+	g_signal.sigint = 0;
+	g_signal.heredoc = true;
+	if (close_pipes(&old_pid[0], &old_pid[1]) == false)
 		return (new_set_exit_status(1, NULL));
-	if (chdir(path) == -1)
+	if (pipe(old_pid) == -1)
 		return (new_set_exit_status(1, NULL));
-	fd = open(cmd_data->output.file, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	if (fd < 0)
-		return (new_set_exit_status(1, "no such file or directory"));
-	if (dup2(fd, STDOUT_FILENO) == -1)
-		return (new_set_exit_status(1, NULL));
-	return (true);
-}
-
-t_bool	append_output(t_cmd_data *cmd_data, t_minishell *minishell)
-{
-	char	*path;
-	int		fd;
-
-	path = get_pwd(minishell);
-	if (path == NULL)
-		return (new_set_exit_status(1, NULL));
-	if (chdir(path) == -1)
-		return (new_set_exit_status(1, NULL));
-	fd = open(cmd_data->output.file, O_WRONLY | O_CREAT | O_APPEND, 0777);
-	if (fd < 0)
+	input = readline("heredoc> ");
+	if (signal_check(input) == false)
 	{
-		return (new_set_exit_status(1, "no such file or directory"));
-	}
-	if (dup2(fd, STDOUT_FILENO) == -1)
+		free(input);
 		return (new_set_exit_status(1, NULL));
-	return (true);
+	}
+	tmp = init_string(NULL);
+	return (read_input_write_2(cmd_data, old_pid, input, tmp));
 }
 
 static t_bool	write_to_file(int fd, int *old_pid)
