@@ -1,6 +1,6 @@
 NAME=minishell
-CC=gcc -Werror -Wall -Wextra
-CFLAGS=
+CC=gcc
+CFLAGS=-Wall -Wextra -Werror
 RM=rm -f
 
 FILES=builtins/ft_cd.c builtins/ft_echo.c builtins/builtin.c \

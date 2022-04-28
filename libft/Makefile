@@ -1,5 +1,5 @@
 NAME=libft.a
-CC=gcc -g
+CC=gcc
 CFLAGS=-Wall -Wextra -Werror
 RM=rm -f
 FILES=ft_bzero.c ft_isdigit.c ft_atoi.c ft_calloc.c ft_contains.c \
