@@ -15,7 +15,7 @@
 #include "string_internal.h"
 
 /**
- * Create a new string from two strings, free's on success
+ * Create a new string from two strings, always free's
  *
  * @param	s1	String 1
  * @param	s2	String 2
@@ -30,7 +30,11 @@ t_string	*join_to_new(t_string *s1, t_string *s2)
 	total_len = s1->len + s2->len;
 	s_new = create(total_len + 100);
 	if (s_new == NULL)
+	{
+		free_string(s1);
+		free_string(s2);
 		return (NULL);
+	}
 	s_new->len = total_len;
 	s_new->empty -= total_len;
 	ft_strlcpy(s_new->s, s1->s, s1->len + 1);

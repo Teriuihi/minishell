@@ -21,7 +21,9 @@
 t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2])
 {
 	char		*input;
+	t_string	*tmp;
 
+	g_signal.sigint = 0;
 	g_signal.heredoc = true;
 	if (close_pipes(&old_pid[0], &old_pid[1]) == false)
 		return (new_set_exit_status(1, NULL));
@@ -29,15 +31,33 @@ t_bool	read_input_write(t_cmd_data *cmd_data, int old_pid[2])
 		return (new_set_exit_status(1, NULL));
 	input = readline("heredoc> ");
 	if (signal_check(input) == false)
+	{
+		free(input);
 		return (new_set_exit_status(1, NULL));
+	}
+	tmp = init_string(NULL);
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
-		ft_putstr_fd(ft_strjoin(input, "\n"), old_pid[1]);
+		tmp = append_char_array(tmp, input);
+		if (tmp == NULL)
+			return (false);
+		tmp = append_char_array(tmp, "\n");
+		if (tmp == NULL)
+			return (false);
+		free(input);
 		input = readline("heredoc> ");
 		if (signal_check(input) == false)
+		{
+			free(input);
+			free_string(tmp);
 			return (new_set_exit_status(1, NULL));
+		}
 	}
+	free(input);
 	g_signal.heredoc = false;
+	if (g_signal.sigint == 0)
+		ft_putstr_fd(tmp->s, old_pid[1]);
+	free_string(tmp);
 	if (close_pipes(&old_pid[1], NULL) == false)
 		return (new_set_exit_status(1, NULL));
 	return (true);
