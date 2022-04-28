@@ -67,6 +67,33 @@ static t_exit_state	handle_command(t_cmd_data *cmd_data, int *cur_pid,
 	return (CONTINUE);
 }
 
+t_exit_state	run_commands_loop_function(t_list **entry, int cur_pid[2],
+					int old_pid[2], t_minishell *minishell)
+{
+	t_cmd_data		*cmd_data;
+	t_exit_state	exit_state;
+
+	cmd_data = (t_cmd_data *)(*entry)->content;
+	if (cmd_data->has_error)
+	{
+		(*entry) = (*entry)->next;
+		return (CONTINUE);
+	}
+	g_signal.cur_cmd = cmd_data;
+	exit_state = handle_null_command(cmd_data, old_pid);
+	if (exit_state == RET)
+		return (RET);
+	if (exit_state == CONTINUE)
+	{
+		(*entry) = (*entry)->next;
+		return (CONTINUE);
+	}
+	exit_state = handle_command(cmd_data, cur_pid, old_pid, minishell);
+	if (exit_state == BREAK)
+		return (BREAK);
+	(*entry) = (*entry)->next;
+}
+
 /**
  * Run all commands in given list
  *
@@ -77,7 +104,6 @@ void	run_commands(t_list **head, t_minishell *minishell)
 {
 	int				cur_pid[2];
 	int				old_pid[2];
-	t_cmd_data		*cmd_data;
 	t_list			*entry;
 	t_exit_state	exit_state;
 
@@ -85,19 +111,13 @@ void	run_commands(t_list **head, t_minishell *minishell)
 	g_signal.stop_curr_execution = false;
 	while (entry && g_signal.stop_curr_execution == false)
 	{
-		cmd_data = (t_cmd_data *)entry->content;
-		g_signal.cur_cmd = cmd_data;
-		exit_state = handle_null_command(cmd_data, old_pid);
+		exit_state = run_commands_loop_function(&entry, cur_pid,
+				old_pid, minishell);
 		if (exit_state == RET)
 			return ;
-		if (exit_state == CONTINUE)
-		{
-			entry = entry->next;
-			continue ;
-		}
-		exit_state = handle_command(cmd_data, cur_pid, old_pid, minishell);
 		if (exit_state == BREAK)
 			break ;
-		entry = entry->next;
+		if (exit_state == CONTINUE)
+			continue ;
 	}
 }

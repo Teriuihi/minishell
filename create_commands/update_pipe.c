@@ -72,7 +72,7 @@ static t_exit_state	file_input(t_cmd_data *cmd_data, t_cmd_get_struct *cmd_get,
 	{
 		chdir(minishell->cur_wd);
 		if (access(cmd_data->input.file, R_OK) != 0)
-			return (file_not_there(cmd_data, cmd_get));
+			file_not_there(cmd_data, cmd_get);
 	}
 	cmd_get->cur_arg = entry;
 	return (CONTINUE);

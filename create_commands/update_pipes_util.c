@@ -22,15 +22,21 @@
  *
  * @return	The exit state
  */
-t_exit_state	file_not_there(t_cmd_data *cmd_data,
+void	file_not_there(t_cmd_data *cmd_data,
 					t_cmd_get_struct *cmd_get)
 {
-	new_set_exit_status(1, "some shell: %s: No such file or directory\n",
-		cmd_data->input.file);
+	if (cmd_data->has_error == true)
+		return ;
+	cmd_data->has_error = true;
+	if (access(cmd_data->input.file, F_OK) != 0)
+		ft_printf(2, "some shell: %s: No such file or directory\n",
+			cmd_data->input.file);
+	else
+		ft_printf(2, "some shell: %s: Permission denied\n",
+			cmd_data->input.file);
 	while (cmd_get->cur_arg != NULL
 		&& pipe_type_from_arg(cmd_get->cur_arg->content) != OUTPUT_TO_COMMAND)
 		cmd_get->cur_arg = cmd_get->cur_arg->next;
-	return (ERROR);
 }
 
 /**
@@ -43,18 +49,23 @@ t_exit_state	file_not_there(t_cmd_data *cmd_data,
  */
 t_exit_state	valid_file_create_if_none(t_cmd_data *cmd_data)
 {
+	if (cmd_data->has_error == true)
+		return (CONTINUE);
 	if (access(cmd_data->output.file, F_OK) != 0)
 	{
 		if (create_file(cmd_data) == false)
-			return (ERROR);
+		{
+			cmd_data->has_error = true;
+		}
 	}
 	else
 	{
-		if (access(cmd_data->output.file, W_OK) != 0)
+		if (cmd_data->has_error == false
+			&& access(cmd_data->output.file, W_OK) != 0)
 		{
+			cmd_data->has_error = true;
 			new_set_exit_status(1, "some shell: %s: Permission denied\n",
 				cmd_data->output.file);
-			return (ERROR);
 		}
 	}
 	return (CONTINUE);

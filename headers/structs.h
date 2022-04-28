@@ -46,5 +46,6 @@ typedef struct s_cmd_data
 	t_redirect	input;
 	t_redirect	output;
 	t_bool		executable_found;
+	t_bool		has_error;
 }	t_cmd_data;
 #endif
