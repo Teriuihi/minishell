@@ -84,6 +84,7 @@ t_exit_state	parse_command(t_cmd_get_struct *cmd_get, t_minishell *minishell)
 	if (success == false)
 	{
 		ft_lstremove_last(cmd_get->head);
+		cmd_get->cur_cmd = (t_cmd_data *) ft_lstlast(*cmd_get->head);
 		if (cmd_get->cur_arg == NULL)
 			return (BREAK);
 		return (CONTINUE);
