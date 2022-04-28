@@ -62,6 +62,12 @@ static t_bool	pipe_in_string_skip(t_parse_data *data)
 	return (true);
 }
 
+t_bool	skip_space_and_return_true(t_parse_data *data)
+{
+	skip_space(data);
+	return (true);
+}
+
 /**
  * Store a normal argument separated by spaces
  *
@@ -80,6 +86,7 @@ t_bool	store_normal_arg(t_parse_data *data, t_list **head)
 		data->string = safe_add_to_list(head, data->string, data->is_literal);
 		if (data->string == NULL)
 			return (false);
+		data->is_literal = false;
 	}
 	skip_space(data);
 	if (is_pipe(data->input[data->pos]))
@@ -96,6 +103,5 @@ t_bool	store_normal_arg(t_parse_data *data, t_list **head)
 	if (is_pipe(data->input[data->pos]) && pipe_type_from_arg(((t_arg *)
 				ft_lstlast(*head)->content)) != OUTPUT_TO_COMMAND)
 		return (parse_error(data->input[data->pos]));
-	skip_space(data);
-	return (true);
+	return (skip_space_and_return_true(data));
 }
