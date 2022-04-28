@@ -12,19 +12,16 @@
 
 #include "redirects.h"
 
-//TODO fix free input
 static t_bool	read_input_write_2(t_cmd_data *cmd_data, int old_pid[2],
 					char *input, t_string *tmp)
 {
 	while (input != NULL && !ft_streq(input, cmd_data->input.file))
 	{
 		tmp = append_char_array(tmp, input);
-		if (tmp == NULL)
-			return (false);
 		tmp = append_char_array(tmp, "\n");
+		free(input);
 		if (tmp == NULL)
 			return (false);
-		free(input);
 		input = readline("heredoc> ");
 		if (signal_check(input) == false)
 		{
