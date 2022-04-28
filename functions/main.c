@@ -13,6 +13,8 @@
 #include "../builtins/builtins.h"
 #include <readline/readline.h>
 
+t_signal	g_signal;
+
 static t_hash_table	*get_hash_table(char **envp)
 {
 	t_hash_table	*table;
