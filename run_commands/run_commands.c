@@ -74,8 +74,9 @@ t_exit_state	run_commands_loop_function(t_list **entry, int cur_pid[2],
 	t_exit_state	exit_state;
 
 	cmd_data = (t_cmd_data *)(*entry)->content;
-	if (cmd_data->has_error)
+	if (cmd_data->has_error == true)
 	{
+		new_set_exit_status(1, NULL);
 		(*entry) = (*entry)->next;
 		return (CONTINUE);
 	}

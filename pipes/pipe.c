@@ -97,7 +97,10 @@ void	child_execute_non_builtin(t_cmd_data *cmd_data, int *old_pid,
 
 	command = cmd_data->command;
 	if (cmd_data->has_error == true)
+	{
+		new_set_exit_status(1, NULL);
 		return ;
+	}
 	if (cmd_data->executable_found == false)
 	{
 		ft_printf(2, "some shell: %s: command not found\n",
