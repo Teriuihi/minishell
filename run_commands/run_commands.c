@@ -92,6 +92,7 @@ t_exit_state	run_commands_loop_function(t_list **entry, int cur_pid[2],
 	if (exit_state == BREAK)
 		return (BREAK);
 	(*entry) = (*entry)->next;
+	return (CONTINUE);
 }
 
 /**
@@ -117,7 +118,5 @@ void	run_commands(t_list **head, t_minishell *minishell)
 			return ;
 		if (exit_state == BREAK)
 			break ;
-		if (exit_state == CONTINUE)
-			continue ;
 	}
 }
