@@ -108,10 +108,10 @@ static t_bool	handle_env_variable_in_string_prt2(t_parse_data *data,
 	else
 		result = get_string_from_var(data, minishell);
 	if (result == NULL)
-		return (new_set_exit_status(1, "some shell: Out of memory."));
+		return (new_set_exit_status(1, "some shell: Out of memory.\n"));
 	data->string = join_strings(data->string, result);
 	if (data->string == NULL)
-		return (new_set_exit_status(1, "some shell: Out of memory."));
+		return (new_set_exit_status(1, "some shell: Out of memory.\n"));
 	return (true);
 }
 
@@ -134,7 +134,7 @@ static t_bool	handle_env_variable_in_string(t_parse_data *data, t_list **head,
 	{
 		data->string = append_char_array(data->string, "$");
 		if (data->string == NULL)
-			return (new_set_exit_status(1, "some shell: Out of memory."));
+			return (new_set_exit_status(1, "some shell: Out of memory.\n"));
 		return (true);
 	}
 	return (handle_env_variable_in_string_prt2(data, head, minishell));

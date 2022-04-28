@@ -31,7 +31,7 @@ t_bool	handle_env_variable(t_parse_data *data, t_list **head,
 	if (append_content(data) == false)
 		return (false);
 	if (data->string == NULL)
-		return (new_set_exit_status(1, "some shell: Out of memory."));
+		return (new_set_exit_status(1, "some shell: Out of memory.\n"));
 	data->pos++;
 	data->start = data->pos;
 	if (parse_env_variable(data, head, minishell) == false)

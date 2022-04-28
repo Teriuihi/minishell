@@ -31,11 +31,11 @@ t_bool	append_content(t_parse_data *data)
 
 	to_add = ft_calloc((data->pos - data->start) + 2, sizeof(char));
 	if (to_add == NULL)
-		return (new_set_exit_status(1, "some shell: Out of memory."));
+		return (new_set_exit_status(1, "some shell: Out of memory.\n"));
 	ft_strlcpy(to_add, data->input + data->start, data->pos - data->start + 1);
 	data->string = append_char_array(data->string, to_add);
 	free(to_add);
 	if (data->string == NULL)
-		return (new_set_exit_status(1, "some shell: Out of memory."));
+		return (new_set_exit_status(1, "some shell: Out of memory.\n"));
 	return (true);
 }

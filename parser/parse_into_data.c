@@ -85,7 +85,7 @@ static t_bool	finalize(t_parse_data *data, t_list **head)
 			return (false);
 		string = safe_add_to_list(head, data->string, data->is_literal);
 		if (string == NULL)
-			return (new_set_exit_status(1, "some shell: Out of memory."));
+			return (new_set_exit_status(1, "some shell: Out of memory.\n"));
 		free_string(string);
 	}
 	return (true);

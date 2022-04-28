@@ -61,12 +61,12 @@ static t_bool	init_parse(t_parse_data *data, char *input, t_list ***head)
 	data->is_literal = false;
 	data->string = init_string(NULL);
 	if (data->string == NULL)
-		return (new_set_exit_status(1, "some shell: Out of memory."));
+		return (new_set_exit_status(1, "some shell: Out of memory.\n"));
 	*head = ft_calloc(1, sizeof(t_list *));
 	if (*head == NULL)
 	{
 		free_string(data->string);
-		return (new_set_exit_status(1, "some shell: Out of memory."));
+		return (new_set_exit_status(1, "some shell: Out of memory.\n"));
 	}
 	while (ft_iswhite_space(input[data->pos]))
 		data->pos++;
