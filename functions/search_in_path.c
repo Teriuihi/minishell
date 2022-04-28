@@ -17,15 +17,15 @@
 
 extern char	**environ;
 
-t_exit_state	search_in_path_2(char *command, char **split_path, int *i,
+t_exit_state	search_in_path_2(char *command, char *split_path,
 					char **path)
 {
 	char		*tmp_path;
 	struct stat	sb;
 
-	if (chdir(split_path[*i]) == 0 && stat(command, &sb) == 0)
+	if (chdir(split_path) == 0 && stat(command, &sb) == 0)
 	{
-		tmp_path = ft_strjoin(split_path[*i], "/");
+		tmp_path = ft_strjoin(split_path, "/");
 		if (!tmp_path)
 			return (ERROR);
 		*path = ft_strjoin(tmp_path, command);
@@ -35,7 +35,6 @@ t_exit_state	search_in_path_2(char *command, char **split_path, int *i,
 		else
 			return (RET);
 	}
-	(*i)++;
 	return (CONTINUE);
 }
 
@@ -45,10 +44,11 @@ char	*search_in_path_1(char **split_path, char *command)
 	t_exit_state	state;
 	int				i;
 
-	i = 1;
+	i = 0;
 	while (split_path[i])
 	{
-		state = search_in_path_2(command, split_path, &i, &result);
+		state = search_in_path_2(command, split_path[i], &result);
+		i++;
 		if (state == ERROR)
 		{
 			free_splitted(split_path);
