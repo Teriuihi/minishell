@@ -34,7 +34,7 @@ t_entry			*create_hash_table_pair(char *key, char *val,
 					t_bool is_exported);
 t_bool			succesful_insert(t_hash_table *h_table, char *key, char *val,
 					t_bool is_exported);
-t_hash_table	*create_env_h_table(void);
+t_hash_table	*create_env_h_table(char **envp);
 char			**get_envp(t_hash_table *h_table, int i, int current_size);
 t_bool			export(void *minishell);
 

@@ -12,6 +12,7 @@
 
 #include <dirent.h>
 #include "../builtins/builtins.h"
+
 /**
  * Get path to the new directory from the given argument
  *

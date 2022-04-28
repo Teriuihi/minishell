@@ -15,8 +15,6 @@
 #include "internal_functions.h"
 #include "../hashtable/manipulate_env.h"
 
-extern char	**environ;
-
 t_exit_state	search_in_path_2(char *command, char *split_path,
 					char **path)
 {

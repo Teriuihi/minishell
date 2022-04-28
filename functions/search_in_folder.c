@@ -16,8 +16,6 @@
 #include <dirent.h>
 #include "internal_functions.h"
 
-extern char	**environ;
-
 t_bool	init_search_in_folder(char **directory_path, DIR **directory,
 								struct dirent **file, t_minishell *minishell)
 {

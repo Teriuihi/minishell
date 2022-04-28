@@ -13,13 +13,11 @@
 #include "../builtins/builtins.h"
 #include <readline/readline.h>
 
-t_signal	g_signal;
-
-static t_hash_table	*get_hash_table(void)
+static t_hash_table	*get_hash_table(char **envp)
 {
 	t_hash_table	*table;
 
-	table = create_env_h_table();
+	table = create_env_h_table(envp);
 	if (table == NULL)
 	{
 		return (NULL);
@@ -54,7 +52,7 @@ static t_bool	increase_shell_level(t_minishell *minishell)
 	return (success);
 }
 
-static t_bool	init_succeeded(t_minishell *minishell, char **argv)
+static t_bool	init_succeeded(t_minishell *minishell, char **argv, char **envp)
 {
 	char	*cur_dir;
 	t_bool	success;
@@ -69,7 +67,7 @@ static t_bool	init_succeeded(t_minishell *minishell, char **argv)
 	free(cur_dir);
 	if (minishell->cur_wd == NULL)
 		return (false);
-	minishell->env = get_hash_table();
+	minishell->env = get_hash_table(envp);
 	if (minishell->env == NULL)
 		return (false);
 	if (set_pwd(ft_strdup(minishell->cur_wd), minishell) == false)
@@ -81,11 +79,11 @@ static t_bool	init_succeeded(t_minishell *minishell, char **argv)
 	return (true);
 }
 
-int	main(int argc, char **argv)
+int	main(int argc, char **argv, char **envp)
 {
 	t_minishell		minishell;
 
-	if (argc != 1 || init_succeeded(&minishell, argv) == false)
+	if (argc != 1 || init_succeeded(&minishell, argv, envp) == false)
 	{
 		exit(1);
 	}

@@ -12,8 +12,6 @@
 
 #include "destroy.h"
 
-extern char	**environ;
-
 t_bool	ft_remove_exported_var(char *key, t_hash_table *h_table,
 								t_minishell *minishell)
 {

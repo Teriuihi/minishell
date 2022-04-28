@@ -14,8 +14,6 @@
 #include "../headers/functions.h"
 #include "hash_utils.h"
 
-extern char	**environ;
-
 t_hash_table	*init_hash_table(int size)
 {
 	t_hash_table	*hash_table;
@@ -105,7 +103,7 @@ t_bool	succesful_insert(t_hash_table *h_table, char *key, char *val,
 	return (true);
 }
 
-t_hash_table	*create_env_h_table(void)
+t_hash_table	*create_env_h_table(char **envp)
 {
 	t_hash_table	*h_table;
 	char			**environs;
@@ -114,14 +112,14 @@ t_hash_table	*create_env_h_table(void)
 
 	size = 0;
 	i = 0;
-	while (environ[size])
+	while (envp[size])
 		size++;
 	h_table = init_hash_table(size);
 	if (h_table == NULL)
 		return (NULL);
-	while (environ[i])
+	while (envp[i])
 	{
-		environs = ft_split(environ[i], '=');
+		environs = ft_split(envp[i], '=');
 		if (!environs)
 			return (NULL);
 		if (succesful_insert(h_table, environs[0], environs[1], true) == false)
