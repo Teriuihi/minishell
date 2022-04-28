@@ -12,6 +12,7 @@
 
 #include "redirects.h"
 
+//TODO fix free input
 static t_bool	read_input_write_2(t_cmd_data *cmd_data, int old_pid[2],
 					char *input, t_string *tmp)
 {

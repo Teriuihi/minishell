@@ -34,6 +34,8 @@ t_bool	signal_check(const char *input)
 			ft_printf(1, "\b\b");
 		}
 	}
+	else
+		g_signal.veof = 0;
 	return (true);
 }
 
