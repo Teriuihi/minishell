@@ -25,3 +25,6 @@
 
 ## Usage
 `make && ./minishell`
+
+## Contact
+Created by [Teriuihi](https://github.com/Teriuihi) && [bmajor]https://github.com/alexdrumi
